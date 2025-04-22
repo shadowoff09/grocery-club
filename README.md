@@ -59,5 +59,5 @@ composer run dev
 
 ## Example Credentials
 
-Email: b1@mail.pt
-123
+Email: b1@mail.pt\
+Password: 123
