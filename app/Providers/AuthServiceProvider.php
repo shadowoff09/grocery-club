@@ -21,9 +21,9 @@ class AuthServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // Podes definir mais gates aqui:
-        Gate::define('is-board', fn(User $user) => $user->type === 'board');
-        Gate::define('is-employee', fn(User $user) => $user->type === 'employee');
-        Gate::define('is-member', fn(User $user) => $user->type === 'member');
+//
+//        Gate::define('is-board', fn(User $user) => $user->type === 'board');
+//        Gate::define('is-employee', fn(User $user) => $user->type === 'employee');
+//        Gate::define('is-member', fn(User $user) => $user->type === 'member');
     }
 }

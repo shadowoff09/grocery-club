@@ -12,7 +12,7 @@ Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
@@ -21,10 +21,7 @@ Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
 });
 
 Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
-    Route::view('board', 'board')->name('board');
-    Route::view('board/meetings', 'board.meetings')->name('board.meetings');
-    Route::view('board/members', 'board.members')->name('board.members');
-    Route::view('board/finances', 'board.finances')->name('board.finances');
+    Route::get('users', [App\Http\Controllers\BoardController::class, 'userManagement'])->name('board.users');
 });
 
 require __DIR__.'/auth.php';
