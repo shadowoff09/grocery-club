@@ -12,7 +12,7 @@
     </a>
 
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="grid">
+        <flux:navlist.group :heading="__('Club')" class="grid">
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
                                wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
         </flux:navlist.group>
@@ -23,47 +23,36 @@
                                    wire:navigate>{{ __('User Management') }}</flux:navlist.item>
             </flux:navlist.group>
         @endif
-
-        {{--                @if(auth()->user()->isEmployee() || auth()->user()->isBoardMember())--}}
-        {{--                    <flux:navlist.group :heading="__('Employee')" class="grid">--}}
-        {{--                        <flux:navlist.item icon="briefcase" :href="route('employee')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Employee Area') }}</flux:navlist.item>--}}
-        {{--                    </flux:navlist.group>--}}
-        {{--                @endif--}}
-
-        {{--                @if(auth()->user()->isMember() || auth()->user()->isPendingMember())--}}
-        {{--                    <flux:navlist.group :heading="__('Member')" class="grid">--}}
-        {{--                        <flux:navlist.item icon="user" :href="route('member')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Member Area') }}</flux:navlist.item>--}}
-        {{--                    </flux:navlist.group>--}}
-        {{--                @endif--}}
     </flux:navlist>
 
     <flux:spacer/>
 
     <!-- Desktop User Menu -->
-    <flux:dropdown position="bottom" align="start">
-        @if(auth()->user()->photo)
-            <flux:profile :name="auth()->user()->name" icon-trailing="chevron-down">
-                <x-slot:avatar>
-                    <img
-                        src="{{ asset('storage/users/' . auth()->user()->photo) }}"
-                        alt="{{ auth()->user()->name }}"
-                        class="size-8 aspect-square object-cover rounded-lg"
-                    />
-                </x-slot:avatar>
-            </flux:profile>
+    <div class="hidden lg:flex items-center gap-2">
+        <flux:dropdown position="bottom" align="start">
+            @if(auth()->user()->photo)
+                <flux:profile :name="auth()->user()->name" icon-trailing="chevron-down">
+                    <x-slot:avatar>
+                        <img
+                            src="{{ asset('storage/users/' . auth()->user()->photo) }}"
+                            alt="{{ auth()->user()->name }}"
+                            class="size-8 aspect-square object-cover rounded-lg"
+                        />
+                    </x-slot:avatar>
+                </flux:profile>
 
-        @else
-            <flux:profile
-                :initials="auth()->user()->initials()"
-                :name="auth()->user()->name"
-                icon-trailing="chevron-down"
-            />
-        @endif
+            @else
+                <flux:profile
+                    :initials="auth()->user()->initials()"
+                    :name="auth()->user()->name"
+                    icon-trailing="chevron-down"
+                />
+            @endif
 
-        <flux:menu class="w-[220px]">
-            <flux:menu.radio.group>
-                <div class="p-0 text-sm font-normal">
-                    <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
+            <flux:menu class="w-[220px]">
+                <flux:menu.radio.group>
+                    <div class="p-0 text-sm font-normal">
+                        <div class="flex items-center gap-2 px-1 py-1.5 text-start text-sm">
                                 <span class="relative flex h-8 w-8 shrink-0 overflow-hidden rounded-lg">
                                      @if(auth()->user()->photo)
                                         <img
@@ -80,47 +69,50 @@
                                     @endif
                                 </span>
 
-                        <div class="grid flex-1 text-start text-sm leading-tight">
-                            <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
-                            <span class="truncate text-xs">{{ auth()->user()->email }}</span>
-                            <span class="truncate text-xs text-zinc-500">
+                            <div class="grid flex-1 text-start text-sm leading-tight">
+                                <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
+                                <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                <span class="truncate text-xs text-zinc-500">
                                         @switch(auth()->user()->type)
-                                    @case('board')
-                                        Board Member
-                                        @break
-                                    @case('employee')
-                                        Club Employee
-                                        @break
-                                    @case('member')
-                                        Club Member
-                                        @break
-                                    @case('pending_member')
-                                        Pending Approval
-                                        @break
-                                @endswitch
+                                        @case('board')
+                                            Board Member
+                                            @break
+                                        @case('employee')
+                                            Club Employee
+                                            @break
+                                        @case('member')
+                                            Club Member
+                                            @break
+                                        @case('pending_member')
+                                            Pending Approval
+                                            @break
+                                    @endswitch
                                     </span>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </flux:menu.radio.group>
+                </flux:menu.radio.group>
 
-            <flux:menu.separator/>
+                <flux:menu.separator/>
 
-            <flux:menu.radio.group>
-                <flux:menu.item :href="route('settings.profile')" icon="cog"
-                                wire:navigate>{{ __('Settings') }}</flux:menu.item>
-            </flux:menu.radio.group>
+                <flux:menu.radio.group>
+                    <flux:menu.item :href="route('settings.profile')" icon="cog"
+                                    wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                </flux:menu.radio.group>
 
-            <flux:menu.separator/>
+                <flux:menu.separator/>
 
-            <form method="POST" action="{{ route('logout') }}" class="w-full">
-                @csrf
-                <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
-                    {{ __('Log Out') }}
-                </flux:menu.item>
-            </form>
-        </flux:menu>
-    </flux:dropdown>
+                <form method="POST" action="{{ route('logout') }}" class="w-full">
+                    @csrf
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                        {{ __('Log Out') }}
+                    </flux:menu.item>
+                </form>
+            </flux:menu>
+        </flux:dropdown>
+        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
+                     aria-label="Toggle dark mode"/>
+    </div>
 </flux:sidebar>
 
 <!-- Mobile User Menu -->

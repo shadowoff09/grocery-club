@@ -94,14 +94,14 @@ final class UserTable extends PowerGridComponent
     #[On('edit')]
     public function edit($rowId): void
     {
-
+        redirect()->route('board.users.show', $rowId);
     }
 
     public function actions(User $row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit: ' . $row->id)
+                ->slot('View')
                 ->id()
                 ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
                 ->dispatch('edit', ['rowId' => $row->id])

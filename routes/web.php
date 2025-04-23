@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BoardController;
 use App\Http\Middleware\CheckIsBoardMember;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -22,7 +23,8 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
-    Route::get('users', [App\Http\Controllers\BoardController::class, 'userManagement'])->name('board.users');
+    Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
+    Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
 });
 
 require __DIR__.'/auth.php';
