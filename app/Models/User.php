@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'last_login_at',
     ];
 
     /**
@@ -56,5 +57,25 @@ class User extends Authenticatable
             ->explode(' ')
             ->map(fn (string $name) => Str::of($name)->substr(0, 1))
             ->implode('');
+    }
+
+    public function isBoardMember(): bool
+    {
+        return $this->type === 'board';
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->type === 'employee';
+    }
+
+    public function isMember(): bool
+    {
+        return $this->type === 'member';
+    }
+
+    public function isPendingMember(): bool
+    {
+        return $this->type === 'pending_member';
     }
 }

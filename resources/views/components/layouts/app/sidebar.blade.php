@@ -15,19 +15,26 @@
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
                 </flux:navlist.group>
+                @if(auth()->user()->isBoardMember())
+                    <flux:navlist.group :heading="__('Board')" class="grid">
+                        <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endif
+
+{{--                @if(auth()->user()->isEmployee() || auth()->user()->isBoardMember())--}}
+{{--                    <flux:navlist.group :heading="__('Employee')" class="grid">--}}
+{{--                        <flux:navlist.item icon="briefcase" :href="route('employee')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Employee Area') }}</flux:navlist.item>--}}
+{{--                    </flux:navlist.group>--}}
+{{--                @endif--}}
+
+                @if(auth()->user()->isMember() || auth()->user()->isPendingMember())
+                    <flux:navlist.group :heading="__('Member')" class="grid">
+                        <flux:navlist.item icon="user" :href="route('member')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Member Area') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endif
             </flux:navlist>
 
             <flux:spacer />
-
-            <flux:navlist variant="outline">
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                {{ __('Documentation') }}
-                </flux:navlist.item>
-            </flux:navlist>
 
             <!-- Desktop User Menu -->
             <flux:dropdown position="bottom" align="start">
@@ -52,6 +59,22 @@
                                 <div class="grid flex-1 text-start text-sm leading-tight">
                                     <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
                                     <span class="truncate text-xs">{{ auth()->user()->email }}</span>
+                                    <span class="truncate text-xs text-zinc-500">
+                                        @switch(auth()->user()->type)
+                                            @case('board')
+                                                Board Member
+                                                @break
+                                            @case('employee')
+                                                Club Employee
+                                                @break
+                                            @case('member')
+                                                Club Member
+                                                @break
+                                            @case('pending_member')
+                                                Pending Approval
+                                                @break
+                                        @endswitch
+                                    </span>
                                 </div>
                             </div>
                         </div>
