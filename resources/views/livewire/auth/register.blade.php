@@ -23,9 +23,16 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'string', 'confirmed', Rules\Password::defaults()],
+            'gender' => ['required', 'string', 'in:M,F'],
+            'default_delivery_address' => ['nullable', 'string', 'max:255'],
+            'nif' => ['nullable', 'string', 'max:9', 'min:9', 'regex:/^[0-9]{9}$/'],
+            'default_payment_type' => ['nullable', 'string', 'max:255', 'in:Visa,PayPal,MB WAY'],
+            'default_payment_reference' => ['nullable', 'string', 'max:255'],
+            'photo' => ['nullable', 'image', 'max:1024'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
+        $validated['type'] = 'member';
 
         event(new Registered(($user = User::create($validated))));
 
@@ -81,6 +88,57 @@ new #[Layout('components.layouts.auth')] class extends Component {
             required
             autocomplete="new-password"
             :placeholder="__('Confirm password')"
+        />
+
+        <!-- Gender -->
+        <flux:select wire:model="gender" :label="__('Gender')" placeholder="Choose gender..." required>
+            <flux:select.option value="M">{{ __('Male') }}</flux:select.option>
+            <flux:select.option value="F">{{ __('Female') }}</flux:select.option>
+        </flux:select>
+
+        <!-- Optional Fields (grouped with a heading) -->
+        <h3 class="text-lg font-semibold mt-4">{{ __('Optional Information') }}</h3>
+
+        <!-- Delivery Address -->
+        <flux:input
+            wire:model="default_delivery_address"
+            :label="__('Delivery address')"
+            type="text"
+            autocomplete="street-address"
+            :placeholder="__('Delivery address')"
+        />
+
+        <!-- NIF -->
+        <flux:input
+            wire:model="nif"
+            :label="__('NIF')"
+            type="text"
+            autocomplete="off"
+            :placeholder="__('Tax identification number')"
+        />
+
+        <!-- Preferred Payment Method -->
+        <flux:select wire:model="default_payment_type" :label="__('Preferred payment method')" placeholder="Choose...">
+            <flux:select.option value="Visa">Visa</flux:select.option>
+            <flux:select.option value="PayPal">PayPal</flux:select.option>
+            <flux:select.option value="MB WAY">MB WAY</flux:select.option>
+        </flux:select>
+
+        <!-- Default Payment Reference -->
+        <flux:input
+            wire:model="default_payment_reference"
+            :label="__('Payment reference')"
+            type="text"
+            autocomplete="off"
+            :placeholder="__('e.g., Visa number, PayPal email, or MB WAY number')"
+        />
+
+        <!-- Profile Photo -->
+        <flux:input
+            wire:model="photo"
+            :label="__('Profile photo')"
+            type="file"
+            accept="image/*"
         />
 
         <div class="flex items-center justify-end">
