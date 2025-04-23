@@ -1,7 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Test BD" type="DatabaseScript">
-    <data-source id="19051585-c801-45dc-947a-3f14a089ee18" namespace="schema/&quot;projeto_ainet&quot;" />
-    <script-text>SELECT 1;</script-text>
-    <method v="2" />
-  </configuration>
-</component>
