@@ -7,12 +7,23 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Livewire\WithFileUploads;
+
 
 new #[Layout('components.layouts.auth')] class extends Component {
+    use WithFileUploads;
+
     public string $name = '';
     public string $email = '';
     public string $password = '';
     public string $password_confirmation = '';
+    public string $gender = '';
+    public ?string $default_delivery_address = null;
+    public ?string $nif = null;
+    public ?string $default_payment_type = null;
+    public ?string $default_payment_reference = null;
+    public $photo = null;
+
 
     /**
      * Handle an incoming registration request.
@@ -28,25 +39,45 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'nif' => ['nullable', 'string', 'max:9', 'min:9', 'regex:/^[0-9]{9}$/'],
             'default_payment_type' => ['nullable', 'string', 'max:255', 'in:Visa,PayPal,MB WAY'],
             'default_payment_reference' => ['nullable', 'string', 'max:255'],
-            'photo' => ['nullable', 'image', 'max:1024'],
+            'photo' => ['nullable', 'image', 'max:8096', 'mimes:jpg,jpeg,png'],
         ]);
 
         $validated['password'] = Hash::make($validated['password']);
         $validated['type'] = 'member';
 
-        event(new Registered(($user = User::create($validated))));
+        // Handle the photo before creating the user
+        if ($this->photo) {
+            // Get file extension
+            $extension = $this->photo->getClientOriginalExtension();
+
+            // Create a unique filename with timestamp
+            $filename = time() . '_' . uniqid('', true) . '.' . $extension;
+
+            // Store the file with the unique name
+            $this->photo->storeAs('users', $filename, 'public');
+
+            // Add the filename to validated data
+            $validated['photo'] = $filename;
+        }
+
+        // Create the user with all data including the photo filename
+        $user = User::create($validated);
+
+        event(new Registered($user));
 
         Auth::login($user);
 
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
     }
+
 }; ?>
 
 <div class="flex flex-col gap-6">
-    <x-auth-header :title="__('Create an account')" :description="__('Enter your details below to create your account')" />
+    <x-auth-header :title="__('Create an account')"
+                   :description="__('Enter your details below to create your account')"/>
 
     <!-- Session Status -->
-    <x-auth-session-status class="text-center" :status="session('status')" />
+    <x-auth-session-status class="text-center" :status="session('status')"/>
 
     <form wire:submit="register" class="flex flex-col gap-6">
         <!-- Name -->

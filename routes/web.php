@@ -16,8 +16,9 @@ Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
     Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
-    Volt::route('settings/password', 'settings.password')->name('settings.password');
+    Volt::route('settings/security', 'settings.security')->name('settings.security');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
+    Volt::route('settings/danger-zone', 'settings.danger-zone')->name('settings.danger-zone');
 });
 
 Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {

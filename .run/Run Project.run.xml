@@ -3,8 +3,6 @@
     <option name="commandLineParameters" value="" />
     <option name="pathToComposerJson" value="$PROJECT_DIR$/composer.json" />
     <option name="script" value="dev" />
-    <method v="2">
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Test BD" run_configuration_type="DatabaseScript" />
-    </method>
+    <method v="2" />
   </configuration>
 </component>
