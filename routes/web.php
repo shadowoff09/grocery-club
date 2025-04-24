@@ -1,12 +1,16 @@
 <?php
 
 use App\Http\Middleware\CheckIsBoardMember;
+use App\Http\Controllers\CatalogController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/catalog', [CatalogController::class, 'index']);
+
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
