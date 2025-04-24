@@ -27,6 +27,12 @@
 
     <flux:spacer/>
 
+    <flux:navlist variant="outline">
+        <flux:navlist.item icon="credit-card">
+            {{ __('Billing') }}
+        </flux:navlist.item>
+    </flux:navlist>
+
     <!-- Desktop User Menu -->
     <div class="hidden lg:flex items-center gap-2">
         <flux:dropdown position="bottom" align="start">
@@ -190,5 +196,6 @@
 {{ $slot }}
 
 @fluxScripts
+<x-toaster-hub />
 </body>
 </html>

@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-// TODO
-
-class Card extends Model implements Builder
+class Card extends Model
 {
     use HasFactory, SoftDeletes;
 
@@ -17,15 +16,19 @@ class Card extends Model implements Builder
 
     protected $primaryKey = 'id';
 
+    protected $keyType = 'int';
+
     protected $fillable = [
         'id', 'card_number', 'balance'
     ];
 
-    public function user() {
+    public function user(): BelongsTo
+    {
         return $this->belongsTo(User::class, 'id');
     }
 
-    public function operations() {
+    public function operations(): HasMany
+    {
         return $this->hasMany(Operation::class, 'card_id');
     }
 }

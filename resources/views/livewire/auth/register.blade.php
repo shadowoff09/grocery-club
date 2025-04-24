@@ -75,13 +75,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         event(new Registered($user));
 
-//        Card::create([
-//            'id' => $user->id,
-//            'default_delivery_address' => $validated['default_delivery_address'],
-//            'nif' => $validated['nif'],
-//            'default_payment_type' => $validated['default_payment_type'],
-//            'default_payment_reference' => $validated['default_payment_reference'],
-//        ]);
+        Card::create([
+            'id' => $user->id,
+            'card_number' => random_int(100000, 999999),
+            'balance' => 0.00
+        ]);
 
         Auth::login($user);
 

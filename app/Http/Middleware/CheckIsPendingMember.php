@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 
-class CheckIsBoardMember {
+class CheckIsPendingMember {
     public function handle(Request $request, Closure $next) {
-        if (!Auth::user()->isBoardMember()) {
+        if (!Auth::user()->isPendingMember()) {
             return redirect()->route('dashboard')->with('error', 'You do not have access to this page.');
         }
 

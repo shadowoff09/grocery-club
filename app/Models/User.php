@@ -32,6 +32,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'default_payment_reference',
         'photo',
         'type',
+        'blocked'
     ];
 
 
@@ -55,6 +56,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'blocked' => 'boolean',
         ];
     }
 

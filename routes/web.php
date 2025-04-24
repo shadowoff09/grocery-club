@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\BoardController;
+use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckIsBoardMember;
+use App\Http\Middleware\CheckIsPendingMember;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -25,6 +27,20 @@ Route::middleware(['auth'])->group(function () {
 Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
     Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
     Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
+
+    Route::prefix('board/users/{user}')->group(function () {
+        Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
+        Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');
+        Route::post('demote', [UserActionsController::class, 'demoteToMember'])->name('board.users.demote');
+        Route::post('message', [UserActionsController::class, 'sendMessage'])->name('board.users.message');
+        Route::post('toggle-lock', [UserActionsController::class, 'toggleLock'])->name('board.users.toggle-lock');
+    });
+});
+
+Route::middleware(['auth', 'verified', CheckIsPendingMember::class])->group(function () {
+    Route::get('dashboard/membership/pending', function () {
+        return view('components.dashboard.membership.pending');
+    })->name('membership.pending');
 });
 
 require __DIR__.'/auth.php';
