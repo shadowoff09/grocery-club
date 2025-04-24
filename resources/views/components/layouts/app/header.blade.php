@@ -87,7 +87,25 @@
                         </form>
                     </flux:menu>
                 </flux:dropdown>
+
+            @else
+                <div class=" hidden lg:flex items-center gap-2">
+                    <a
+                        href="{{ route('login') }}"
+                        class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                        Login
+                    </a>
+
+                    <a
+                        href="{{ route('register') }}"
+                        class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                        Register
+                    </a>
+                </div>
+
             @endif
+
+
         </flux:header>
 
         <!-- Mobile Menu -->
@@ -109,6 +127,21 @@
             <flux:spacer />
 
             <flux:navlist variant="outline">
+
+                <div class="flex items-center gap-2">
+                    <a
+                        href="{{ route('login') }}"
+                        class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                        Login
+                    </a>
+
+                    <a
+                        href="{{ route('register') }}"
+                        class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
+                        Register
+                    </a>
+                </div>
+
                 <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
                 {{ __('Repository') }}
                 </flux:navlist.item>
