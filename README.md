@@ -64,7 +64,16 @@ composer run dev
 
 ## Example Credentials
 
+Board Member:\
 Email: b1@mail.pt\
+Password: 123
+
+Employee:\
+Email: e1@mail.pt\
+Password: 123
+
+Member:\
+Email: m1@mail.pt\
 Password: 123
 
 ---
