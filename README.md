@@ -149,3 +149,11 @@ Password: 123
 - [ ] Exportação para CSV ou Excel
 
 ---
+
+Employee:\
+Email: e1@mail.pt\
+Password: 123
+
+Member:\
+Email: m1@mail.pt\
+Password: 123
