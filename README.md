@@ -86,7 +86,7 @@ Password: 123
 - [x] Login/Logout com email e password
 - [x] Recuperação de password com email
 - [x] Geração automática de cartão virtual
-- [ ] Pagamento da fee para ativar conta (`pending_member` → `member`)
+- [x] Pagamento da fee para ativar conta (`pending_member` → `member`)
 - [ ] Perfil do utilizador com edição conforme o tipo
 - [x] Gestão de utilizadores (board: bloquear, cancelar (work in progress), promover/demitir)
 - [ ] Soft delete de membros cancelados
