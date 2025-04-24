@@ -27,11 +27,11 @@
 {{--                    </flux:navlist.group>--}}
 {{--                @endif--}}
 
-                @if(auth()->user()->isMember() || auth()->user()->isPendingMember())
+{{--                @if(auth()->user()->isMember() || auth()->user()->isPendingMember())
                     <flux:navlist.group :heading="__('Member')" class="grid">
                         <flux:navlist.item icon="user" :href="route('member')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Member Area') }}</flux:navlist.item>
                     </flux:navlist.group>
-                @endif
+                @endif--}}
             </flux:navlist>
 
             <flux:spacer />
