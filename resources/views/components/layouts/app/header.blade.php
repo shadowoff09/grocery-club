@@ -16,8 +16,6 @@
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:navbar.item>
-                @else
-                    {{-- Nada aparece --}}
                 @endif
             </flux:navbar>
 
@@ -43,15 +41,15 @@
                 @else
 
                 @endif
-                <flux:tooltip :content="__('Cart')" position="bottom">
-
-                    <flux:navbar.item
-                        class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="shopping-cart"
-                        href="/cart"
-                        :label="__('Cart')"
-                    />
-                </flux:tooltip>
+                    <flux:tooltip :content="__('Cart')" position="bottom">
+                        <flux:navbar.item
+                            class="h-10 max-lg:hidden [&>div>svg]:size-5"
+                            href="/cart"
+                            :label="__('Cart')"
+                        >
+                            <livewire:cart-counter />
+                        </flux:navbar.item>
+                    </flux:tooltip>
             </flux:navbar>
 
             @if(Auth::check())
@@ -148,8 +146,7 @@
                         <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                         </flux:navlist.item>
-                    @else
-                        {{-- Nada aparece --}}}
+
                     @endif
                 </flux:navlist.group>
             </flux:navlist>

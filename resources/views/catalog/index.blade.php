@@ -21,9 +21,10 @@
                         <div class="mt-auto">
                             <span class="text-xl font-bold block mb-3 text-black dark:text-white">${{ number_format($product->price, 2) }}</span>
                             <div class="flex justify-end">
-                                <button class="bg-zinc-900 text-white px-4 py-2 rounded hover:bg-zinc-700 cursor-pointer">
-                                    Add to Cart
-                                </button>
+                                <div class="flex justify-end">
+                                    <livewire:add-to-cart :product-id="$product->id" />
+                                </div>
+
                             </div>
                         </div>
                     </div>
