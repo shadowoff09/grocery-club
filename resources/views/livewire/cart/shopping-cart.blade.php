@@ -85,12 +85,23 @@
 
                 <div class="flex justify-end gap-4">
                     <a href="/catalog"
-                       class="px-6 py-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium transition-colors">
+                       class="px-6 py-2 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium
+                       transition-colors cursor-pointer">
                         Continue Shopping
                     </a>
-                    <button class="px-8 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-colors">
-                        Checkout
-                    </button>
+                    @if(!Auth::check())
+                    <a href="{{ route('login') }}">
+                        <button class="px-8 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
+                        transition-colors cursor-pointer">
+                            Checkout
+                        </button>
+                    </a>
+                    @else
+                        <button class="px-8 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
+                        transition-colors cursor-pointer">
+                            Checkout
+                        </button>
+                    @endif
                 </div>
             </div>
         </div>
