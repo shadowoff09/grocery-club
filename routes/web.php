@@ -3,6 +3,8 @@
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckIsBoardMember;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CartController;
 use App\Http\Middleware\CheckIsPendingMember;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -10,6 +12,10 @@ use Livewire\Volt\Volt;
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/catalog', [CatalogController::class, 'index']);
+
+Route::get('/cart', [CartController::class, 'index']);
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

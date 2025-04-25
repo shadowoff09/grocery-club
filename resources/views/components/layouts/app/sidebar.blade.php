@@ -11,27 +11,16 @@
         <x-app-logo/>
     </a>
 
-    <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Club')" class="grid">
-            <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
-                               wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-        </flux:navlist.group>
-        @if(auth()->user()->isBoardMember())
-            <flux:navlist.group :heading="__('Board')" class="grid">
-                <flux:navlist.item icon="users" :href="route('board.users')"
-                                   :current="request()->routeIs('board.users')"
-                                   wire:navigate>{{ __('User Management') }}</flux:navlist.item>
-            </flux:navlist.group>
-        @endif
-    </flux:navlist>
-
-    <flux:spacer/>
-
-    <flux:navlist variant="outline">
-        <flux:navlist.item icon="credit-card">
-            {{ __('Billing') }}
-        </flux:navlist.item>
-    </flux:navlist>
+            <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('Platform')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                </flux:navlist.group>
+                @if(auth()->user()->isBoardMember())
+                    <flux:navlist.group :heading="__('Board')" class="grid">
+                        <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endif
+            </flux:navlist>
 
     <!-- Desktop User Menu -->
     <div class="hidden lg:flex items-center gap-2">

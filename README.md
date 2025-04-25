@@ -102,7 +102,7 @@ Password: 123
 ---
 
 ### 🛍️ Catálogo & Loja
-- [ ] Listagem de produtos visível para todos (incluindo anónimos)
+- [x] Listagem de produtos visível para todos (incluindo anónimos)
 - [ ] Produtos com nome, imagem, descrição, preço, desconto
 - [ ] Produtos fora de stock visíveis com alerta
 - [ ] Filtros e ordenação por categoria, nome, preço
@@ -110,8 +110,8 @@ Password: 123
 ---
 
 ### 🛒 Carrinho & Checkout
-- [ ] Carrinho funcional para todos os utilizadores
-- [ ] Atualização de quantidades, remoção de produtos
+- [x] Carrinho funcional para todos os utilizadores
+- [x] Atualização de quantidades, remoção de produtos
 - [ ] Cálculo automático de subtotal, portes e total
 - [ ] Preenchimento automático de NIF e morada
 - [ ] Restrição: só membros podem comprar
