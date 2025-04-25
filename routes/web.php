@@ -3,6 +3,7 @@
 use App\Http\Middleware\CheckIsBoardMember;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
+use App\Http\Middleware\CheckIsPendingMember;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
