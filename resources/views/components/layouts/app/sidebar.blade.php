@@ -20,18 +20,6 @@
                         <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
                     </flux:navlist.group>
                 @endif
-
-{{--                @if(auth()->user()->isEmployee() || auth()->user()->isBoardMember())--}}
-{{--                    <flux:navlist.group :heading="__('Employee')" class="grid">--}}
-{{--                        <flux:navlist.item icon="briefcase" :href="route('employee')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Employee Area') }}</flux:navlist.item>--}}
-{{--                    </flux:navlist.group>--}}
-{{--                @endif--}}
-
-{{--                @if(auth()->user()->isMember() || auth()->user()->isPendingMember())
-                    <flux:navlist.group :heading="__('Member')" class="grid">
-                        <flux:navlist.item icon="user" :href="route('member')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Member Area') }}</flux:navlist.item>
-                    </flux:navlist.group>
-                @endif--}}
             </flux:navlist>
 
             <flux:spacer />
