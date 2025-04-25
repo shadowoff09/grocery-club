@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\CheckIsBoardMember;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CartController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -11,6 +12,7 @@ Route::get('/', function () {
 
 Route::get('/catalog', [CatalogController::class, 'index']);
 
+Route::get('/cart', [CartController::class, 'index']);
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])

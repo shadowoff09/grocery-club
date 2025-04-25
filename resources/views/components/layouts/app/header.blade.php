@@ -12,33 +12,44 @@
             </a>
 
             <flux:navbar class="-mb-px max-lg:hidden">
+                @if(Auth::check())
                 <flux:navbar.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
                     {{ __('Dashboard') }}
                 </flux:navbar.item>
+                @else
+                    {{-- Nada aparece --}}
+                @endif
             </flux:navbar>
 
             <flux:spacer />
 
             <flux:navbar class="me-1.5 space-x-0.5 rtl:space-x-reverse py-0!">
-                <flux:tooltip :content="__('Search')" position="bottom">
-                    <flux:navbar.item class="!h-10 [&>div>svg]:size-5" icon="magnifying-glass" href="#" :label="__('Search')" />
-                </flux:tooltip>
-                <flux:tooltip :content="__('Repository')" position="bottom">
+                @if(!Auth::check())
+                <flux:tooltip :content="__('Toggle Dark Mode')" position="bottom">
                     <flux:navbar.item
                         class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="folder-git-2"
-                        href="https://github.com/laravel/livewire-starter-kit"
-                        target="_blank"
-                        :label="__('Repository')"
-                    />
+                        x-data
+                        @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'"
+                        :label="__('Toggle Dark Mode')"
+                    >
+                        <template x-if="$flux.appearance === 'dark'">
+                            <flux:icon name="sun" class="w-5 h-5" />
+                        </template>
+                        <template x-if="$flux.appearance === 'light'">
+                            <flux:icon name="moon" class="w-5 h-5" />
+                        </template>
+                    </flux:navbar.item>
                 </flux:tooltip>
-                <flux:tooltip :content="__('Documentation')" position="bottom">
+                @else
+
+                @endif
+                <flux:tooltip :content="__('Cart')" position="bottom">
+
                     <flux:navbar.item
                         class="h-10 max-lg:hidden [&>div>svg]:size-5"
-                        icon="book-open-text"
-                        href="https://laravel.com/docs/starter-kits"
-                        target="_blank"
-                        label="Documentation"
+                        icon="shopping-cart"
+                        href="/cart"
+                        :label="__('Cart')"
                     />
                 </flux:tooltip>
             </flux:navbar>
@@ -110,17 +121,36 @@
 
         <!-- Mobile Menu -->
         <flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
-            <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+            <div class="flex justify-between items-center">
+                <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
+                <button
+                    class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    x-data
+                    @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'"
+                >
+                    <template x-if="$flux.appearance === 'dark'">
+                        <flux:icon name="sun" class="w-5 h-5" />
+                    </template>
+                    <template x-if="$flux.appearance === 'light'">
+                        <flux:icon name="moon" class="w-5 h-5" />
+                    </template>
+                </button>
+            </div>
+
 
             <a href="{{ route('dashboard') }}" class="ms-1 flex items-center space-x-2 rtl:space-x-reverse" wire:navigate>
                 <x-app-logo />
             </a>
 
             <flux:navlist variant="outline">
+                @if(Auth::check())
                 <flux:navlist.group :heading="__('Platform')">
-                    <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
-                    {{ __('Dashboard') }}
-                    </flux:navlist.item>
+                        <flux:navlist.item icon="layout-grid" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                        {{ __('Dashboard') }}
+                        </flux:navlist.item>
+                    @else
+                        {{-- Nada aparece --}}}
+                    @endif
                 </flux:navlist.group>
             </flux:navlist>
 
@@ -160,12 +190,8 @@
 
                  @endif
 
-                <flux:navlist.item icon="folder-git-2" href="https://github.com/laravel/livewire-starter-kit" target="_blank">
-                {{ __('Repository') }}
-                </flux:navlist.item>
-
-                <flux:navlist.item icon="book-open-text" href="https://laravel.com/docs/starter-kits" target="_blank">
-                {{ __('Documentation') }}
+                <flux:navlist.item icon="shopping-cart" href="/cart">
+                    {{ __('Cart') }}
                 </flux:navlist.item>
             </flux:navlist>
         </flux:sidebar>
