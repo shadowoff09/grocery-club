@@ -22,8 +22,7 @@
                 @endif
             </flux:navlist>
 
-    <!-- Desktop User Menu -->
-    <div class="hidden lg:flex items-center gap-2">
+    <div class="mt-auto hidden lg:flex items-center gap-2">
         <flux:dropdown position="bottom" align="start">
             @if(auth()->user()->photo)
                 <flux:profile :name="auth()->user()->name" icon-trailing="chevron-down">
@@ -68,7 +67,7 @@
                                 <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
                                 <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                                 <span class="truncate text-xs text-zinc-500">
-                                        @switch(auth()->user()->type)
+                                    @switch(auth()->user()->type)
                                         @case('board')
                                             Board Member
                                             @break
@@ -86,6 +85,22 @@
                             </div>
                         </div>
                     </div>
+                </flux:menu.radio.group>
+
+                <flux:menu.separator/>
+
+                <flux:menu.radio.group>
+                    <flux:menu.item
+                        :href="route('settings.profile')"
+                        icon="banknotes"
+                        class="flex items-center justify-start space-x-2"
+                        wire:navigate
+                    >
+                        <span>{{ __('Balance') }}</span>
+                        <span class="text-xs text-zinc-500">
+            {{ number_format(auth()->user()->card->balance, 2) }} €
+        </span>
+                    </flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator/>

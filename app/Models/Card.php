@@ -22,6 +22,7 @@ class Card extends Model
         'id', 'card_number', 'balance'
     ];
 
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id');

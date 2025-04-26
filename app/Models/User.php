@@ -90,4 +90,11 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->type === 'pending_member';
     }
+
+    public function card(): \Illuminate\Database\Eloquent\Relations\HasOne|User
+    {
+        return $this->hasOne(Card::class, 'id', 'id');
+    }
+
+
 }

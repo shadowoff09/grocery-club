@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Operation extends Model
 {
-    use SoftDeletes;
 
     protected $fillable = [
         'card_id',

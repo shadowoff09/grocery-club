@@ -119,83 +119,115 @@
                                 </p>
                             </div>
                         @endif
+
+                        @if(isset($user->nif))
+                            <div>
+                                <p class="text-sm text-neutral-500 dark:text-neutral-400">NIF</p>
+                                <p>{{ $user->nif }}</p>
+                            </div>
+                        @endif
+                    </div>
+                    <flux:separator class="mt-6"/>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
+                        @if(isset($user->default_delivery_address))
+                            <div>
+                                <p class="text-sm text-neutral-500 dark:text-neutral-400">Preferred Delivery Address</p>
+                                <p>{{ $user->default_delivery_address }}</p>
+                            </div>
+                        @endif
+                        @if(isset($user->default_payment_type))
+                            <div>
+                                <p class="text-sm text-neutral-500 dark:text-neutral-400">Preferred Payment Type</p>
+                                <p>{{ $user->default_payment_type }}</p>
+                            </div>
+                        @endif
+
+                        @if(isset($user->default_payment_reference))
+                            <div>
+                                <p class="text-sm text-neutral-500 dark:text-neutral-400">Preferred Payment
+                                    Reference</p>
+                                <p>{{ $user->default_payment_reference }}</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
 
                 <!-- User Actions -->
-                <div
-                    class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
-                    <h3 class="text-lg font-semibold mb-4">Actions</h3>
+                @if(
+                    $user->type === 'pending_member' ||
+                    $user->type !== 'board' ||
+                    ($user->type === 'board' && auth()->user()->id !== $user->id) ||
+                    in_array($user->type, ['member', 'pending_member'])
+                )
+                    <div
+                        class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+                        <h3 class="text-lg font-semibold mb-4">Actions</h3>
 
-                    <div class="flex flex-wrap gap-3">
-                        @if($user->type === 'pending_member')
-                            <form action="{{ route('board.users.approve', $user) }}" method="POST">
-                                @csrf
-                                <flux:button type="submit" icon="check" variant="primary">
-                                    Approve Membership
-                                </flux:button>
-                            </form>
-                        @endif
+                        <div class="flex flex-wrap gap-3">
+                            @if($user->type === 'pending_member')
+                                <form action="{{ route('board.users.approve', $user) }}" method="POST">
+                                    @csrf
+                                    <flux:button type="submit" icon="check" variant="primary">
+                                        Approve Membership
+                                    </flux:button>
+                                </form>
+                            @endif
 
-                        @if($user->type !== 'board')
-                            <form action="{{ route('board.users.promote', $user) }}" method="POST">
-                                @csrf
-                                <flux:button type="submit" icon="user-plus" variant="outline">
-                                    Promote to Board
-                                </flux:button>
-                            </form>
-                        @endif
+                            @if($user->type !== 'board')
+                                <form action="{{ route('board.users.promote', $user) }}" method="POST">
+                                    @csrf
+                                    <flux:button type="submit" icon="user-plus" variant="outline">
+                                        Promote to Board
+                                    </flux:button>
+                                </form>
+                            @endif
 
-                        @if($user->type === 'employee')
-                            <form action="{{ route('board.users.demote', $user) }}" method="POST">
-                                @csrf
-                                <flux:button type="submit" icon="user-minus" variant="outline">
-                                    Demote to Member
-                                </flux:button>
-                            </form>
-                        @endif
+                            @if($user->type === 'board' && auth()->user()->id !== $user->id)
+                                <form action="{{ route('board.users.demote', $user) }}" method="POST">
+                                    @csrf
+                                    <flux:button type="submit" icon="user-minus" variant="outline">
+                                        Demote to Member
+                                    </flux:button>
+                                </form>
+                            @endif
 
-                        <form action="{{ route('board.users.message', $user) }}" method="POST">
-                            @csrf
-                            <flux:button type="submit" icon="envelope">
-                                Send Message
-                            </flux:button>
-                        </form>
+                            @if($user->type === 'member' || $user->type === 'pending_member')
+                                <form action="{{ route('board.users.toggle-lock', $user) }}" method="POST">
+                                    @csrf
+                                    <flux:button type="submit" icon="lock-closed"
+                                                 variant="{{ $user->blocked ? 'outline' : 'danger' }}">
+                                        {{ $user->blocked ? 'Unlock Account' : 'Lock Account' }}
+                                    </flux:button>
+                                </form>
+                            @endif
 
-                        <form action="{{ route('board.users.toggle-lock', $user) }}" method="POST">
-                            @csrf
-                            <flux:button type="submit" icon="lock-closed"
-                                         variant="{{ $user->blocked ? 'outline' : 'danger' }}">
-                                {{ $user->blocked ? 'Unlock Account' : 'Lock Account' }}
-                            </flux:button>
-                        </form>
+                        </div>
 
                     </div>
+                @endif
 
-                </div>
+                                <!-- Recent Activity -->
+                                @if(isset($operations))
+                                    <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">
+                                        <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>
 
-                {{--                <!-- Recent Activity -->--}}
-                {{--                @if(isset($activities))--}}
-                {{--                    <div class="bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 p-6">--}}
-                {{--                        <h3 class="text-lg font-semibold mb-4">Recent Activity</h3>--}}
-
-                {{--                        @if($activities->count() > 0)--}}
-                {{--                            <div class="space-y-4">--}}
-                {{--                                @foreach($activities as $activity)--}}
-                {{--                                    <div class="flex items-start gap-3">--}}
-                {{--                                        <div class="h-2 w-2 mt-2 rounded-full bg-blue-500"></div>--}}
-                {{--                                        <div>--}}
-                {{--                                            <p>{{ $activity->description }}</p>--}}
-                {{--                                            <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ $activity->created_at->diffForHumans() }}</p>--}}
-                {{--                                        </div>--}}
-                {{--                                    </div>--}}
-                {{--                                @endforeach--}}
-                {{--                            </div>--}}
-                {{--                        @else--}}
-                {{--                            <p class="text-neutral-500 dark:text-neutral-400">No recent activity found.</p>--}}
-                {{--                        @endif--}}
-                {{--                    </div>--}}
-                {{--                @endif--}}
+                                        @if($operations->count() > 0)
+                                            <div class="space-y-4">
+                                                @foreach($operations as $operation)
+                                                    <div class="flex items-start gap-3">
+                                                        <div class="h-2 w-2 mt-2 rounded-full bg-blue-500"></div>
+                                                        <div>
+                                                            <p>{{ $operation->debit_type }}</p>
+                                                            <p class="text-xs text-neutral-500 dark:text-neutral-400">{{ $operation->created_at->diffForHumans() }}</p>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <p class="text-neutral-500 dark:text-neutral-400">No recent activity found.</p>
+                                        @endif
+                                    </div>
+                                @endif
             </div>
         </div>
     </div>

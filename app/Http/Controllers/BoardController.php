@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class BoardController extends Controller
@@ -28,11 +29,17 @@ class BoardController extends Controller
         // Ensure only board members can access this
         abort_if(!auth()->user()->isBoardMember(), 403);
 
+        $userCard = $user->card;
+
+        // get operations for the user card
+        $operations = $userCard ? $userCard->operations()->latest()->take(5)->get() : null;
+
         // Get user data and any related information you want to display
         $userData = [
             'user' => $user,
+            'operations' => $operations,
             'memberSince' => $user->created_at->diffForHumans(),
-            'lastLogin' => $user->last_login_at ? \Carbon\Carbon::createFromTimestamp(strtotime($user->last_login_at))->diffForHumans() : 'Never',
+            'lastLogin' => $user->last_login_at ? Carbon::createFromTimestamp(strtotime($user->last_login_at))->diffForHumans() : 'Never',
         ];
 
         // Check if the activities relationship exists before trying to use it
