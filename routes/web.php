@@ -2,10 +2,8 @@
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\UserActionsController;
-use App\Http\Middleware\CheckIsBoardMember;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
-use App\Http\Middleware\CheckIsPendingMember;
 use App\Http\Middleware\CheckUserType;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
