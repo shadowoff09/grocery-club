@@ -87,34 +87,38 @@
                     </div>
                 </flux:menu.radio.group>
 
+                @if(auth()->user()->type !== 'employee')
+                    <flux:menu.separator/>
+
+                    <flux:menu.radio.group>
+                        <flux:menu.item
+                            icon="banknotes"
+                            class="flex items-center justify-start space-x-2"
+                        >
+                            <span>{{ __('Balance') }}</span>
+                            <span class="text-xs text-zinc-500">
+                                {{ number_format(auth()->user()->card->balance, 2) }} €
+                            </span>
+                        </flux:menu.item>
+                    </flux:menu.radio.group>
+                @endif
+
                 <flux:menu.separator/>
 
                 <flux:menu.radio.group>
-                    <flux:menu.item
-                        :href="route('settings.profile')"
-                        icon="banknotes"
-                        class="flex items-center justify-start space-x-2"
-                        wire:navigate
-                    >
-                        <span>{{ __('Balance') }}</span>
-                        <span class="text-xs text-zinc-500">
-            {{ number_format(auth()->user()->card->balance, 2) }} €
-        </span>
-                    </flux:menu.item>
-                </flux:menu.radio.group>
+                    @if(auth()->user()->type === 'employee')
+                        <flux:menu.item :href="route('settings.security')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @else
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @endif
 
-                <flux:menu.separator/>
-
-                <flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog"
-                                    wire:navigate>{{ __('Settings') }}</flux:menu.item>
                 </flux:menu.radio.group>
 
                 <flux:menu.separator/>
 
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full cursor-pointer">
                         {{ __('Log Out') }}
                     </flux:menu.item>
                 </form>

@@ -32,7 +32,7 @@ class BoardController extends Controller
         $userCard = $user->card;
 
         // get operations for the user card
-        $operations = $userCard ? $userCard->operations()->latest()->take(5)->get() : null;
+        $operations = $userCard ? $userCard->operations()->latest()->take(10)->get() : null;
 
         // Get user data and any related information you want to display
         $userData = [

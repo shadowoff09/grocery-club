@@ -32,7 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'default_payment_reference',
         'photo',
         'type',
-        'blocked'
+        'blocked',
+        'deleted_at'
     ];
 
 
