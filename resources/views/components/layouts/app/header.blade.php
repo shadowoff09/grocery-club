@@ -38,8 +38,6 @@
                         </template>
                     </flux:navbar.item>
                 </flux:tooltip>
-                @else
-
                 @endif
                     <flux:tooltip :content="__('Cart')" position="bottom">
                         <flux:navbar.item
