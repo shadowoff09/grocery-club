@@ -21,10 +21,14 @@
                         <div class="mt-auto">
                             <span class="text-xl font-bold block mb-3 text-black dark:text-white">${{ number_format($product->price, 2) }}</span>
                             <div class="flex justify-end">
-                                <div class="flex justify-end">
-                                    <livewire:add-to-cart :product-id="$product->id" />
+                                <div class="w-full">
+                                    <div class="flex justify-end items-center mb-1">
+                                        <livewire:add-to-cart :product-id="$product->id" />
+                                    </div>
+                                    <div class="min-h-[24px]">
+                                        <livewire:message-display :product-id="$product->id" />
+                                    </div>
                                 </div>
-
                             </div>
                         </div>
                     </div>
@@ -36,6 +40,4 @@
             {{ $products->links() }}
         </div>
     </div>
-    {{-- Para poder aceder ás imagens da base de dados, foi necessário criar um link para o storage onde elas estão
-     guardadas [storage/app/public/products/] (não acessíveis ao browser). O comando é: php artisan storage:link --}}
 </x-layouts.app.header>

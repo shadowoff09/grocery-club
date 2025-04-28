@@ -16,4 +16,7 @@ class CatalogController extends Controller
         return view('catalog.index', compact('products'));
 
     }
+
+
+
 }
