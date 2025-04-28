@@ -2,14 +2,19 @@
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\UserActionsController;
-use App\Http\Middleware\CheckIsBoardMember;
-use App\Http\Middleware\CheckIsPendingMember;
+use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CartController;
+use App\Http\Middleware\CheckUserType;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::get('/', function () {
     return view('welcome');
 })->name('home');
+
+Route::get('/catalog', [CatalogController::class, 'index']);
+
+Route::get('/cart', [CartController::class, 'index']);
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -18,13 +23,19 @@ Route::view('dashboard', 'dashboard')
 Route::middleware(['auth'])->group(function () {
     Route::redirect('settings', 'settings/profile');
 
-    Volt::route('settings/profile', 'settings.profile')->name('settings.profile');
+    Volt::route('settings/profile', 'settings.profile')
+        ->middleware(CheckUserType::class.':board|member|pending_member')
+        ->name('settings.profile');
+
+
     Volt::route('settings/security', 'settings.security')->name('settings.security');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
-    Volt::route('settings/danger-zone', 'settings.danger-zone')->name('settings.danger-zone');
+    Volt::route('settings/danger-zone', 'settings.danger-zone')
+        ->middleware(CheckUserType::class.':board|member|pending_member')
+        ->name('settings.danger-zone');
 });
 
-Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
+Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
     Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
 
@@ -34,10 +45,11 @@ Route::middleware(['auth', CheckIsBoardMember::class])->group(function () {
         Route::post('demote', [UserActionsController::class, 'demoteToMember'])->name('board.users.demote');
         Route::post('message', [UserActionsController::class, 'sendMessage'])->name('board.users.message');
         Route::post('toggle-lock', [UserActionsController::class, 'toggleLock'])->name('board.users.toggle-lock');
+        Route::post('toggle-membership', [UserActionsController::class, 'toggleMembership'])->name('board.users.toggle-membership');
     });
 });
 
-Route::middleware(['auth', 'verified', CheckIsPendingMember::class])->group(function () {
+Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])->group(function () {
     Route::get('dashboard/membership/pending', function () {
         return view('components.dashboard.membership.pending');
     })->name('membership.pending');

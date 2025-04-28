@@ -62,4 +62,22 @@ class UserActionsController extends Controller
         Toaster::success($message);
         return back()->with('success', $message);
     }
+
+    public function toggleMembership(User $user)
+    {
+        if ($user->deleted_at === null) {
+            $user->update([
+                'deleted_at' => now()
+            ]);
+            Toaster::success('Membership canceled successfully!');
+        } else {
+            $user->update([
+                'deleted_at' => null
+            ]);
+            Toaster::success('Membership reactivated successfully!');
+        }
+
+        return back()->with('success', 'Membership status updated successfully!');
+    }
+
 }

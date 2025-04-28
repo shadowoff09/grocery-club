@@ -11,30 +11,18 @@
         <x-app-logo/>
     </a>
 
-    <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Club')" class="grid">
-            <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')"
-                               wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-        </flux:navlist.group>
-        @if(auth()->user()->isBoardMember())
-            <flux:navlist.group :heading="__('Board')" class="grid">
-                <flux:navlist.item icon="users" :href="route('board.users')"
-                                   :current="request()->routeIs('board.users')"
-                                   wire:navigate>{{ __('User Management') }}</flux:navlist.item>
-            </flux:navlist.group>
-        @endif
-    </flux:navlist>
+            <flux:navlist variant="outline">
+                <flux:navlist.group :heading="__('Platform')" class="grid">
+                    <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                </flux:navlist.group>
+                @if(auth()->user()->isBoardMember())
+                    <flux:navlist.group :heading="__('Board')" class="grid">
+                        <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+                    </flux:navlist.group>
+                @endif
+            </flux:navlist>
 
-    <flux:spacer/>
-
-    <flux:navlist variant="outline">
-        <flux:navlist.item icon="credit-card">
-            {{ __('Billing') }}
-        </flux:navlist.item>
-    </flux:navlist>
-
-    <!-- Desktop User Menu -->
-    <div class="hidden lg:flex items-center gap-2">
+    <div class="mt-auto hidden lg:flex items-center gap-2">
         <flux:dropdown position="bottom" align="start">
             @if(auth()->user()->photo)
                 <flux:profile :name="auth()->user()->name" icon-trailing="chevron-down">
@@ -79,7 +67,7 @@
                                 <span class="truncate font-semibold">{{ auth()->user()->name }}</span>
                                 <span class="truncate text-xs">{{ auth()->user()->email }}</span>
                                 <span class="truncate text-xs text-zinc-500">
-                                        @switch(auth()->user()->type)
+                                    @switch(auth()->user()->type)
                                         @case('board')
                                             Board Member
                                             @break
@@ -99,18 +87,38 @@
                     </div>
                 </flux:menu.radio.group>
 
+                @if(auth()->user()->type !== 'employee')
+                    <flux:menu.separator/>
+
+                    <flux:menu.radio.group>
+                        <flux:menu.item
+                            icon="banknotes"
+                            class="flex items-center justify-start space-x-2"
+                        >
+                            <span>{{ __('Balance') }}</span>
+                            <span class="text-xs text-zinc-500">
+                                {{ number_format(auth()->user()->card->balance, 2) }} €
+                            </span>
+                        </flux:menu.item>
+                    </flux:menu.radio.group>
+                @endif
+
                 <flux:menu.separator/>
 
                 <flux:menu.radio.group>
-                    <flux:menu.item :href="route('settings.profile')" icon="cog"
-                                    wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @if(auth()->user()->type === 'employee')
+                        <flux:menu.item :href="route('settings.security')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @else
+                        <flux:menu.item :href="route('settings.profile')" icon="cog" wire:navigate>{{ __('Settings') }}</flux:menu.item>
+                    @endif
+
                 </flux:menu.radio.group>
 
                 <flux:menu.separator/>
 
                 <form method="POST" action="{{ route('logout') }}" class="w-full">
                     @csrf
-                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full">
+                    <flux:menu.item as="button" type="submit" icon="arrow-right-start-on-rectangle" class="w-full cursor-pointer">
                         {{ __('Log Out') }}
                     </flux:menu.item>
                 </form>

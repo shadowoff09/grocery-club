@@ -38,6 +38,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 'email' => __('auth.failed'),
             ]);
         }
+        $this->checkIfUserIsNotBlocked();
 
         RateLimiter::clear($this->throttleKey());
         Session::regenerate();
@@ -66,6 +67,16 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 'minutes' => ceil($seconds / 60),
             ]),
         ]);
+    }
+
+    protected function checkIfUserIsNotBlocked(): void
+    {
+        if (Auth::user()->blocked) {
+            Auth::logout();
+            throw ValidationException::withMessages([
+                'email' => __('Your account is blocked. Please contact support.'),
+            ]);
+        }
     }
 
     /**
