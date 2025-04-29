@@ -1,13 +1,14 @@
 <?php
 
 use App\Models\Setting;
+use Livewire\Attributes\Rule;
 use Livewire\Volt\Component;
 
 new class extends Component {
     private const MIN_FEE = 0.00;
     private const DECIMAL_PLACES = 2;
 
-    #[Rule('required|numeric|min:0')]
+    #[Rule('required|numeric|min:0.00|max:9999999.99')]
     public float $membership_fee = 0.0;
 
     public function mount(): void
@@ -18,13 +19,13 @@ new class extends Component {
     public function updateMembershipFee(): void
     {
         $currentFee = Setting::getMembershipFee();
-
         $this->validate([
             'membership_fee' => [
                 'required',
                 'numeric',
-                'min:' . self::MIN_FEE,
-                function($attribute, $value, $fail) use ($currentFee) {
+                'min:0.00',
+                'max:9999999.99',
+                function ($attribute, $value, $fail) use ($currentFee) {
                     if ((float)$value === (float)$currentFee) {
                         $fail(__('The new membership fee must be different from the current fee, which is ' . $currentFee . '$.'));
                     }
@@ -73,6 +74,7 @@ new class extends Component {
                 <flux:button
                     wire:click="updateMembershipFee"
                     type="button"
+                    icon="check"
                     variant="primary"
                 >
                     {{ __('Update Membership Fee') }}

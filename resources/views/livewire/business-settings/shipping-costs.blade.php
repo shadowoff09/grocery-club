@@ -2,6 +2,9 @@
 
 use App\Models\SettingsShippingCost;
 use Livewire\Volt\Component;
+use Livewire\Attributes\On;
+use Masmerise\Toaster\Toaster;
+
 
 new class extends Component {
     public array $shippingCosts = [];
@@ -12,20 +15,22 @@ new class extends Component {
     public bool $isEditing = false;
 
     protected $listeners = [
-        'editShippingCost'
+        'editShippingCost',
+        'shippingCostChanged' => 'refreshShippingCosts'
     ];
 
-    public function mount()
+    public function mount(): void
     {
         $this->refreshShippingCosts();
     }
 
-    public function refreshShippingCosts()
+    public function refreshShippingCosts(): void
     {
         $this->shippingCosts = SettingsShippingCost::orderBy('min_value_threshold')->get()->toArray();
     }
 
-    public function editShippingCost(int $id)
+    #[Livewire\Attributes\On('editShippingCost')]
+    public function editShippingCost(int $id): void
     {
         $entry = SettingsShippingCost::findOrFail($id);
 
@@ -37,18 +42,19 @@ new class extends Component {
     }
 
 
-    public function delete(int $id)
+    public function delete(int $id): void
     {
         SettingsShippingCost::findOrFail($id)->delete();
         $this->refreshShippingCosts();
+        Toaster::success('Shipping cost deleted successfully!');
     }
 
-    public function save()
+    public function save(): void
     {
         $this->validate([
-            'min_value_threshold' => 'required|numeric|gte:0',
-            'max_value_threshold' => 'required|numeric|gt:min_value_threshold',
-            'shipping_cost' => 'required|numeric|min:0',
+            'min_value_threshold' => 'required|numeric|gte:0|max:9999999.99',
+            'max_value_threshold' => 'required|numeric|gt:min_value_threshold|max:9999999.99',
+            'shipping_cost' => 'required|numeric|min:0|max:9999999.99',
         ]);
 
         if ($this->editId) {
@@ -105,10 +111,10 @@ new class extends Component {
 
         $this->reset(['editId', 'min_value_threshold', 'max_value_threshold', 'shipping_cost']);
         $this->refreshShippingCosts();
-        \Masmerise\Toaster\Toaster::success('Shipping cost saved successfully!');
+        $this->dispatch('shippingCostChanged')->to('shipping-costs-table');
+        Toaster::success('Shipping cost saved successfully!');
+        $this->isEditing = false;
     }
-
-
 
     public function cancel()
     {
@@ -126,10 +132,11 @@ new class extends Component {
 
         <div class="space-y-4">
             @if($isEditing)
-                <flux:callout icon="pencil" color="yellow" inline>
+                <flux:callout icon="pencil" color="blue">
                     <flux:callout.heading>Edit Mode</flux:callout.heading>
                     <flux:callout.text>
-                        You are currently editing a shipping cost entry. Please ensure that the values are correct before saving.
+                        You are currently editing a shipping cost entry. Please ensure that the values are correct
+                        before saving.
                     </flux:callout.text>
                 </flux:callout>
             @endif
@@ -141,7 +148,9 @@ new class extends Component {
                 <div class="flex space-x-2">
                     <flux:button type="submit"
                                  icon="check"
-                                 class="px-4 py-2">
+                                 class="px-4 py-2 cursor-pointer"
+                                 variant="primary"
+                    >
                         {{ $editId ? __('Update') : __('Add') }} Shipping Cost
                     </flux:button>
                     @if($editId)
@@ -149,7 +158,7 @@ new class extends Component {
                             wire:click="cancel"
                             variant="danger"
                             icon="x-mark"
-                            class="px-4 py-2">
+                            class="px-4 py-2 cursor-pointer">
                             {{ __('Cancel') }}
                         </flux:button>
                     @endif

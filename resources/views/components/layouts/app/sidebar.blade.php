@@ -21,7 +21,7 @@
                         <flux:navlist.item
                             icon="cog-6-tooth"
                             :href="route('board.business.settings.membership-fee')"
-                            :current="request()->routeIs('board.business.settings.membership-fee') | request()->routeIs('board.business.settings.shipping-costs')"
+                            :current="request()->routeIs('board.business.settings.membership-fee') || request()->routeIs('board.business.settings.shipping-costs')"
                             wire:navigate
                         >
                             {{ __('Business Settings') }}

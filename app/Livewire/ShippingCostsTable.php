@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\SettingsShippingCost;
+use Blade;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -11,11 +12,18 @@ use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
+use Masmerise\Toaster\Toaster;
 
 final class ShippingCostsTable extends PowerGridComponent
-
 {
     public string $tableName = 'shipping-costs-table';
+
+    protected $listeners = ['shippingCostChanged' => 'refreshTable'];
+
+    public function refreshTable(): void
+    {
+        $this->refresh();
+    }
 
     public function setUp(): array
     {
@@ -81,41 +89,24 @@ final class ShippingCostsTable extends PowerGridComponent
     public function delete($rowId): void
     {
         SettingsShippingCost::findOrFail($rowId)->delete();
+        Toaster::success('Shipping cost deleted successfully!');
+        $this->dispatch('shippingCostChanged');
     }
+
 
     public function actions(SettingsShippingCost $row): array
     {
         return [
             Button::add('edit')
-                ->slot('Edit')
-                ->id()
-                ->class('inline-flex items-center justify-center gap-2
-                    rounded-lg px-5 py-2
-                    bg-zinc-300 text-black
-                    dark:bg-zinc-900 dark:text-white
-                    hover:bg-zinc-400 dark:hover:bg-zinc-800
-                    hover:shadow-md transition-all duration-200
-                    focus:outline-none focus:ring-2 focus:ring-offset-2
-                    focus:ring-blue-500 dark:focus:ring-blue-400
-                    cursor-pointer')
-                ->dispatch('editShippingCost', ['id' => $row->id]),
-
+                ->slot(Blade::render('<flux:button icon="pencil" class="cursor-pointer" wire:click="$dispatch(\'editShippingCost\', { id: ' . $row->id . ' })">Edit</flux:button>'))
+                ->id(),
 
 
             Button::add('delete')
-                ->slot('Remove')
+                ->slot(Blade::render('<flux:button icon="trash" class="cursor-pointer" variant="danger" wire:click="$dispatch(\'delete\', { rowId: ' . $row->id . '})">Remove</flux:button>'))
                 ->id()
-                ->class('inline-flex items-center justify-center gap-2
-       rounded-lg px-5 py-2
-       bg-red-300 text-black
-       dark:bg-red-900 dark:text-white
-       hover:bg-red-400 dark:hover:bg-red-800
-       hover:shadow-md transition-all duration-200
-       focus:outline-none focus:ring-2 focus:ring-offset-2
-       focus:ring-red-500 dark:focus:ring-red-400
-       cursor-pointer')
-                ->dispatch('delete', ['rowId' => $row->id])
-                ->confirm('Tem certeza que deseja remover este custo de envio?'),
-        ];
+            ];
+
+
     }
 }

@@ -19,10 +19,13 @@ final class UserTable extends PowerGridComponent
     {
         return [
             PowerGrid::header()
-                ->showSearchInput(),
+                ->showSearchInput()
+                ->showToggleColumns(),
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+            PowerGrid::responsive()
+                ->fixedColumns('name', 'actions'),
         ];
     }
 
