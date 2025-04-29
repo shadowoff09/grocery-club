@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between mb-4">
             <h1 class="text-2xl font-bold">User Details</h1>
             <a href="{{ route('board.users') }}" class="text-blue-500 hover:text-blue-700">
-                <flux:button variant="outline" icon="arrow-left">Back to Users</flux:button>
+                <flux:button variant="outline" icon="arrow-left" class="cursor-pointer">Back to Users</flux:button>
             </a>
         </div>
 
@@ -173,7 +173,7 @@
                             @if($user->type === 'pending_member')
                                 <form action="{{ route('board.users.approve', $user) }}" method="POST">
                                     @csrf
-                                    <flux:button type="submit" icon="check" variant="primary">
+                                    <flux:button type="submit" icon="check" variant="primary" class="cursor-pointer">
                                         Approve Membership
                                     </flux:button>
                                 </form>
@@ -182,7 +182,7 @@
                             @if($user->type !== 'board')
                                 <form action="{{ route('board.users.promote', $user) }}" method="POST">
                                     @csrf
-                                    <flux:button type="submit" icon="user-plus" variant="outline">
+                                    <flux:button type="submit" icon="user-plus" class="cursor-pointer" variant="outline">
                                         Promote to Board
                                     </flux:button>
                                 </form>
@@ -191,7 +191,7 @@
                             @if($user->type === 'board' && auth()->user()->id !== $user->id)
                                 <form action="{{ route('board.users.demote', $user) }}" method="POST">
                                     @csrf
-                                    <flux:button type="submit" icon="user-minus" variant="outline">
+                                    <flux:button type="submit" icon="user-minus" class="cursor-pointer" variant="outline">
                                         Demote to Member
                                     </flux:button>
                                 </form>
@@ -200,7 +200,7 @@
                             @if($user->type === 'member' || $user->type === 'pending_member')
                                 <form action="{{ route('board.users.toggle-lock', $user) }}" method="POST">
                                     @csrf
-                                    <flux:button type="submit" icon="lock-closed"
+                                    <flux:button type="submit" icon="lock-closed" class="cursor-pointer"
                                                  variant="{{ $user->blocked ? 'outline' : 'danger' }}">
                                         {{ $user->blocked ? 'Unlock Account' : 'Lock Account' }}
                                     </flux:button>
@@ -211,7 +211,7 @@
                                     <form action="{{ route('board.users.toggle-membership', $user) }}" method="POST">
                                         @csrf
                                         <flux:button type="submit" icon="{{ $user->deleted_at ? 'lock-open' : 'lock-closed' }}"
-                                                     variant="{{ $user->deleted_at ? 'outline' : 'danger' }}">
+                                                     variant="{{ $user->deleted_at ? 'outline' : 'danger' }}" class="cursor-pointer">
                                             {{ $user->deleted_at ? 'Reactivate Membership' : 'Cancel Membership' }}
                                         </flux:button>
                                     </form>

@@ -76,6 +76,7 @@ new class extends Component {
                     type="button"
                     icon="check"
                     variant="primary"
+                    class="cursor-pointer"
                 >
                     {{ __('Update Membership Fee') }}
                 </flux:button>

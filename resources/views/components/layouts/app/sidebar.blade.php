@@ -132,7 +132,7 @@
                 </form>
             </flux:menu>
         </flux:dropdown>
-        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
+        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle" class="cursor-pointer"
                      aria-label="Toggle dark mode"/>
     </div>
 </flux:sidebar>

@@ -145,7 +145,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
         />
 
 
-        <flux:button type="submit" variant="primary" class="w-full" wire:loading.attr="disabled">
+        <flux:button type="submit" variant="primary" class="w-full cursor-pointer" wire:loading.attr="disabled">
                 <span wire:loading.remove wire:target="payFee">
                     {{ __('Pay Fee') }}
                     <strong>{{ number_format($membershipFee, 2) }} €</strong>
