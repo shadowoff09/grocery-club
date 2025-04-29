@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\User;
+use Blade;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
@@ -92,30 +93,10 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('View')
-                ->id()
-                ->class('inline-flex items-center justify-center gap-2
-       rounded-lg px-5 py-2
-       bg-white text-black
-       dark:bg-zinc-900 dark:text-white
-       hover:bg-zinc-100 dark:hover:bg-zinc-800
-       hover:shadow-md transition-all duration-200
-       focus:outline-none focus:ring-2 focus:ring-offset-2
-       focus:ring-blue-500 dark:focus:ring-blue-400
-       cursor-pointer')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->slot(Blade::render('<flux:button icon="eye" class="cursor-pointer" wire:click="$dispatch(\'edit\', { rowId: ' . $row->id . ' })">View</flux:button>'))
+                ->id(),
         ];
-    }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
+
     }
-    */
 }
