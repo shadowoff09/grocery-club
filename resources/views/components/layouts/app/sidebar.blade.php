@@ -18,6 +18,14 @@
                 @if(auth()->user()->isBoardMember())
                     <flux:navlist.group :heading="__('Board')" class="grid">
                         <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+                        <flux:navlist.item
+                            icon="cog-6-tooth"
+                            :href="route('board.business.settings.membership-fee')"
+                            :current="request()->routeIs('board.business.settings.membership-fee') | request()->routeIs('board.business.settings.shipping-costs')"
+                            wire:navigate
+                        >
+                            {{ __('Business Settings') }}
+                        </flux:navlist.item>
                     </flux:navlist.group>
                 @endif
             </flux:navlist>

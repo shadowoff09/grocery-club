@@ -8,7 +8,10 @@ class Setting extends Model
 {
     protected $fillable = ['membership_fee'];
 
-    // Add this static method to easily get settings
+    protected $casts = [
+        'membership_fee' => 'decimal:2',
+    ];
+
     public static function getMembershipFee()
     {
         return self::first()->membership_fee ?? 0;

@@ -8,6 +8,15 @@ use Illuminate\Http\Request;
 
 class BoardController extends Controller
 {
+
+    public function membershipFee()
+    {
+        // Ensure only board members can access this
+        abort_if(!auth()->user()->isBoardMember(), 403);
+
+        return view('components.board.business-settings');
+    }
+
     public function userManagement()
     {
         $totalUsers = User::count();

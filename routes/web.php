@@ -39,6 +39,12 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
     Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
 
+    Volt::route('board/business/settings/membership-fee', 'business-settings.membership-fee')
+        ->name('board.business.settings.membership-fee');
+
+    Volt::route('board/business/settings/shipping-costs', 'business-settings.shipping-costs')
+        ->name('board.business.settings.shipping-costs');
+
     Route::prefix('board/users/{user}')->group(function () {
         Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
         Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');

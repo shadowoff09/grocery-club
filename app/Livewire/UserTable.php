@@ -3,12 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\User;
-use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
@@ -19,8 +17,6 @@ final class UserTable extends PowerGridComponent
 
     public function setUp(): array
     {
-        $this->showCheckBox();
-
         return [
             PowerGrid::header()
                 ->showSearchInput(),
@@ -35,15 +31,13 @@ final class UserTable extends PowerGridComponent
         return User::query();
     }
 
-    public function relationSearch(): array
-    {
-        return [];
-    }
-
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('photo', function (User $user) {
+                return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/' . $user->photo) . '">';
+            })
+
             ->add('name')
             ->add('email')
             ->add('type', function (User $user) {
@@ -56,8 +50,8 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Column::add()
-                ->title('ID')
-                ->field('id'),
+                ->title('Photo')
+                ->field('photo'),
 
             Column::add()
                 ->title('Name')
@@ -85,12 +79,6 @@ final class UserTable extends PowerGridComponent
         ];
     }
 
-    public function filters(): array
-    {
-        return [
-        ];
-    }
-
     #[On('edit')]
     public function edit($rowId): void
     {
@@ -103,7 +91,15 @@ final class UserTable extends PowerGridComponent
             Button::add('edit')
                 ->slot('View')
                 ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
+                ->class('inline-flex items-center justify-center gap-2
+       rounded-lg px-5 py-2
+       bg-white text-black
+       dark:bg-zinc-900 dark:text-white
+       hover:bg-zinc-100 dark:hover:bg-zinc-800
+       hover:shadow-md transition-all duration-200
+       focus:outline-none focus:ring-2 focus:ring-offset-2
+       focus:ring-blue-500 dark:focus:ring-blue-400
+       cursor-pointer')
                 ->dispatch('edit', ['rowId' => $row->id])
         ];
     }
