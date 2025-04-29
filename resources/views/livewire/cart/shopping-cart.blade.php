@@ -40,6 +40,11 @@
                             <p class="text-sm text-black dark:text-zinc-400">
                                 {{ Str::limit($item['product']->description, 200) }}
                             </p>
+                            @if($item['product']->stock < $item['quantity'])
+                                <div class="text-sm text-amber-600">
+                                    The stock is only {{ $item['product']->stock }}. More than {{ $item['product']->stock }} will result in a slight delay.
+                                </div>
+                            @endif
                         </div>
 
                         <!-- Quantity Controls -->
@@ -62,6 +67,11 @@
                             <div class="text-right min-w-[90px]">
                                 <div class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
                                     ${{ number_format($item['total'], 2) }}
+                                    <p>
+                                        <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                                            ${{ number_format($item['product']->price, 2) }} each
+                                        </span>
+                                    </p>
                                 </div>
                                 <button wire:click="removeFromCart({{ $item['product']->id }})"
                                         class="text-xs text-red-600 hover:text-red-500 font-medium">

@@ -1,6 +1,26 @@
 <x-layouts.app.header :title="__('Catalog')">
     <div class="container mx-auto px-4 py-8">
-        <h1 class="text-3xl font-bold mb-8">{{ __('Our Products') }}</h1>
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-4">{{ __('Our Products') }}</h1>
+
+            <!-- Search Bar -->
+            <form method="GET" action="{{ url()->current() }}" class="relative mb-6">
+                <input
+                    type="text"
+                    name="search"
+                    placeholder="Search products..."
+                    value="{{ request('search') }}"
+                    class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-500 dark:bg-zinc-800 dark:text-white dark:border-zinc-700"
+                />
+                <button type="submit" class="absolute right-3 top-2.5 text-gray-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                    </svg>
+                </button>
+            </form>
+        </div>
+
+
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             @foreach ($products as $product)
