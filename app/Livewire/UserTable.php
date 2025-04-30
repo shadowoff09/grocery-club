@@ -14,7 +14,7 @@ use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class UserTable extends PowerGridComponent
 {
-    public string $tableName = 'user-table-4yw1y7-table';
+    public string $tableName = 'users-table';
 
     public function setUp(): array
     {
