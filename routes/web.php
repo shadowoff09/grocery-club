@@ -45,6 +45,9 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     Volt::route('board/business/settings/shipping-costs', 'business-settings.shipping-costs')
         ->name('board.business.settings.shipping-costs');
 
+    Volt::route('board/business/settings/caching', 'business-settings.caching')
+        ->name('board.business.settings.caching');
+
     Route::prefix('board/users/{user}')->group(function () {
         Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
         Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');

@@ -19,6 +19,14 @@
             >
                 {{ __('Shipping') }}
             </flux:navlist.item>
+            <flux:navlist.item
+                :href="route('board.business.settings.caching')"
+                wire:navigate
+                icon="cog-6-tooth"
+                :current="request()->routeIs('board.business.settings.caching')"
+            >
+                {{ __('Caching') }}
+            </flux:navlist.item>
         </flux:navlist>
     </div>
 
