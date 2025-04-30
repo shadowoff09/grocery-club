@@ -96,8 +96,8 @@ Password: 123
 ### ⚙️ Configurações do Negócio
 - [ ] CRUD de categorias (com imagem, soft delete se necessário)
 - [ ] CRUD de produtos (preço, stock, descontos, imagem)
-- [ ] Definição da taxa de adesão
-- [ ] Definição de portes com intervalos de valor
+- [x] Definição da taxa de adesão
+- [x] Definição de portes com intervalos de valor
 
 ---
 
