@@ -12,7 +12,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/catalog', [CatalogController::class, 'index']);
+Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');;
 
 Route::get('/cart', [CartController::class, 'index']);
 

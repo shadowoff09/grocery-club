@@ -3,26 +3,34 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
-use Livewire\WithPagination;
 
 class CatalogController extends Controller
 {
 
     public function index(Request $request)
     {
-        $query = Product::where('deleted_at', null);
+        $search = $request->search;
+        $page = $request->get('page', 1);
 
-        if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('description', 'like', '%' . $request->search . '%');
-            });
-        }
+        // Gera uma chave de cache única para cada combinação de pesquisa e página
+        $cacheKey = "products_index:search={$search}:page={$page}";
 
-        $products = $query->orderBy('name')
-            ->paginate(12)
-            ->withQueryString();
+        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search) {
+            $query = Product::whereNull('deleted_at');
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            }
+
+            return $query->orderBy('name')
+                ->paginate(12)
+                ->withQueryString();
+        });
 
         return view('catalog.index', compact('products'));
     }

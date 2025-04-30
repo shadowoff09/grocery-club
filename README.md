@@ -112,7 +112,7 @@ Password: 123
 ### 🛒 Carrinho & Checkout
 - [x] Carrinho funcional para todos os utilizadores
 - [x] Atualização de quantidades, remoção de produtos
-- [ ] Cálculo automático de subtotal, portes e total
+- [x] Cálculo automático de subtotal, portes e total
 - [ ] Preenchimento automático de NIF e morada
 - [ ] Restrição: só membros podem comprar
 - [ ] Validação de saldo suficiente no cartão
