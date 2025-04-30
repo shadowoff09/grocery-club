@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
@@ -31,6 +32,8 @@ class CatalogController extends Controller
                 ->paginate(12)
                 ->withQueryString();
         });
+
+        $categories = Category::query()->get();
 
         return view('catalog.index', compact('products'));
     }

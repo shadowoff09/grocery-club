@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Card extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     public $incrementing = false;
 
