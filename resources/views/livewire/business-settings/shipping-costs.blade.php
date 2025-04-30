@@ -51,12 +51,14 @@ new class extends Component {
 
     public function save(): void
     {
+        // Validate the inputs according to the database rules
         $this->validate([
             'min_value_threshold' => 'required|numeric|gte:0|max:9999999.99',
             'max_value_threshold' => 'required|numeric|gt:min_value_threshold|max:9999999.99',
             'shipping_cost' => 'required|numeric|min:0|max:9999999.99',
         ]);
 
+        // Check for overlaps with existing records when editing
         if ($this->editId) {
             $existingRecord = SettingsShippingCost::find($this->editId);
 
@@ -76,6 +78,7 @@ new class extends Component {
                     })
                     ->exists();
 
+                // If overlaps are found when editing, invalidate the input and return an error message
                 if ($overlaps) {
                     $this->addError('min_value_threshold', 'This interval overlaps with another shipping cost range.');
                     return;
@@ -94,6 +97,7 @@ new class extends Component {
                 })
                 ->exists();
 
+            // If overlaps are found when creating a new record, invalidate the input and return an error message
             if ($overlaps) {
                 $this->addError('min_value_threshold', 'This interval overlaps with another shipping cost range.');
                 return;
@@ -109,10 +113,12 @@ new class extends Component {
             ]
         );
 
+        // Reset the form fields and dispatch an event to refresh the shipping costs table
         $this->reset(['editId', 'min_value_threshold', 'max_value_threshold', 'shipping_cost']);
         $this->refreshShippingCosts();
         $this->dispatch('shippingCostChanged')->to('shipping-costs-table');
         Toaster::success('Shipping cost saved successfully!');
+        // Leave edit mode
         $this->isEditing = false;
     }
 
