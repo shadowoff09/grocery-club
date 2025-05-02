@@ -13,12 +13,13 @@ class CatalogController extends Controller
     public function index(Request $request)
     {
         $search = $request->search;
+        $categoryId = $request->category;
         $page = $request->get('page', 1);
 
-        // Gera uma chave de cache única para cada combinação de pesquisa e página
-        $cacheKey = "products_index:search={$search}:page={$page}";
+        // Gera uma chave de cache única para cada combinação de pesquisa, categoria e página
+        $cacheKey = "products_index:search={$search}:category={$categoryId}:page={$page}";
 
-        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search) {
+        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search, $categoryId) {
             $query = Product::whereNull('deleted_at');
 
             if ($search) {
@@ -28,13 +29,23 @@ class CatalogController extends Controller
                 });
             }
 
+            if ($categoryId) {
+                $query->where('category_id', $categoryId);
+            }
+
             return $query->orderBy('name')
                 ->paginate(12)
                 ->withQueryString();
         });
 
         $categories = Category::query()->get();
+        $activeCategory = $categoryId ? Category::find($categoryId) : null;
 
-        return view('catalog.index', compact('products'));
+        return view('catalog.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'search' => $search,
+            'activeCategory' => $activeCategory,
+        ]);
     }
 }
