@@ -39,7 +39,10 @@ final class UserTable extends PowerGridComponent
     {
         return PowerGrid::fields()
             ->add('photo', function (User $user) {
-                return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/' . $user->photo) . '">';
+                if ($user->photo && file_exists(public_path('storage/users/' . $user->photo))) {
+                    return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/' . $user->photo) . '">';
+                }
+                return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/anonymous.png') . '">';
             })
 
             ->add('name')

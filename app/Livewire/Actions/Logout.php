@@ -17,6 +17,14 @@ class Logout
         Session::invalidate();
         Session::regenerateToken();
 
-        return redirect('/');
+        $previousUrl = url()->previous();
+
+        if (str_contains($previousUrl, '/dashboard')) {
+            return redirect()->route('login');
+        } else if (str_contains($previousUrl, '/catalog')) {
+            return redirect()->route('catalog.index');
+        } else {
+            return redirect('/');
+        }
     }
 }

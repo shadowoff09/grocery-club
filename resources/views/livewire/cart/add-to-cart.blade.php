@@ -20,6 +20,11 @@
     <!-- Add to Cart Button -->
     <button
         wire:click="addToCart"
+        wire:target="addToCart"
+        wire:loading.attr="disabled"
+        wire:loading.class="opacity-50 cursor-not-allowed"
+        wire:loading.class.remove="cursor-pointer"
+        wire:target.remove="addToCart"
         class="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 bg-zinc-900 text-white text-sm font-medium rounded-lg shadow-sm transition-colors duration-200 hover:bg-zinc-700 active:scale-95 dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-zinc-100">
         <x-lucide-shopping-cart class="w-4 h-4" />
         Add to Cart

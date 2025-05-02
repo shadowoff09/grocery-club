@@ -4,17 +4,16 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Middleware\CheckUserType;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');;
 
-Route::get('/cart', [CartController::class, 'index']);
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -63,5 +62,6 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
         return view('components.dashboard.membership.pending');
     })->name('membership.pending');
 });
+
 
 require __DIR__.'/auth.php';
