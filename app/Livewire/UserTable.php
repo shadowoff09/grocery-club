@@ -3,30 +3,30 @@
 namespace App\Livewire;
 
 use App\Models\User;
-use Illuminate\Support\Carbon;
+use Blade;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\On;
 use PowerComponents\LivewirePowerGrid\Button;
 use PowerComponents\LivewirePowerGrid\Column;
-use PowerComponents\LivewirePowerGrid\Facades\Filter;
 use PowerComponents\LivewirePowerGrid\Facades\PowerGrid;
 use PowerComponents\LivewirePowerGrid\PowerGridFields;
 use PowerComponents\LivewirePowerGrid\PowerGridComponent;
 
 final class UserTable extends PowerGridComponent
 {
-    public string $tableName = 'user-table-4yw1y7-table';
+    public string $tableName = 'users-table';
 
     public function setUp(): array
     {
-        $this->showCheckBox();
-
         return [
             PowerGrid::header()
-                ->showSearchInput(),
+                ->showSearchInput()
+                ->showToggleColumns(),
             PowerGrid::footer()
                 ->showPerPage()
                 ->showRecordCount(),
+            PowerGrid::responsive()
+                ->fixedColumns('name', 'actions'),
         ];
     }
 
@@ -35,15 +35,16 @@ final class UserTable extends PowerGridComponent
         return User::query();
     }
 
-    public function relationSearch(): array
-    {
-        return [];
-    }
-
     public function fields(): PowerGridFields
     {
         return PowerGrid::fields()
-            ->add('id')
+            ->add('photo', function (User $user) {
+                if ($user->photo && file_exists(public_path('storage/users/' . $user->photo))) {
+                    return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/' . $user->photo) . '">';
+                }
+                return '<img class="w-8 h-8 shrink-0 grow-0 rounded-md" src="' . asset('storage/users/anonymous.png') . '">';
+            })
+
             ->add('name')
             ->add('email')
             ->add('type', function (User $user) {
@@ -56,8 +57,8 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Column::add()
-                ->title('ID')
-                ->field('id'),
+                ->title('Photo')
+                ->field('photo'),
 
             Column::add()
                 ->title('Name')
@@ -85,12 +86,6 @@ final class UserTable extends PowerGridComponent
         ];
     }
 
-    public function filters(): array
-    {
-        return [
-        ];
-    }
-
     #[On('edit')]
     public function edit($rowId): void
     {
@@ -101,22 +96,10 @@ final class UserTable extends PowerGridComponent
     {
         return [
             Button::add('edit')
-                ->slot('View')
-                ->id()
-                ->class('pg-btn-white dark:ring-pg-primary-600 dark:border-pg-primary-600 dark:hover:bg-pg-primary-700 dark:ring-offset-pg-primary-800 dark:text-pg-primary-300 dark:bg-pg-primary-700')
-                ->dispatch('edit', ['rowId' => $row->id])
+                ->slot(Blade::render('<flux:button icon="eye" class="cursor-pointer" wire:click="$dispatch(\'edit\', { rowId: ' . $row->id . ' })">View</flux:button>'))
+                ->id(),
         ];
-    }
 
-    /*
-    public function actionRules($row): array
-    {
-       return [
-            // Hide button edit for ID 1
-            Rule::button('edit')
-                ->when(fn($row) => $row->id === 1)
-                ->hide(),
-        ];
+
     }
-    */
 }

@@ -8,21 +8,59 @@ use Illuminate\Http\Request;
 
 class BoardController extends Controller
 {
+
+    public function membershipFee()
+    {
+        // Ensure only board members can access this
+        abort_if(!auth()->user()->isBoardMember(), 403);
+
+        return view('components.board.business-settings');
+    }
+
     public function userManagement()
     {
+        // Current data
         $totalUsers = User::count();
         // a user is active if they logged within 24 hours
         $activeUsers = User::where('last_login_at', '>=', now()->subDay())->count();
         $boardMembers = User::where('type', 'board')->count();
+
+        // Get last month's data (30 days ago)
+        $lastMonth = now()->subDays(30);
+        $lastMonthTotalUsers = User::where('created_at', '<', $lastMonth)->count();
+        $lastMonthActiveUsers = User::where('last_login_at', '>=', $lastMonth->copy()->subDay())
+            ->where('last_login_at', '<', $lastMonth)
+            ->count();
+        $lastMonthBoardMembers = User::where('type', 'board')
+            ->where('created_at', '<', $lastMonth)
+            ->count();
+
+        // Calculate percentage trends
+        $totalUsersTrend = $lastMonthTotalUsers > 0
+            ? round(($totalUsers - $lastMonthTotalUsers) / $lastMonthTotalUsers * 100, 1)
+            : 0;
+
+        $activeUsersTrend = $lastMonthActiveUsers > 0
+            ? round(($activeUsers - $lastMonthActiveUsers) / $lastMonthActiveUsers * 100, 1)
+            : 0;
+
+        $boardMembersTrend = $lastMonthBoardMembers > 0
+            ? round(($boardMembers - $lastMonthBoardMembers) / $lastMonthBoardMembers * 100, 1)
+            : 0;
+
         $users = User::paginate(10);
 
         return view('components.board.user-management', [
             'totalUsers' => $totalUsers,
             'boardMembers' => $boardMembers,
             'activeUsers' => $activeUsers,
+            'totalUsersTrend' => $totalUsersTrend,
+            'activeUsersTrend' => $activeUsersTrend,
+            'boardMembersTrend' => $boardMembersTrend,
             'users' => $users,
         ]);
     }
+
 
     public function userDetail(User $user)
     {

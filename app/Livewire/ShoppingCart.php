@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Product;
+use App\Models\SettingsShippingCost;
 use Livewire\Component;
 
 class ShoppingCart extends Component
@@ -12,6 +13,12 @@ class ShoppingCart extends Component
         $cart = session()->get('cart', []);
         unset($cart[$productId]);
         session()->put('cart', $cart);
+        $this->dispatch('cartUpdated');
+    }
+
+    public function clearCart()
+    {
+        session()->forget('cart');
         $this->dispatch('cartUpdated');
     }
 
@@ -47,9 +54,17 @@ class ShoppingCart extends Component
 
         $total = $cartItems->sum('total');
 
+        $shippingCost = SettingsShippingCost::where('min_value_threshold', '<=', $total)
+            ->where('max_value_threshold', '>', $total)
+            ->value('shipping_cost');
+
+        $totalWithShipping = $total + $shippingCost;
+
         return view('livewire.cart.shopping-cart', [
             'cartItems' => $cartItems,
-            'total' => $total
+            'total' => $total,
+            'shippingCost' => $shippingCost,
+            'totalWithShipping' => $totalWithShipping,
         ]);
     }
 }

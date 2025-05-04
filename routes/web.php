@@ -4,17 +4,16 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\LandingPageController;
 use App\Http\Middleware\CheckUserType;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('home');
+Route::get('/', [LandingPageController::class, 'index'])->name('home');
 
-Route::get('/catalog', [CatalogController::class, 'index']);
+Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');;
 
-Route::get('/cart', [CartController::class, 'index']);
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -39,6 +38,15 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
     Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
 
+    Volt::route('board/business/settings/membership-fee', 'business-settings.membership-fee')
+        ->name('board.business.settings.membership-fee');
+
+    Volt::route('board/business/settings/shipping-costs', 'business-settings.shipping-costs')
+        ->name('board.business.settings.shipping-costs');
+
+    Volt::route('board/business/settings/caching', 'business-settings.caching')
+        ->name('board.business.settings.caching');
+
     Route::prefix('board/users/{user}')->group(function () {
         Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
         Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');
@@ -54,5 +62,6 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
         return view('components.dashboard.membership.pending');
     })->name('membership.pending');
 });
+
 
 require __DIR__.'/auth.php';

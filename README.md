@@ -96,15 +96,15 @@ Password: 123
 ### ⚙️ Configurações do Negócio
 - [ ] CRUD de categorias (com imagem, soft delete se necessário)
 - [ ] CRUD de produtos (preço, stock, descontos, imagem)
-- [ ] Definição da taxa de adesão
-- [ ] Definição de portes com intervalos de valor
+- [x] Definição da taxa de adesão
+- [x] Definição de portes com intervalos de valor
 
 ---
 
 ### 🛍️ Catálogo & Loja
 - [x] Listagem de produtos visível para todos (incluindo anónimos)
 - [ ] Produtos com nome, imagem, descrição, preço, desconto
-- [ ] Produtos fora de stock visíveis com alerta
+- [x] Produtos fora de stock visíveis com alerta
 - [ ] Filtros e ordenação por categoria, nome, preço
 
 ---
@@ -112,7 +112,7 @@ Password: 123
 ### 🛒 Carrinho & Checkout
 - [x] Carrinho funcional para todos os utilizadores
 - [x] Atualização de quantidades, remoção de produtos
-- [ ] Cálculo automático de subtotal, portes e total
+- [x] Cálculo automático de subtotal, portes e total
 - [ ] Preenchimento automático de NIF e morada
 - [ ] Restrição: só membros podem comprar
 - [ ] Validação de saldo suficiente no cartão

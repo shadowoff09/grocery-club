@@ -154,7 +154,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
             </flux:select>
 
 
-            <flux:button type="submit" variant="primary" class="w-full">
+            <flux:button type="submit" variant="primary" class="w-full cursor-pointer">
                 <div class="flex items-center justify-between">
                     {{ __('Next') }}
                     <x-lucide-arrow-right class="w-4 h-4"/>
@@ -206,7 +206,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 accept="image/*"
             />
 
-            <flux:button type="submit" variant="primary" class="w-full">
+            <flux:button type="submit" variant="primary" class="w-full cursor-pointer">
                 {{ __('Register') }}
             </flux:button>
         </form>

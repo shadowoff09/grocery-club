@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Card extends Model
 {
-    use HasFactory, SoftDeletes;
+    use SoftDeletes;
 
     public $incrementing = false;
 
@@ -21,7 +21,6 @@ class Card extends Model
     protected $fillable = [
         'id', 'card_number', 'balance'
     ];
-
 
     public function user(): BelongsTo
     {

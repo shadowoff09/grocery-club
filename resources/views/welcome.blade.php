@@ -1,197 +1,270 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <title>{{ config('app.name', 'Grocery Club') }}</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
-
-    <!-- Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-</head>
-<body class="antialiased bg-gradient-to-br from-emerald-50 to-teal-100 min-h-screen">
-<div class="relative min-h-screen flex flex-col items-center">
-    <!-- Navigation -->
-    <nav class="w-full bg-white shadow-sm py-4">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
-            <div class="flex items-center">
-                <div class="flex aspect-square size-8 items-center justify-center rounded-md bg-emerald-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="8" cy="21" r="1"/>
-                        <circle cx="19" cy="21" r="1"/>
-                        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                    </svg>
-                </div>
-                <div class="ms-2 grid flex-1 text-start">
-                    <span class="truncate leading-none font-semibold text-lg text-emerald-800">Grocery Club</span>
+<x-layouts.app.header :title="__('Landing Page')">
+    <div class="min-h-screen">
+        <!-- Hero Section -->
+        <div class="relative py-16 md:py-24 bg-gradient-to-b from-emerald-50/50 to-white dark:from-emerald-950/10 dark:to-zinc-800 overflow-hidden">
+            <div class="container mx-auto px-4 relative z-10">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+                    <div class="space-y-8 md:pr-8">
+                        <div class="inline-flex items-center rounded-full px-4 py-1 text-sm bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 font-medium">
+                            <x-lucide-sparkles class="w-4 h-4 mr-2" />
+                            Premium Quality Groceries
+                        </div>
+                        <div class="space-y-4">
+                            <h1 class="text-4xl md:text-5xl font-bold text-zinc-900 dark:text-white leading-tight">
+                                Fresh Food <br>
+                                <span class="text-emerald-600 dark:text-emerald-400">Delivered Daily</span>
+                            </h1>
+                            <p class="text-lg text-zinc-600 dark:text-zinc-300 max-w-lg">
+                                Join Grocery Club for premium products, member discounts, and convenient delivery right to your doorstep.
+                            </p>
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors">
+                                <x-lucide-user-plus class="w-5 h-5 mr-2" />
+                                Join Grocery Club
+                            </a>
+                            <a href="{{ route('catalog.index') }}" class="inline-flex items-center justify-center px-6 py-3 bg-white dark:bg-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-900 dark:text-white border border-zinc-200 dark:border-zinc-700 font-medium rounded-lg transition-colors">
+                                <x-lucide-shopping-bag class="w-5 h-5 mr-2" />
+                                Browse Products
+                            </a>
+                        </div>
+                    </div>
+                    <div class="relative md:h-[500px] flex items-center justify-center">
+                        <!-- Decorative elements -->
+                        <div class="absolute inset-0 md:-inset-x-12 md:-inset-y-8">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-emerald-100 to-emerald-50 dark:from-emerald-900/20 dark:to-emerald-800/10 rounded-[3rem] rotate-3"></div>
+                            <div class="absolute inset-0 bg-gradient-to-bl from-emerald-50 to-white dark:from-emerald-800/10 dark:to-transparent rounded-[3rem] -rotate-3 opacity-70"></div>
+                        </div>
+                        
+                        <!-- Image container -->
+                        <div class="relative w-full max-w-lg mx-auto">
+                            <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-emerald-100/20 dark:from-emerald-500/5 dark:to-emerald-900/10 rounded-[2rem] blur-2xl"></div>
+                            <div class="relative rounded-[2rem] overflow-hidden shadow-2xl bg-white dark:bg-zinc-900 aspect-[4/3]">
+                                <img 
+                                    src="{{ asset('images/grocery-hero.jpg') }}" 
+                                    alt="Fresh groceries" 
+                                    class="w-full h-full object-cover"
+                                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&auto=format&fit=crop'; this.alt='Fresh groceries from Unsplash'"
+                                >
+                                <!-- Overlay gradient -->
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent dark:from-black/20"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="flex space-x-4">
-                @if (Route::has('login'))
+        </div>
+
+        <!-- Stats Section -->
+        <div class="py-8 bg-white dark:bg-zinc-800 border-y border-zinc-200 dark:border-zinc-700">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($stats['customers']) }}+</div>
+                        <div class="text-sm text-zinc-600 dark:text-zinc-400">Happy Customers</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($stats['products']) }}+</div>
+                        <div class="text-sm text-zinc-600 dark:text-zinc-400">Products</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{{ $stats['categories'] }}</div>
+                        <div class="text-sm text-zinc-600 dark:text-zinc-400">Categories</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="py-16 bg-zinc-50 dark:bg-zinc-900">
+            <div class="container mx-auto px-4">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-bold text-zinc-900 dark:text-white mb-4">Why Choose Grocery Club</h2>
+                    <p class="text-zinc-600 dark:text-zinc-400 max-w-2xl mx-auto">
+                        Experience the best in grocery shopping with our premium service
+                    </p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <!-- Feature 1 -->
+                    <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mr-4">
+                                <x-lucide-sparkles class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Premium Quality</h3>
+                        </div>
+                        <p class="text-zinc-600 dark:text-zinc-400">
+                            Fresh produce and high-quality grocery items guaranteed, sourced from trusted suppliers.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature 2 -->
+                    <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mr-4">
+                                <x-lucide-percent class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Member Discounts</h3>
+                        </div>
+                        <p class="text-zinc-600 dark:text-zinc-400">
+                            Exclusive pricing and weekly special promotions for our valued members.
+                        </p>
+                    </div>
+                    
+                    <!-- Feature 3 -->
+                    <div class="bg-white dark:bg-zinc-800 p-6 rounded-xl shadow-sm hover:shadow-md transition-all duration-300">
+                        <div class="flex items-center mb-4">
+                            <div class="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center mr-4">
+                                <x-lucide-truck class="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                            </div>
+                            <h3 class="text-lg font-semibold text-zinc-900 dark:text-white">Fast Delivery</h3>
+                        </div>
+                        <p class="text-zinc-600 dark:text-zinc-400">
+                            Same-day delivery available, with real-time order tracking.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Categories Preview -->
+        <div class="py-16 bg-white dark:bg-zinc-800">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-10">
                     <div>
-                        @auth
-                            <a href="{{ url('/dashboard') }}" class="text-emerald-700 hover:text-emerald-800 font-medium">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}" class="text-emerald-700 hover:text-emerald-800 font-medium">Log in</a>
-
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="ms-4 text-emerald-700 hover:text-emerald-800 font-medium">Register</a>
-                            @endif
-                        @endauth
+                        <h2 class="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Shop by Category</h2>
+                        <p class="text-zinc-600 dark:text-zinc-400">Explore our wide selection of products</p>
                     </div>
-                @endif
-            </div>
-        </div>
-    </nav>
-
-    <!-- Hero Section -->
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20 flex flex-col lg:flex-row items-center gap-10">
-        <!-- Left content -->
-        <div class="flex-1">
-            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-emerald-900 mb-4">
-                Fresh Groceries <br>
-                <span class="text-emerald-600">Delivered to Your Door</span>
-            </h1>
-            <p class="text-lg text-gray-600 mb-8 max-w-2xl">
-                Join Grocery Club today and discover the convenience of having quality groceries
-                delivered right to your doorstep. Save time, eat well, and enjoy exclusive member benefits.
-            </p>
-            <div class="flex flex-wrap gap-4">
-                <a href="{{ Route::has('register') ? route('register') : '#' }}" class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition duration-300">
-                    Get Started
-                </a>
-                <a href="#features" class="px-6 py-3 bg-white hover:bg-gray-100 text-emerald-700 font-medium rounded-lg border border-emerald-200 transition duration-300">
-                    Learn More
-                </a>
-            </div>
-        </div>
-
-        <!-- Right image -->
-        <div class="flex-1 mt-8 lg:mt-0">
-            <div class="relative rounded-2xl overflow-hidden shadow-xl">
-                <img src="https://images.unsplash.com/photo-1543168256-418811576931?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80"
-                     alt="Fresh groceries" class="w-full aspect-[4/3] object-cover">
-                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-emerald-900/70 to-transparent p-6">
-                    <div class="text-white text-lg font-medium">Fresh, Local & Sustainable</div>
+                    <a href="{{ route('catalog.index') }}" class="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-300">
+                        View All Categories
+                        <x-lucide-arrow-right class="w-4 h-4 ml-1" />
+                    </a>
+                </div>
+                
+                <!-- Categories Grid -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    @foreach($categories as $category)
+                        <a href="{{ route('catalog.index', ['category' => $category->id]) }}" class="group">
+                            <div class="bg-zinc-50 dark:bg-zinc-900 p-6 rounded-xl text-center hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-300">
+                                <div class="inline-flex items-center justify-center w-12 h-12 rounded-lg bg-emerald-100 dark:bg-emerald-900/50 mb-4 group-hover:scale-110 transition-transform">
+                                    @if($category->image)
+                                        <img src="{{ asset('storage/categories/' . $category->image) }}" alt="{{ $category->name }}" class="w-7 h-7 object-cover">
+                                    @else
+                                        <x-lucide-grid class="w-7 h-7 text-emerald-600 dark:text-emerald-400" />
+                                    @endif
+                                </div>
+                                <span class="block font-medium text-zinc-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400">{{ $category->name }}</span>
+                                <span class="text-sm text-zinc-500 dark:text-zinc-400">{{ $category->products_count }} products</span>
+                            </div>
+                        </a>
+                    @endforeach
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Features Section -->
-    <div id="features" class="w-full bg-white py-16">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-3xl font-bold text-center text-emerald-800 mb-12">Why Choose Grocery Club?</h2>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="bg-emerald-50 p-6 rounded-xl">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
+        
+        <!-- Featured Products -->
+        <div class="py-16 bg-white dark:bg-zinc-800">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center mb-10">
+                    <div>
+                        <h2 class="text-3xl font-bold text-zinc-900 dark:text-white mb-2">Featured Products</h2>
+                        <p class="text-zinc-600 dark:text-zinc-400">Fresh picks from our latest collection</p>
                     </div>
-                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Fast Delivery</h3>
-                    <p class="text-gray-600">Get your groceries delivered within hours of placing your order.</p>
+                    <a href="{{ route('catalog.index') }}" class="inline-flex items-center text-emerald-600 dark:text-emerald-400 font-medium hover:text-emerald-700 dark:hover:text-emerald-300">
+                        View All Products
+                        <x-lucide-arrow-right class="w-4 h-4 ml-1" />
+                    </a>
                 </div>
 
-                <!-- Feature 2 -->
-                <div class="bg-emerald-50 p-6 rounded-xl">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Quality Products</h3>
-                    <p class="text-gray-600">We source only the freshest and highest quality products for our members.</p>
-                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    @foreach($featuredProducts as $product)
+                        <div class="group bg-white dark:bg-zinc-900 rounded-xl overflow-hidden border border-zinc-200 dark:border-zinc-700 hover:shadow-lg transition-all duration-300">
+                            <div class="aspect-square bg-zinc-50 dark:bg-zinc-800 relative overflow-hidden">
+                                @if($product->photo)
+                                    <img 
+                                        src="{{ asset('storage/products/' . $product->photo) }}" 
+                                        alt="{{ $product->name }}" 
+                                        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                    >
+                                @else
+                                    <div class="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-600">
+                                        <x-lucide-shopping-bag class="w-12 h-12" />
+                                    </div>
+                                @endif
+                                
+                                <!-- Product badges -->
+                                @if($product->stock <= 5 && $product->stock > 0)
+                                    <div class="absolute top-2 right-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 rounded-full">
+                                            Only {{ $product->stock }} left
+                                        </span>
+                                    </div>
+                                @elseif($product->stock === 0)
+                                    <div class="absolute top-2 right-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-300 rounded-full">
+                                            Out of stock
+                                        </span>
+                                    </div>
+                                @endif
 
-                <!-- Feature 3 -->
-                <div class="bg-emerald-50 p-6 rounded-xl">
-                    <div class="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mb-4">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-semibold text-emerald-800 mb-2">Exclusive Savings</h3>
-                    <p class="text-gray-600">Club members enjoy special prices, discounts, and seasonal offers.</p>
-                </div>
-            </div>
-        </div>
-    </div>
+                                @if($product->discount > 0)
+                                    <div class="absolute top-2 left-2">
+                                        <span class="px-2 py-1 text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300 rounded-full">
+                                            {{ $product->discount }}% OFF
+                                        </span>
+                                    </div>
+                                @endif
+                            </div>
 
-    <!-- CTA Section -->
-    <div class="w-full bg-emerald-700 py-12">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold text-white mb-6">Ready to join Grocery Club?</h2>
-            <p class="text-emerald-100 mb-8 max-w-2xl mx-auto">
-                Sign up today and get your first delivery free!
-            </p>
-            <a href="{{ Route::has('register') ? route('register') : '#' }}"
-               class="px-8 py-4 bg-white hover:bg-emerald-50 text-emerald-700 font-medium rounded-lg transition duration-300 inline-block">
-                Join Now
-            </a>
-        </div>
-    </div>
-
-    <!-- Footer -->
-    <footer class="w-full bg-gray-800 text-white py-8">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div>
-                    <div class="flex items-center mb-4">
-                        <div class="flex aspect-square size-8 items-center justify-center rounded-md bg-white">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-emerald-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="8" cy="21" r="1"/>
-                                <circle cx="19" cy="21" r="1"/>
-                                <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
-                            </svg>
+                            <div class="p-4">
+                                <div class="mb-1">
+                                    <span class="text-sm text-zinc-500 dark:text-zinc-400">
+                                        {{ $product->category->name }}
+                                    </span>
+                                </div>
+                                <h3 class="font-medium text-zinc-900 dark:text-white mb-2 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    {{ $product->name }}
+                                </h3>
+                                <div class="flex items-center justify-between">
+                                    <div class="text-lg font-bold text-zinc-900 dark:text-white">
+                                        €{{ number_format($product->price, 2) }}
+                                    </div>
+                                    <a 
+                                        href="{{ route('catalog.index', ['category' => $product->category_id]) }}" 
+                                        class="inline-flex items-center justify-center p-2 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-lg hover:bg-emerald-200 dark:hover:bg-emerald-900 transition-colors"
+                                    >
+                                        <x-lucide-shopping-cart class="w-5 h-5" />
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                        <div class="ms-2">
-                            <span class="font-semibold text-lg">Grocery Club</span>
-                        </div>
-                    </div>
-                    <p class="text-gray-400">Fresh groceries delivered to your door.</p>
+                    @endforeach
                 </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">About Us</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">How It Works</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">FAQs</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition">Contact</a></li>
-                    </ul>
-                </div>
-
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Contact Us</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                            </svg>
-                            support@groceryclub.com
-                        </li>
-                        <li class="flex items-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                            </svg>
-                            (555) 123-4567
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
-                <p>&copy; {{ date('Y') }} Grocery Club. All rights reserved.</p>
             </div>
         </div>
-    </footer>
-</div>
-</body>
-</html>
+        
+        <!-- CTA Section -->
+        <div class="py-16 bg-emerald-600 dark:bg-emerald-700">
+            <div class="container mx-auto px-4 text-center">
+                <div class="max-w-2xl mx-auto">
+                    <h2 class="text-3xl font-bold text-white mb-4">Start Shopping Smarter Today</h2>
+                    <p class="text-emerald-100 mb-8">
+                        Join thousands of satisfied customers who trust Grocery Club for their daily essentials.
+                    </p>
+                    <div class="flex flex-col sm:flex-row justify-center gap-4">
+                        <a href="{{ route('register') }}" class="inline-flex items-center justify-center px-8 py-3 bg-white hover:bg-zinc-100 text-emerald-600 font-medium rounded-lg transition-colors">
+                            <x-lucide-user-plus class="w-5 h-5 mr-2" />
+                            Create Account
+                        </a>
+                        <a href="{{ route('catalog.index') }}" class="inline-flex items-center justify-center px-8 py-3 bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500 font-medium rounded-lg transition-colors">
+                            <x-lucide-shopping-bag class="w-5 h-5 mr-2" />
+                            Browse Products
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</x-layouts.app.header>
+        

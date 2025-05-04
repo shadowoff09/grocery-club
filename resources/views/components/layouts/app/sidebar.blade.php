@@ -14,10 +14,19 @@
             <flux:navlist variant="outline">
                 <flux:navlist.group :heading="__('Platform')" class="grid">
                     <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
+                    <flux:navlist.item icon="shopping-bag" :href="route('catalog.index')" :current="request()->routeIs('catalog.index')" wire:navigate>{{ __('Catalog') }}</flux:navlist.item>
                 </flux:navlist.group>
                 @if(auth()->user()->isBoardMember())
                     <flux:navlist.group :heading="__('Board')" class="grid">
                         <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+                        <flux:navlist.item
+                            icon="cog-6-tooth"
+                            :href="route('board.business.settings.membership-fee')"
+                            :current="request()->routeIs('board.business.settings.membership-fee') || request()->routeIs('board.business.settings.shipping-costs')"
+                            wire:navigate
+                        >
+                            {{ __('Business Settings') }}
+                        </flux:navlist.item>
                     </flux:navlist.group>
                 @endif
             </flux:navlist>
@@ -97,7 +106,7 @@
                         >
                             <span>{{ __('Balance') }}</span>
                             <span class="text-xs text-zinc-500">
-                                {{ number_format(auth()->user()->card->balance, 2) }} €
+                                {{ number_format(optional(auth()->user()->card)->balance ?? 0, 2) }} €
                             </span>
                         </flux:menu.item>
                     </flux:menu.radio.group>
@@ -124,8 +133,21 @@
                 </form>
             </flux:menu>
         </flux:dropdown>
-        <flux:button x-data x-on:click="$flux.dark = ! $flux.dark" icon="moon" variant="subtle"
-                     aria-label="Toggle dark mode"/>
+        <button
+            class="p-2 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
+            x-data
+            @click="$flux.appearance = $flux.appearance === 'dark' ? 'light' : 'dark'"
+        >
+            <template x-if="$flux.appearance === 'dark'">
+                <flux:icon name="sun" class="w-5 h-5"/>
+            </template>
+            <template x-if="$flux.appearance === 'light'">
+                <flux:icon name="moon" class="w-5 h-5"/>
+            </template>
+            <template x-if="$flux.appearance === 'system'">
+                <flux:icon name="computer-desktop" class="w-5 h-5"/>
+            </template>
+        </button>
     </div>
 </flux:sidebar>
 

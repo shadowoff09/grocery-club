@@ -2,18 +2,50 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Http\Request;
 
 class CatalogController extends Controller
 {
-    public function index()
+
+    public function index(Request $request)
     {
-        $products = Product::where('deleted_at', Null)
-            ->orderBy('name')
-            ->paginate(12);
+        $search = $request->search;
+        $categoryId = $request->category;
+        $page = $request->get('page', 1);
 
-        return view('catalog.index', compact('products'));
+        // Gera uma chave de cache única para cada combinação de pesquisa, categoria e página
+        $cacheKey = "products_index:search={$search}:category={$categoryId}:page={$page}";
 
+        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search, $categoryId) {
+            $query = Product::whereNull('deleted_at');
+
+            if ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', '%' . $search . '%')
+                        ->orWhere('description', 'like', '%' . $search . '%');
+                });
+            }
+
+            if ($categoryId) {
+                $query->where('category_id', $categoryId);
+            }
+
+            return $query->orderBy('name')
+                ->paginate(12)
+                ->withQueryString();
+        });
+
+        $categories = Category::query()->get();
+        $activeCategory = $categoryId ? Category::find($categoryId) : null;
+
+        return view('catalog.index', [
+            'products' => $products,
+            'categories' => $categories,
+            'search' => $search,
+            'activeCategory' => $activeCategory,
+        ]);
     }
 }
