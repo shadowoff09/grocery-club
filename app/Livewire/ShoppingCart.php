@@ -54,6 +54,9 @@ class ShoppingCart extends Component
 
         $total = $cartItems->sum('total');
 
+        $subTotalSoShippingIsFree = SettingsShippingCost::where('shipping_cost', 0)
+            ->value('min_value_threshold');
+
         $shippingCost = SettingsShippingCost::where('min_value_threshold', '<=', $total)
             ->where('max_value_threshold', '>', $total)
             ->value('shipping_cost');
@@ -65,6 +68,7 @@ class ShoppingCart extends Component
             'total' => $total,
             'shippingCost' => $shippingCost,
             'totalWithShipping' => $totalWithShipping,
+            'minThresholdSoShippingIsFree' => $subTotalSoShippingIsFree,
         ]);
     }
 }

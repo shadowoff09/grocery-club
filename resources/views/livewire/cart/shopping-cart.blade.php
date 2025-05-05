@@ -121,19 +121,47 @@
                             </span>
                         </div>
 
-                        <div class="flex justify-between">
-                            <span class="text-zinc-600 dark:text-zinc-400">Shipping</span>
-                            <span class="font-medium text-zinc-900 dark:text-zinc-100">
-                                ${{ number_format($shippingCost, 2) }}
-                            </span>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between">
+                                <span class="text-zinc-600 dark:text-zinc-400">Shipping</span>
+                                @if($shippingCost == 0)
+                                    <span class="font-medium text-emerald-600 dark:text-emerald-400">
+                                        Free
+                                    </span>
+                                @else
+                                    <span class="font-medium text-zinc-900 dark:text-zinc-100">
+                                        ${{ number_format($shippingCost, 2) }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if($shippingCost != 0)
+                                <div
+                                    class="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900">
+                                    <div class="flex items-center text-sm text-emerald-600 dark:text-emerald-400">
+                                        <x-lucide-truck class="w-4 h-4 mr-2"/>
+                                        <span>
+                                            Add ${{ number_format($minThresholdSoShippingIsFree - $total, 2) }} more to your cart to get free shipping!
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
 
-                        <div
-                            class="border-t border-zinc-200 dark:border-zinc-700 pt-4 flex justify-between items-center">
-                            <span class="font-semibold text-zinc-800 dark:text-zinc-200">Total Amount</span>
-                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                                ${{ number_format($totalWithShipping, 2) }}
-                            </span>
+                        <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <span class="font-semibold text-zinc-800 dark:text-zinc-200 text-lg">Total Amount</span>
+                                <div class="flex flex-col items-end gap-1">
+                                    @if($shippingCost == 0)
+                                        <span class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                                            You are qualified for free shipping!
+                                        </span>
+                                    @endif
+                                    <span class="text-3xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">
+                                        ${{ number_format($totalWithShipping, 2) }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -147,7 +175,6 @@
                     </a>
                     <div class="flex gap-4">
                         <button wire:click="clearCart"
-                                wire:confirm="Are you sure you want to clear your cart?"
                                 class="cursor-pointer inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg
                                 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             Clear Cart
