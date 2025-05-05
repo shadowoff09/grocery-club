@@ -43,7 +43,7 @@ class OperationController extends Controller
         $card = $user->card;
 
         if (!$card) {
-            return redirect()->route('operations.index')
+            return to_route('operations.index')
                 ->with('error', 'You do not have a card.');
         }
 
@@ -73,11 +73,11 @@ class OperationController extends Controller
 
             DB::commit();
 
-            return redirect()->route('operations.index')
+            return to_route('operations.index')
                 ->with('success', ucfirst($validated['type']) . ' operation completed successfully.');
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->route('operations.create')
+            return to_route('operations.create')
                 ->with('error', $e->getMessage())
                 ->withInput();
         }

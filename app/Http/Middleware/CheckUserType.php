@@ -20,7 +20,7 @@ class CheckUserType
 
         if (!auth()->check() || !in_array(auth()->user()->type, $allowedTypes, true)) {
             Toaster::error('You do not have permission to access this page.');
-            return redirect()->route('dashboard')->with('error', 'You do not have permission to access this page.');
+            return to_route('dashboard')->with('error', 'You do not have permission to access this page.');
         }
 
         return $next($request);

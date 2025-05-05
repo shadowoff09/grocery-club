@@ -20,9 +20,9 @@ class Logout
         $previousUrl = url()->previous();
 
         if (str_contains($previousUrl, '/dashboard')) {
-            return redirect()->route('login');
+            return to_route('login');
         } else if (str_contains($previousUrl, '/catalog')) {
-            return redirect()->route('catalog.index');
+            return to_route('catalog.index');
         } else {
             return redirect('/');
         }
