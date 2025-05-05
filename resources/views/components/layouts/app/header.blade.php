@@ -16,8 +16,9 @@
                 class="flex aspect-square size-9 items-center justify-center rounded-xl bg-emerald-600 dark:bg-emerald-500 shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 transition-transform group-hover:scale-105">
                 <x-lucide-shopping-cart class="w-5 h-5 text-white"/>
             </div>
-            <span
-                class="text-sm md:text-lg font-semibold text-zinc-900 dark:text-white transition-colors">Grocery Club</span>
+            <span class="text-sm md:text-lg font-semibold text-zinc-900 dark:text-white transition-colors">
+                Grocery Club
+            </span>
         </div>
     </a>
 
