@@ -16,7 +16,8 @@
                 class="flex aspect-square size-9 items-center justify-center rounded-xl bg-emerald-600 dark:bg-emerald-500 shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 transition-transform group-hover:scale-105">
                 <x-lucide-shopping-cart class="w-5 h-5 text-white"/>
             </div>
-            <span class="text-lg font-semibold text-zinc-900 dark:text-white transition-colors">Grocery Club</span>
+            <span
+                class="text-sm md:text-lg font-semibold text-zinc-900 dark:text-white transition-colors">Grocery Club</span>
         </div>
     </a>
 
@@ -60,7 +61,7 @@
 
         <flux:tooltip :content="__('Cart')" position="bottom">
             <flux:navbar.item
-                class="h-10 [&>div>svg]:size-5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors"
+                class="h-10 [&>div>svg]:size-5 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg transition-colors hidden md:flex"
                 href="{{ route('cart.index') }}"
                 :current="request()->routeIs('cart.index')"
                 :label="__('Cart')"
@@ -193,8 +194,7 @@
 </flux:header>
 
 <!-- Mobile Menu -->
-<flux:sidebar stashable sticky
-              class="lg:hidden border-e border-zinc-200 bg-white/95 backdrop-blur-sm dark:border-zinc-700/80 dark:bg-zinc-900/95">
+<flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
     <div class="flex justify-between items-center p-4">
         <flux:sidebar.toggle class="lg:hidden hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg p-2 transition-colors"
                              icon="x-mark"/>
@@ -215,16 +215,15 @@
         </button>
     </div>
 
-    <div class="p-4">
-        <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 mb-6 group" wire:navigate>
-            <div
-                class="flex aspect-square size-9 items-center justify-center rounded-xl bg-emerald-600 dark:bg-emerald-500 shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 transition-transform group-hover:scale-105">
-                <x-lucide-shopping-cart class="w-5 h-5 text-white"/>
-            </div>
-            <span class="text-lg font-semibold text-zinc-900 dark:text-white">Grocery Club</span>
-        </a>
+    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 mb-6 group px-4" wire:navigate>
+        <div
+            class="flex aspect-square size-9 items-center justify-center rounded-xl bg-emerald-600 dark:bg-emerald-500 shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 transition-transform group-hover:scale-105">
+            <x-lucide-shopping-cart class="w-5 h-5 text-white"/>
+        </div>
+        <span class="text-lg font-semibold text-zinc-900 dark:text-white">Grocery Club</span>
+    </a>
 
-        <nav class="space-y-1.5">
+    <nav class="px-4 space-y-1.5">
             @if(Auth::check())
                 <a href="{{ route('dashboard') }}"
                    class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('dashboard') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
@@ -241,16 +240,13 @@
 
             <a href="{{ route('cart.index') }}"
                class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('cart.index') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
-                <x-lucide-shopping-cart class="w-5 h-5"/>
+                <livewire:cart-counter/>
                 Cart
-                @if(Auth::check())
-                    <livewire:cart-counter/>
-                @endif
             </a>
         </nav>
 
         @if(!Auth::check())
-            <div class="mt-6 grid gap-3">
+            <div class="px-4 mt-6 grid gap-3">
                 <a href="{{ route('login') }}"
                    class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 rounded-lg transition-all">
                     Login
@@ -261,7 +257,6 @@
                 </a>
             </div>
         @endif
-    </div>
 </flux:sidebar>
 
 {{ $slot }}
