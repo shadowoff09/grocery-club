@@ -5,6 +5,9 @@ use App\Models\Operation;
 use App\Models\Setting;
 use App\Models\User;
 use App\Services\Payment;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Validate;
@@ -19,11 +22,13 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     public string $default_payment_reference = '';
 
     public float $membershipFee = 0;
+    public $redirectTo = null;
 
     public function mount(): void
     {
         // Get the membership fee from the settings table
         $this->membershipFee = Setting::getMembershipFee();
+        $this->redirectTo = Request::query('redirect_to');
     }
 
 
@@ -86,7 +91,13 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
 
             // Show success message and redirect
             session()->flash('success', 'Membership fee payment successful! Your account has been activated and your card has been loaded with the membership fee amount.');
-            $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+            
+            // Redirect to checkout if specified, otherwise to dashboard
+            if ($this->redirectTo === 'checkout') {
+                $this->redirect(route('checkout'), navigate: true);
+            } else {
+                $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+            }
         }
     }
 

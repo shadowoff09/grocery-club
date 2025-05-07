@@ -26,6 +26,7 @@ Route::middleware(['auth'])->group(function () {
         ->middleware(CheckUserType::class.':board|member|pending_member')
         ->name('settings.profile');
 
+    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 
     Volt::route('settings/security', 'settings.security')->name('settings.security');
     Volt::route('settings/appearance', 'settings.appearance')->name('settings.appearance');
@@ -64,5 +65,10 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
     })->name('membership.pending');
 });
 
+Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->group(function () {
+    Route::get('/balance', function () {
+        return view('balance.index');
+    })->name('balance.index');
+});
 
 require __DIR__.'/auth.php';

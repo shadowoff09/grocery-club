@@ -10,7 +10,7 @@
                 </flux:callout.text>
                 <x-slot name="actions" class="@md:h-full m-0!">
                     <a href="{{ route('membership.pending') }}">
-                        <flux:button class="cursor-pointer">Pay Fee -></flux:button>
+                        <flux:button class="cursor-pointer">Pay Membership Fee -></flux:button>
                     </a>
                 </x-slot>
             </flux:callout>

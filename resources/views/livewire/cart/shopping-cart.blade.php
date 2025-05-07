@@ -215,7 +215,7 @@
                         </button>
 
                         @if(!Auth::check())
-                            <a href="{{ route('login') }}" class="inline-flex items-center">
+                            <a href="{{ route('login', ['redirect_to' => 'checkout']) }}" class="inline-flex items-center">
                                 <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
         transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Proceed to Checkout
@@ -223,8 +223,7 @@
                                 </button>
                             </a>
                         @else
-                            {{--Would go to checkout here WORK IN PROGRESS--}}
-                            <a href="{{ route('login') }}" class="inline-flex items-center">
+                            <a href="{{ route('checkout') }}" class="inline-flex items-center">
                                 <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
                                     transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Proceed to Checkout

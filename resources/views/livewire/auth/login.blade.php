@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Layout;
@@ -21,6 +22,18 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public string $password = '';
 
     public bool $remember = false;
+    
+    public $redirectTo = null;
+    public $redirectMessage = null;
+    
+    public function mount()
+    {
+        $this->redirectTo = Request::query('redirect_to');
+        
+        if ($this->redirectTo === 'checkout') {
+            $this->redirectMessage = __('After logging in, you will be redirected to checkout.');
+        }
+    }
 
     /**
      * Handle an incoming authentication request.
@@ -45,7 +58,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         event(new SuccessfulLogin(Auth::user()));
 
+        if ($this->redirectTo === 'checkout') {
+            $this->redirect(route('checkout'), navigate: true);
+        } else {
         $this->redirectIntended(default: route('dashboard', absolute: false), navigate: true);
+        }
     }
 
     /**
@@ -93,6 +110,15 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')" />
+    
+    @if($redirectMessage)
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-4 py-3 rounded-lg relative" role="alert">
+            <div class="flex">
+                <flux:icon name="arrow-right-circle" class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                <div>{{ $redirectMessage }}</div>
+            </div>
+        </div>
+    @endif
 
     <form wire:submit="login" class="flex flex-col gap-6">
         <!-- Email Address -->
@@ -135,7 +161,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
     @if (Route::has('register'))
         <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
             {{ __('Don\'t have an account?') }}
+            @if($redirectTo)
+                <flux:link :href="route('register', ['redirect_to' => $redirectTo])" wire:navigate>{{ __('Sign up') }}</flux:link>
+            @else
             <flux:link :href="route('register')" wire:navigate>{{ __('Sign up') }}</flux:link>
+            @endif
         </div>
     @endif
 </div>

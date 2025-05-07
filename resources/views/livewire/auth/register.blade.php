@@ -5,6 +5,7 @@ use App\Models\Card;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -26,7 +27,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public bool $show_optional = false;
     public $photo = null;
     public array $basicData = [];
+    public $redirectTo = null;
+    public $redirectMessage = null;
 
+    public function mount()
+    {
+        $this->redirectTo = Request::query('redirect_to');
+        
+        if ($this->redirectTo === 'checkout') {
+            $this->redirectMessage = __('After creating your account, you will be redirected to checkout.');
+        }
+    }
 
     public function proceed(): void
     {
@@ -83,7 +94,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Auth::login($user);
 
+        if ($this->redirectTo === 'checkout') {
+            $this->redirect(route('checkout'), navigate: true);
+        } else {
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+        }
     }
 };
 ?>
@@ -102,6 +117,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')"/>
 
+    @if($redirectMessage)
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-4 py-3 rounded-lg relative" role="alert">
+            <div class="flex">
+                <flux:icon name="arrow-right-circle" class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                <div>{{ $redirectMessage }}</div>
+            </div>
+        </div>
+    @endif
 
     @if(!$this->show_optional)
 
@@ -214,6 +237,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
         {{ __('Already have an account?') }}
+        @if($redirectTo)
+            <flux:link :href="route('login', ['redirect_to' => $redirectTo])" wire:navigate>{{ __('Log in') }}</flux:link>
+        @else
         <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+        @endif
     </div>
 </div>
