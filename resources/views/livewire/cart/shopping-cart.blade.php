@@ -59,6 +59,13 @@
                                         than {{ $item['product']->stock }} will result in a slight delay.
                                     </div>
                                 @endif
+                                
+                                @if($item['product']->discount > 0 && $item['product']->discount_min_qty > 0 && $item['quantity'] < $item['product']->discount_min_qty && ($item['product']->discount_min_qty - $item['quantity']) <= 3)
+                                    <div class="text-sm text-emerald-600 dark:text-emerald-500 mt-1 flex items-center">
+                                        <flux:icon name="tag" class="w-4 h-4 mr-1"/>
+                                        Add {{ $item['product']->discount_min_qty - $item['quantity'] }} more to get {{ number_format($item['product']->discount, 0) }}% off!
+                                    </div>
+                                @endif
                             </div>
                         </div>
 
@@ -85,10 +92,27 @@
                             <!-- Price -->
                             <div class="text-right min-w-[90px]">
                                 <div class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                    ${{ number_format($item['total'], 2) }}
+                                    @if($item['showDiscount'])
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <span class="line-through text-zinc-500 dark:text-zinc-400 text-sm font-normal">
+                                                    ${{ number_format($item['originalTotal'], 2) }}
+                                                </span>
+                                                <span class="text-emerald-600 dark:text-emerald-400">
+                                                    ${{ number_format($item['total'], 2) }}
+                                                </span>
+                                            </div>
+                                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                                {{ number_format($item['discount'], 0) }}% off for {{ $item['quantity'] }}+ items
+
+                                            </span>
+                                        </div>
+                                    @else
+                                        ${{ number_format($item['total'], 2) }}
+                                    @endif
                                     <p>
                                         <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                                            ${{ number_format($item['product']->price, 2) }} each
+                                            ${{ number_format($item['unitPrice'], 2) }} each
                                         </span>
                                     </p>
                                 </div>
@@ -117,9 +141,18 @@
                         <div class="flex justify-between">
                             <span class="text-zinc-600 dark:text-zinc-400">Subtotal</span>
                             <span class="font-medium text-zinc-900 dark:text-zinc-100">
-                                ${{ number_format($total, 2) }}
+                                ${{ number_format($total + $totalDiscount, 2) }}
                             </span>
                         </div>
+
+                        @if($totalDiscount > 0)
+                        <div class="flex justify-between">
+                            <span class="text-zinc-600 dark:text-zinc-400">Quantity Discounts</span>
+                            <span class="font-medium text-emerald-600 dark:text-emerald-400">
+                                -${{ number_format($totalDiscount, 2) }}
+                            </span>
+                        </div>
+                        @endif
 
                         <div class="flex flex-col gap-2">
                             <div class="flex justify-between">

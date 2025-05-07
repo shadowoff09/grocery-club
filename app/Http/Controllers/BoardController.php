@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Charts\HighChart;
+use App\Models\Order;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -86,6 +88,128 @@ class BoardController extends Controller
         }
 
         return view('components.board.user-detail', $userData);
+    }
+
+    public function statistics()
+    {
+        $numberOrdersByType = Order::selectRaw('COUNT(*) as count, status')
+            ->groupBy('status')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->status => $item->count];
+            });
+
+        $chart = new HighChart();
+
+        $chart->labels(['Completed', 'Pending', 'Cancelled']);
+        $chart->dataset('Orders', 'pie', [
+            $numberOrdersByType['completed'] ?? 0,
+            $numberOrdersByType['pending'] ?? 0,
+            $numberOrdersByType['cancelled'] ?? 0,
+        ])->color([
+            'rgb(70, 127, 208)',
+            'rgb(66, 186, 150)',
+            'rgb(96, 92, 168)',
+            'rgb(255, 193, 7)',
+        ]);
+
+        $chart->displayAxes(false);
+        $chart->displayLegend(true);
+
+        $chart->options([
+            'chart' => [
+                'type' => 'pie',
+                'zooming' => [
+                    'type' => 'xy',
+                ],
+                'panning' => [
+                    'enabled' => true,
+                    'type' => 'xy',
+                ],
+                'panKey' => 'shift',
+                'backgroundColor' => 'transparent',
+            ],
+            'title' => [
+                'text' => 'Orders Statistics',
+                'style' => [
+                    'color' => '#fff',
+                    'fontSize' => '20px',
+                ],
+            ],
+            'plotOptions' => [
+                'pie' => [
+                    'allowPointSelect' => true,
+                    'cursor' => 'pointer',
+                    'dataLabels' => [
+                        [
+                            'enabled' => true,
+                            'distance' => 20,
+                        ],
+                        [
+                            'enabled' => true,
+                            'distance' => -40,
+                            'format' => '{point.percentage:.1f}%',
+                            'style' => [
+                                'fontSize' => '1.2em',
+                                'textOutline' => 'none',
+                                'opacity' => 0.7,
+                            ],
+                            'filter' => [
+                                'operator' => '>',
+                                'property' => 'percentage',
+                                'value' => 10,
+                            ],
+                        ],
+                    ],
+                    'showInLegend' => true,
+                ],
+                'series' => [
+                    'dataLabels' => [
+                        'enabled' => true,
+                        'color' => '#ffff',
+                    ],
+                ],
+            ],
+            'legend' => [
+                'align' => 'right',
+                'verticalAlign' => 'middle',
+                'layout' => 'vertical',
+                'itemStyle' => [
+                    'color' => '#fff',
+                    'fontSize' => '14px',
+                ],
+            ],
+            'colors' => [
+                'rgb(70, 127, 208)',
+                'rgb(66, 186, 150)',
+                'rgb(96, 92, 168)',
+                'rgb(255, 193, 7)',
+                'rgb(220, 53, 69)',
+            ],
+            'credits' => [
+                'enabled' => false,
+            ],
+            'responsive' => [
+                'rules' => [
+                    [
+                        'condition' => [
+                            'maxWidth' => 500,
+                        ],
+                        'chartOptions' => [
+                            'legend' => [
+                                'layout' => 'horizontal',
+                                'align' => 'center',
+                                'verticalAlign' => 'bottom',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        return view('statistics.index', [
+            'chart' => $chart,
+        ]);
     }
 
 

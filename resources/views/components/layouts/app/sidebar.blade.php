@@ -49,6 +49,14 @@
                 >
                     {{ __('Business Settings') }}
                 </flux:navlist.item>
+                <flux:navlist.item
+                    icon="chart-pie"
+                    :href="route('board.statistics')"
+                    :current="request()->routeIs('board.statistics')"
+                    wire:navigate
+                >
+                    {{ __('Statistics') }}
+                </flux:navlist.item>
             </flux:navlist.group>
         @endif
     </flux:navlist>

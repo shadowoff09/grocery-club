@@ -9,8 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
 
     protected $fillable = [
         'name',
