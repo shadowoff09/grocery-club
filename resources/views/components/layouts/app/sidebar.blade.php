@@ -37,9 +37,6 @@
         <flux:navlist.group :heading="__('Platform')" class="grid">
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
             <flux:navlist.item icon="shopping-bag" :href="route('catalog.index')" :current="request()->routeIs('catalog.index')" wire:navigate>{{ __('Catalog') }}</flux:navlist.item>
-            @if(auth()->user()->type === 'member' || auth()->user()->type === 'board')
-                <flux:navlist.item icon="banknotes" :href="route('balance.index')" :current="request()->routeIs('balance.index')" wire:navigate>{{ __('Balance') }}</flux:navlist.item>
-            @endif
         </flux:navlist.group>
         @if(auth()->user()->isBoardMember())
             <flux:navlist.group :heading="__('Board')" class="grid">
@@ -128,8 +125,7 @@
                         </div>
                     </div>
                 </flux:menu.radio.group>
-
-                @if(auth()->user()->type !== 'employee')
+                @if(auth()->user()->type === 'member' || auth()->user()->type === 'board')
                     <flux:menu.separator/>
 
                     <flux:menu.radio.group>

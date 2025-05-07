@@ -110,8 +110,8 @@
                                         <span
                                             class="flex h-full w-full items-center justify-center rounded-lg bg-neutral-200 text-black dark:bg-neutral-700 dark:text-white"
                                         >
-                                    {{ auth()->user()->initials() }}
-                                </span>
+                                            {{ auth()->user()->initials() }}
+                                        </span>
                                     @endif
                                 </span>
 
@@ -138,12 +138,13 @@
                             </div>
                         </div>
                     </flux:menu.radio.group>
-
-                    @if(auth()->user()->type !== 'employee')
+                    @if(auth()->user()->type === 'member' || auth()->user()->type === 'board')
                         <flux:menu.separator/>
 
                         <flux:menu.radio.group>
                             <flux:menu.item
+                                :href="route('balance.index')"
+                                wire:navigate
                                 icon="banknotes"
                                 class="flex items-center justify-start space-x-2"
                             >
@@ -195,7 +196,8 @@
 </flux:header>
 
 <!-- Mobile Menu -->
-<flux:sidebar stashable sticky class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
+<flux:sidebar stashable sticky
+              class="lg:hidden border-e border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900">
     <div class="flex justify-between items-center p-4">
         <flux:sidebar.toggle class="lg:hidden hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-lg p-2 transition-colors"
                              icon="x-mark"/>
@@ -225,39 +227,39 @@
     </a>
 
     <nav class="px-4 space-y-1.5">
-            @if(Auth::check())
-                <a href="{{ route('dashboard') }}"
-                   class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('dashboard') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
-                    <x-lucide-layout-grid class="w-5 h-5"/>
-                    Dashboard
-                </a>
-            @endif
-
-            <a href="{{ route('catalog.index') }}"
-               class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('catalog.index') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
-                <x-lucide-shopping-bag class="w-5 h-5"/>
-                Catalog
+        @if(Auth::check())
+            <a href="{{ route('dashboard') }}"
+               class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('dashboard') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
+                <x-lucide-layout-grid class="w-5 h-5"/>
+                Dashboard
             </a>
-
-            <a href="{{ route('cart.index') }}"
-               class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('cart.index') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
-                <livewire:cart-counter/>
-                Cart
-            </a>
-        </nav>
-
-        @if(!Auth::check())
-            <div class="px-4 mt-6 grid gap-3">
-                <a href="{{ route('login') }}"
-                   class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 rounded-lg transition-all">
-                    Login
-                </a>
-                <a href="{{ route('register') }}"
-                   class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 rounded-lg transition-colors shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 hover:shadow-md">
-                    Register
-                </a>
-            </div>
         @endif
+
+        <a href="{{ route('catalog.index') }}"
+           class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('catalog.index') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
+            <x-lucide-shopping-bag class="w-5 h-5"/>
+            Catalog
+        </a>
+
+        <a href="{{ route('cart.index') }}"
+           class="flex items-center gap-2.5 px-3 py-2.5 text-sm font-medium {{ request()->routeIs('cart.index') ? 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20' : 'text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-50 dark:hover:bg-zinc-800' }} rounded-lg transition-colors">
+            <livewire:cart-counter/>
+            Cart
+        </a>
+    </nav>
+
+    @if(!Auth::check())
+        <div class="px-4 mt-6 grid gap-3">
+            <a href="{{ route('login') }}"
+               class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-white border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600 rounded-lg transition-all">
+                Login
+            </a>
+            <a href="{{ route('register') }}"
+               class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-500 dark:hover:bg-emerald-600 rounded-lg transition-colors shadow-sm shadow-emerald-600/10 dark:shadow-emerald-500/10 hover:shadow-md">
+                Register
+            </a>
+        </div>
+    @endif
 </flux:sidebar>
 
 {{ $slot }}
