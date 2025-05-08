@@ -41,10 +41,9 @@
                             <div class="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 to-emerald-100/20 dark:from-emerald-500/5 dark:to-emerald-900/10 rounded-[2rem] blur-2xl"></div>
                             <div class="relative rounded-[2rem] overflow-hidden shadow-2xl bg-white dark:bg-zinc-900 aspect-[4/3]">
                                 <img 
-                                    src="{{ asset('images/grocery-hero.jpg') }}" 
+                                    src="https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&auto=format&fit=crop" 
                                     alt="Fresh groceries" 
                                     class="w-full h-full object-cover"
-                                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1550989460-0adf9ea622e2?q=80&w=800&auto=format&fit=crop'; this.alt='Fresh groceries from Unsplash'"
                                 >
                                 <!-- Overlay gradient -->
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent dark:from-black/20"></div>

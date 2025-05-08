@@ -11,6 +11,8 @@ use Livewire\WithPagination;
 class Balance extends Component
 {
     use WithPagination;
+    
+    protected $paginationTheme = 'tailwind';
 
     public function render()
     {

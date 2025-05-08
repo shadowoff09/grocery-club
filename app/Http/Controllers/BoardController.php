@@ -71,8 +71,8 @@ class BoardController extends Controller
 
         $userCard = $user->card;
 
-        // get operations for the user card
-        $operations = $userCard ? $userCard->operations()->latest()->take(10)->get() : null;
+        // get operations for the user card with pagination
+        $operations = $userCard ? $userCard->operations()->latest()->paginate(10) : null;
 
         // Get user data and any related information you want to display
         $userData = [
