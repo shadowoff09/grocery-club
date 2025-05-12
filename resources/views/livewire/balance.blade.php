@@ -1,17 +1,18 @@
 <?php
 
-use App\Models\Card;
-use App\Models\Operation;
-use App\Services\Payment;
+use App\DTOs\PaymentDetails;
+use App\Services\BalanceService;
+use App\Traits\WithPaymentValidation;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
-use Livewire\Volt\Component;
 use Livewire\WithPagination;
+use Livewire\Volt\Component;
 use Masmerise\Toaster\Toaster;
 
 new #[Layout('components.layouts.app')] class extends Component {
-    use WithPagination;
+    use WithPagination, WithPaymentValidation;
+
+    protected $paginationTheme = 'tailwind';
 
     public bool $showRechargeModal = false;
     public float $rechargeAmount = 50;
@@ -23,6 +24,14 @@ new #[Layout('components.layouts.app')] class extends Component {
     public ?string $defaultPaymentMethod = null;
     public ?string $defaultPaymentReference = null;
     public bool $saveAsDefault = false;
+
+    // Services
+    protected BalanceService $balanceService;
+
+    public function boot(BalanceService $balanceService): void
+    {
+        $this->balanceService = $balanceService;
+    }
 
     public function mount(): void
     {
@@ -61,104 +70,43 @@ new #[Layout('components.layouts.app')] class extends Component {
 
     public function rechargeCard(): void
     {
-        $validationRules = [
-            'rechargeAmount' => 'required|numeric|min:5|max:1000',
-            'paymentMethod' => 'required|in:Visa,PayPal,MB WAY',
-            'paymentReference' => [
-                'required', 'string', 'max:255',
-                function ($attr, $value, $fail) {
-                    match ($this->paymentMethod) {
-                        'Visa' => preg_match('/^[1-9][0-9]{15}$/', $value) && !str_ends_with($value, '2')
-                            ?: $fail('The Visa card must be 16 digits long, cannot start with 0, and cannot end with 2.'),
-                        'PayPal' => filter_var($value, FILTER_VALIDATE_EMAIL)
-                            ?: $fail('Please enter a valid PayPal email address.'),
-                        'MB WAY' => preg_match('/^9[1236][0-9]{7}$/', $value) && !str_ends_with($value, '2')
-                            ?: $fail('Please enter a valid Portuguese mobile number that doesn\'t end with 2.'),
-                        default => $fail('Invalid payment type selected.')
-                    };
-                }
-            ]
-        ];
+        // Validate the input using the WithPaymentValidation trait
+        $this->validate($this->getPaymentValidationRules($this->paymentMethod));
 
-        // Add CVC validation for Visa
-        if ($this->paymentMethod === 'Visa') {
-            $validationRules['cvcCode'] = [
-                'required', 'numeric', 'digits:3',
-                function ($attr, $value, $fail) {
-                    if (str_starts_with($value, '0')) {
-                        $fail('CVC code cannot start with 0.');
-                    }
-                    if (str_ends_with($value, '2')) {
-                        $fail('CVC code cannot end with 2.');
-                    }
-                }
-            ];
-        }
+        // Create a PaymentDetails DTO using the trait helper method
+        $paymentDetails = $this->createPaymentDetails('paymentMethod', 'paymentReference', 'cvcCode');
 
-        $this->validate($validationRules);
-
-        $result = match ($this->paymentMethod) {
-            'Visa' => Payment::payWithVisa($this->paymentReference, $this->cvcCode),
-            'PayPal' => Payment::payWithPayPal($this->paymentReference),
-            'MB WAY' => Payment::payWithMBway($this->paymentReference),
-            default => false
-        };
+        // Process the recharge using the BalanceService
+        $result = $this->balanceService->rechargeCard(
+            Auth::user(),
+            $this->rechargeAmount,
+            $paymentDetails,
+            $this->saveAsDefault
+        );
 
         if (!$result) {
             Toaster::error('Payment failed. Please try again.');
         } else {
-            $user = Auth::user();
-            $userCard = $user->card;
-            if (!$userCard) {
-                Toaster::error('Card not found.');
-                return;
-            }
-
-            DB::transaction(function () use ($userCard, $user) {
-                // Add credit operation
-                Operation::create([
-                    'card_id' => $userCard->id,
-                    'date' => now(),
-                    'type' => 'credit',
-                    'credit_type' => 'payment',
-                    'value' => $this->rechargeAmount,
-                    'payment_type' => $this->paymentMethod,
-                    'payment_reference' => $this->paymentReference,
-                ]);
-
-                // Update card balance
-                $userCard->balance += $this->rechargeAmount;
-                $userCard->save();
-
-                // Save payment info as default if checkbox is checked
-                if ($this->saveAsDefault) {
-                    $user->default_payment_type = $this->paymentMethod;
-                    $user->default_payment_reference = $this->paymentReference;
-                    $user->save();
-                }
-            });
+            $this->showRechargeModal = false;
+            $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault');
+            Toaster::success('Card recharged successfully!');
         }
-
-        $this->showRechargeModal = false;
-        $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault');
-
-        Toaster::success('Card recharged successfully!');
     }
 
     public function with(): array
     {
         $user = Auth::user();
-        $card = Card::where('id', $user->id)->first();
+        $card = $this->balanceService->getUserCard($user);
 
-        // Get all operations related to this card with pagination
-        $operations = Operation::where('card_id', $card->id)
-            ->orderBy('date', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        // Get operations and statistics using the BalanceService
+        $operations = $this->balanceService->getCardOperations($card);
+        $statistics = $this->balanceService->getCardStatistics($card);
 
         return [
-            'card' => $card,
-            'operations' => $operations
+            'cardBalance' => $card->balance,
+            'cardNumber' => $card->id,
+            'operations' => $operations,
+            'statistics' => $statistics
         ];
     }
 
@@ -213,7 +161,7 @@ new #[Layout('components.layouts.app')] class extends Component {
             </div>
         </div>
     </div>
-    
+
     @if($statistics)
     <!-- Card Statistics -->
     <div class="bg-white dark:bg-zinc-800 rounded-2xl shadow-lg border border-zinc-200/50 dark:border-zinc-700 p-6 transition-all duration-200 hover:shadow-xl">
@@ -221,18 +169,18 @@ new #[Layout('components.layouts.app')] class extends Component {
             <flux:icon name="chart-bar" class="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
             {{ __('Card Statistics') }}
         </h2>
-        
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800/50">
                 <h3 class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Total Credits</h3>
                 <p class="text-xl font-bold text-emerald-600 dark:text-emerald-400">{{ number_format($statistics['total_credits'], 2) }} €</p>
             </div>
-            
+
             <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800/50">
                 <h3 class="text-sm font-medium text-red-700 dark:text-red-300">Total Debits</h3>
                 <p class="text-xl font-bold text-red-600 dark:text-red-400">{{ number_format($statistics['total_debits'], 2) }} €</p>
             </div>
-            
+
             <div class="p-4 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/50">
                 <h3 class="text-sm font-medium text-indigo-700 dark:text-indigo-300">Transactions</h3>
                 <p class="text-xl font-bold text-indigo-600 dark:text-indigo-400">{{ $statistics['total_transactions'] }}</p>
@@ -284,17 +232,17 @@ new #[Layout('components.layouts.app')] class extends Component {
                 @endif
 
                 <div class="flex flex-col gap-1.5">
-                    <flux:input 
-                        id="rechargeAmount" 
-                        wire:model="rechargeAmount" 
+                    <flux:input
+                        id="rechargeAmount"
+                        wire:model="rechargeAmount"
                         type="number"
                         label="Amount (€)"
-                        min="5" 
-                        max="1000" 
+                        min="5"
+                        max="1000"
                         step="5"
                         prefix="€"
                     />
-                    
+
                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
                         <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 20)">20€</flux:button>
                         <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 50)">50€</flux:button>
@@ -305,8 +253,8 @@ new #[Layout('components.layouts.app')] class extends Component {
 
                 <div class="flex flex-col gap-1.5">
                     <flux:select
-                        id="paymentMethod" 
-                        wire:model.live="paymentMethod" 
+                        id="paymentMethod"
+                        wire:model.live="paymentMethod"
                         label="Payment Method"
                     >
                         <option value="Visa">Visa</option>
@@ -317,11 +265,11 @@ new #[Layout('components.layouts.app')] class extends Component {
 
                 <div class="flex flex-col gap-1.5">
                     <flux:input
-                        id="paymentReference" 
-                        wire:model="paymentReference" 
+                        id="paymentReference"
+                        wire:model="paymentReference"
                         type="text"
-                        :label="$paymentMethod === 'Visa' ? 'Card Number' : 
-                               ($paymentMethod === 'PayPal' ? 'Email' : 
+                        :label="$paymentMethod === 'Visa' ? 'Card Number' :
+                               ($paymentMethod === 'PayPal' ? 'Email' :
                                ($paymentMethod === 'MB WAY' ? 'Phone Number' : 'Reference'))"
                         placeholder="{{ $this->getPlaceholderForPaymentType() }}"
                     />
@@ -329,9 +277,9 @@ new #[Layout('components.layouts.app')] class extends Component {
 
                 @if($paymentMethod === 'Visa')
                 <div class="flex flex-col gap-1.5">
-                    <flux:input 
-                        id="cvcCode" 
-                        wire:model="cvcCode" 
+                    <flux:input
+                        id="cvcCode"
+                        wire:model="cvcCode"
                         type="text"
                         label="CVC Code"
                         placeholder="3-digit CVC code (cannot start with 0 or end with 2)"
@@ -343,8 +291,8 @@ new #[Layout('components.layouts.app')] class extends Component {
                 @if($showSaveOption)
                 <div class="flex items-center gap-2 mt-2">
                     <flux:checkbox
-                        id="saveAsDefault" 
-                        wire:model="saveAsDefault" 
+                        id="saveAsDefault"
+                        wire:model="saveAsDefault"
                         label="Save as default payment method"
                     />
                 </div>

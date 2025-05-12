@@ -1,8 +1,10 @@
 <?php
 
+use App\DTOs\PaymentDetails;
 use App\Models\Setting;
 use App\Services\Payment;
 use App\Traits\WithCardOperations;
+use App\Traits\WithPaymentValidation;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Request;
@@ -12,8 +14,8 @@ use Livewire\Volt\Component;
 use Masmerise\Toaster\Toaster;
 
 new #[Layout('components.layouts.app.sidebar')] class extends Component {
-    use WithCardOperations;
-    
+    use WithCardOperations, WithPaymentValidation;
+
     #[Validate('required|string|max:255|in:Visa,PayPal,MB WAY')]
     public string $default_payment_type = '';
 
@@ -36,7 +38,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
         // Get the membership fee from the settings table
         $this->membershipFee = Setting::getMembershipFee();
         $this->redirectTo = Request::query('redirect_to');
-        
+
         // Get default payment method via trait
         $defaultPayment = $this->getDefaultPaymentMethod();
         if ($defaultPayment) {
@@ -59,34 +61,25 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     public function payFee(): void
     {
         try {
-            // Use trait to validate payment details
-            $this->validatePaymentDetails(
-                $this->membershipFee,
-                $this->default_payment_type,
-                $this->default_payment_reference,
-                $this->cvc_code
-            );
-            
-            // Process payment through payment service using trait method
-            $paymentResult = match ($this->default_payment_type) {
-                'Visa' => Payment::payWithVisa($this->default_payment_reference, $this->cvc_code),
-                'PayPal' => Payment::payWithPayPal($this->default_payment_reference),
-                'MB WAY' => Payment::payWithMBway($this->default_payment_reference),
-                default => false
-            };
-            
-            if (!$paymentResult) {
-                Toaster::error('Payment failed. Please try again.');
+            // Validate the input using the WithPaymentValidation trait
+            $this->validate($this->getPaymentValidationRules($this->default_payment_type));
+
+            // Create a PaymentDetails DTO using the trait helper method
+            $paymentDetails = $this->createPaymentDetails('default_payment_type', 'default_payment_reference', 'cvc_code');
+
+            // Validate the payment details
+            if (!$this->validatePayment($paymentDetails)) {
+                Toaster::error('Payment failed. Please check your payment details and try again.');
                 return;
             }
-            
+
             $user = Auth::user();
-            
+
             if (!$this->hasCard()) {
                 Toaster::error('Card not found.');
                 return;
             }
-            
+
             // Use DB transaction to ensure all operations are atomic
             DB::transaction(function () use ($user) {
                 // Add membership fee to card balance
@@ -99,7 +92,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                         'payment_reference' => $this->default_payment_reference,
                     ]
                 );
-                
+
                 // Create a debit operation for the membership fee
                 $this->performCardTransaction(
                     $this->membershipFee,
@@ -110,10 +103,10 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                         'payment_reference' => $this->default_payment_reference,
                     ]
                 );
-                
+
                 // Update user type
                 $user->type = 'member';
-                
+
                 // Save payment info as default if checkbox is checked
                 if ($this->saveAsDefault) {
                     $this->saveDefaultPaymentMethod(
@@ -121,20 +114,20 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                         $this->default_payment_reference
                     );
                 }
-                
+
                 $user->save();
             });
-            
+
             // Show success message and redirect
             session()->flash('success', 'Membership fee payment successful! Your account has been activated and your card has been loaded with the membership fee amount.');
-            
+
             // Redirect to checkout if specified, otherwise to dashboard
             if ($this->redirectTo === 'checkout') {
                 $this->redirect(route('checkout'), navigate: true);
             } else {
                 $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
             }
-            
+
         } catch (\Exception $e) {
             Toaster::error('Error processing payment: ' . $e->getMessage());
         }
@@ -149,13 +142,13 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
             default => 'e.g., Visa number, PayPal email, or MB WAY number'
         };
     }
-    
+
     public function updated($field): void
     {
         // Check if payment info is different from saved info
-        if (($field === 'default_payment_type' || $field === 'default_payment_reference') && 
-            $this->hasDefaults && 
-            ($this->default_payment_type !== $this->savedPaymentType || 
+        if (($field === 'default_payment_type' || $field === 'default_payment_reference') &&
+            $this->hasDefaults &&
+            ($this->default_payment_type !== $this->savedPaymentType ||
              $this->default_payment_reference !== $this->savedPaymentReference)) {
             // Different payment info provided, show the save option
             $this->saveAsDefault = false;
@@ -186,7 +179,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                 Please select your preferred payment method and enter the required details.
             </p>
         </div>
-        
+
         @if($showDefaultsAlert)
         <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-100 dark:border-indigo-800/40 rounded-lg p-3 mb-2">
             <div class="flex flex-col gap-2">
@@ -207,7 +200,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
             </div>
         </div>
         @endif
-        
+
         <flux:select
             wire:model.live="default_payment_type"
             :label="__('Payment Method')"
