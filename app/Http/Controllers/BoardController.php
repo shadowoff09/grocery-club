@@ -24,14 +24,14 @@ class BoardController extends Controller
         // Current data
         $totalUsers = User::count();
         // a user is active if they logged within 24 hours
-        $activeUsers = User::where('last_login_at', '>=', now()->subDay())->count();
+        $activeUsers = User::whereRaw("JSON_EXTRACT(custom, '$.last_login_at') >= ?", [now()->subDay()->toDateTimeString()])->count();
         $boardMembers = User::where('type', 'board')->count();
 
         // Get last month's data (30 days ago)
         $lastMonth = now()->subDays(30);
         $lastMonthTotalUsers = User::where('created_at', '<', $lastMonth)->count();
-        $lastMonthActiveUsers = User::where('last_login_at', '>=', $lastMonth->copy()->subDay())
-            ->where('last_login_at', '<', $lastMonth)
+        $lastMonthActiveUsers = User::whereRaw("JSON_EXTRACT(custom, '$.last_login_at') >= ?", [$lastMonth->copy()->subDay()->toDateTimeString()])
+            ->whereRaw("JSON_EXTRACT(custom, '$.last_login_at') < ?", [$lastMonth->toDateTimeString()])
             ->count();
         $lastMonthBoardMembers = User::where('type', 'board')
             ->where('created_at', '<', $lastMonth)
@@ -74,12 +74,19 @@ class BoardController extends Controller
         // get operations for the user card with pagination
         $operations = $userCard ? $userCard->operations()->latest()->paginate(10) : null;
 
+        // Get the last login timestamp from the custom field
+        $lastLoginAt = null;
+        $custom = $user->custom;
+        if (is_array($custom) && isset($custom['last_login_at'])) {
+            $lastLoginAt = Carbon::parse($custom['last_login_at'])->diffForHumans();
+        }
+
         // Get user data and any related information you want to display
         $userData = [
             'user' => $user,
             'operations' => $operations,
             'memberSince' => $user->created_at->diffForHumans(),
-            'lastLogin' => $user->last_login_at ? Carbon::createFromTimestamp(strtotime($user->last_login_at))->diffForHumans() : 'Never',
+            'lastLogin' => $lastLoginAt ?? 'Never',
         ];
 
         // Check if the activities relationship exists before trying to use it

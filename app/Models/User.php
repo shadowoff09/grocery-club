@@ -24,7 +24,6 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
-        'last_login_at',
         'gender',
         'default_delivery_address',
         'nif',
@@ -33,7 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'photo',
         'type',
         'blocked',
-        'deleted_at'
+        'deleted_at',
+        'custom'
     ];
 
 
@@ -58,6 +58,7 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'blocked' => 'boolean',
+            'custom' => 'array',
         ];
     }
 

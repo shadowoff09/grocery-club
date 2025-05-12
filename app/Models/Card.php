@@ -22,11 +22,13 @@ class Card extends Model
         'id', 'card_number', 'balance'
     ];
 
+    // Card belongsTo user
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'id');
     }
 
+    // Card hasMany operations
     public function operations(): HasMany
     {
         return $this->hasMany(Operation::class, 'card_id');

@@ -16,6 +16,7 @@ class Category extends Model
         'image',
     ];
 
+    // Category hasMany products
     public function products(): HasMany
     {
         return $this->hasMany(Product::class);

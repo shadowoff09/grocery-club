@@ -30,17 +30,11 @@
                     
                     <livewire:cart.checkout-items />
                 </div>
-                
-                <!-- Checkout form would go here in the future -->
-                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6">
-                    <p class="text-center text-lg text-zinc-600 dark:text-zinc-400 mb-4">
-                        {{ __('Your checkout page is being prepared. Please check back soon.') }}
-                    </p>
-                </div>
+            
             </div>
             
             <!-- Order Summary -->
-            <div class="lg:col-span-1">
+            <div class="lg:col-span-1 space-y-4">
                 <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 sticky top-6">
                     <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Order Summary') }}</h2>
                     
@@ -54,6 +48,12 @@
                             {{ __('Back to Cart') }}
                         </a>
                     </div>
+                </div>
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 sticky top-6">
+                    <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100 mb-4">{{ __('Payment') }}</h2>
+
+                    <livewire:cart.checkout-payment />
+                    
                 </div>
             </div>
         </div>

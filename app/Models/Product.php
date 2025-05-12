@@ -22,6 +22,7 @@ class Product extends Model
         'deleted_at'
     ];
 
+    // Product belongsTo category
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

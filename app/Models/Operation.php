@@ -23,13 +23,13 @@ class Operation extends Model
         'custom',
     ];
 
-    // Liga ao cartão
+    // Operation belongsTo card
     public function card()
     {
         return $this->belongsTo(Card::class);
     }
 
-    // Liga à encomenda (se aplicável)
+    // Operation belongsTo order (if applicable)
     public function order()
     {
         return $this->belongsTo(Order::class);

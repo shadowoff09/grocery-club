@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Operation;
 use App\Services\Payment;
+use App\Traits\WithCardOperations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -11,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 
 class CardController extends Controller
 {
+    use WithCardOperations;
+    
     public function topUp(Request $request)
     {
         $request->validate([
@@ -19,7 +22,10 @@ class CardController extends Controller
             'value' => 'required|numeric|min:0.01'
         ]);
 
-        $card = auth()->user()->card;
+        if (!$this->hasCard()) {
+            return back()->withErrors(['card' => 'No card found for your account.']);
+        }
+
         $success = false;
 
         switch ($request->payment_type) {
@@ -41,21 +47,20 @@ class CardController extends Controller
             return back()->withErrors(['payment_reference' => 'Pagamento recusado. Verifica os dados.']);
         }
 
-        // Se correr bem, grava operação e credita o cartão
-        DB::transaction(function () use ($card, $request) {
-            $card->balance += $request->value;
-            $card->save();
-
-            Operation::create([
-                'card_id' => $card->id,
-                'type' => 'credit',
-                'value' => $request->value,
-                'date' => now()->toDateString(),
+        // Process the card transaction using the trait method
+        $transactionSuccess = $this->performCardTransaction(
+            $request->value,
+            'credit',
+            [
                 'credit_type' => 'payment',
                 'payment_type' => $request->payment_type,
-                'payment_reference' => $request->payment_reference,
-            ]);
-        });
+                'payment_reference' => $request->payment_reference
+            ]
+        );
+
+        if (!$transactionSuccess) {
+            return back()->withErrors(['transaction' => 'Falha ao processar a transação. Por favor, tente novamente.']);
+        }
 
         return back()->with('success', 'Pagamento concluído. Saldo atualizado.');
     }

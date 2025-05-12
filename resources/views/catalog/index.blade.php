@@ -174,7 +174,16 @@
                                 <div class="mt-auto space-y-4">
                                     <div class="flex items-center justify-between">
                                         <span class="text-2xl font-bold text-gray-900 dark:text-white">${{ number_format($product->price, 2) }}</span>
+                                        
+                                        <!-- Discount Badge -->
+                                        @if($product->discount > 0 && $product->discount_min_qty > 0)
+                                            <span class="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-3 py-1.5 rounded-full shadow-sm font-medium flex items-center gap-1">
+                                                <x-lucide-tag class="w-3.5 h-3.5" />
+                                                {{ number_format($product->discount, 0) }}% off {{ $product->discount_min_qty }}+ items
+                                            </span>
+                                        @endif
                                     </div>
+
                                     <div class="flex flex-col space-y-3">
                                         <div class="flex justify-end items-center">
                                             <livewire:add-to-cart :product-id="$product->id"/>
