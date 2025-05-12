@@ -11,4 +11,11 @@ class CartController extends Controller
     {
         return view('cart.index');
     }
+    
+    public function checkout()
+    {
+        // This will be implemented fully when you develop the checkout functionality
+        // For now it just displays the checkout page
+        return view('cart.checkout');
+    }
 }

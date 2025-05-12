@@ -9,8 +9,6 @@ use Illuminate\Notifications\Notifiable;
 
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
 
     protected $fillable = [
         'name',
@@ -24,6 +22,7 @@ class Product extends Model
         'deleted_at'
     ];
 
+    // Product belongsTo category
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);

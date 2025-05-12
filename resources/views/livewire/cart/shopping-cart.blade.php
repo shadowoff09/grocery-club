@@ -8,9 +8,9 @@
             <p class="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md mx-auto">Looks like you haven't added any items to
                 your cart yet. Start shopping to fill it up!</p>
             <a href="/catalog"
-               class="inline-flex items-center px-6 py-3 text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg font-medium transition-colors duration-200">
+               class="inline-flex items-center px-6 py-3 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg font-medium transition-colors duration-200">
                 <flux:icon name="arrow-left" class="w-5 h-5 mr-2"/>
-                Continue Shopping
+                Start Shopping
             </a>
         </div>
     @else
@@ -24,16 +24,16 @@
             <!-- Cart Items -->
             <div class="divide-y divide-zinc-200 dark:divide-zinc-800">
                 @foreach($cartItems as $item)
-                    <div class="p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                    <div class="p-4 flex flex-col sm:flex-row items-start gap-4">
                         <!-- Product Image and Info -->
                         <div class="flex items-start gap-4 w-full sm:w-auto">
-                            <div class="flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden">
+                            <div class="flex-shrink-0 bg-zinc-100 dark:bg-zinc-800 rounded-lg overflow-hidden w-16 sm:w-12 h-16 sm:h-12 p-0">
                                 @if($item['product']->photo)
                                     <img src="{{ asset('storage/products/' . $item['product']->photo) }}"
                                          alt="{{ $item['product']->name }}"
-                                         class="object-cover w-16 sm:w-12 h-16 sm:h-12">
+                                         class="object-cover w-full h-full">
                                 @else
-                                    <div class="w-16 sm:w-12 h-16 sm:h-12 flex items-center justify-center">
+                                    <div class="w-full h-full flex items-center justify-center">
                                         <flux:icon name="photo" class="w-6 h-6 text-zinc-400"/>
                                     </div>
                                 @endif
@@ -53,17 +53,34 @@
                                 <p class="text-sm text-black dark:text-zinc-400">
                                     {{ Str::limit($item['product']->description, 100) }}
                                 </p>
-                                @if($item['product']->stock < $item['quantity'])
-                                    <div class="text-sm text-amber-600 mt-1">
-                                        The stock is only {{ $item['product']->stock }}. More
-                                        than {{ $item['product']->stock }} will result in a slight delay.
-                                    </div>
-                                @endif
+                                <div class="min-h-[24px]">
+                                    @if($item['product']->stock < $item['quantity'])
+                                        @if ($item['product']->stock > 0)
+                                            <div class="text-sm text-amber-600 mt-1">
+                                                The stock is only {{ $item['product']->stock }}. More
+                                                than {{ $item['product']->stock }} will result in a slight delay.
+                                            </div>
+                                        @else
+                                            <div class="text-sm text-red-600 mt-1">
+                                                The product is out of stock, so it will result in a slight delay.
+                                            </div>
+                                        @endif
+                                    @endif
+                                </div>
+                                
+                                <div class="min-h-[24px]">
+                                    @if($item['product']->discount > 0 && $item['product']->discount_min_qty > 0 && $item['quantity'] < $item['product']->discount_min_qty && ($item['product']->discount_min_qty - $item['quantity']) <= 3)
+                                        <div class="text-sm text-emerald-600 dark:text-emerald-500 mt-1 flex items-center">
+                                            <flux:icon name="tag" class="w-4 h-4 mr-1"/>
+                                            Add {{ $item['product']->discount_min_qty - $item['quantity'] }} more to get {{ number_format($item['product']->discount, 0) }}% off!
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
 
                         <!-- Controls Container -->
-                        <div class="flex items-center justify-between gap-4 w-full sm:w-auto mt-4 sm:mt-0">
+                        <div class="flex items-center gap-6 w-full sm:w-auto mt-4 sm:mt-0 sm:ml-auto">
                             <!-- Quantity Controls -->
                             <div
                                 class="flex items-center rounded-xl overflow-hidden border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 shadow-sm">
@@ -83,22 +100,38 @@
                             </div>
 
                             <!-- Price -->
-                            <div class="text-right min-w-[90px]">
+                            <div class="text-right flex flex-col min-w-[120px]">
                                 <div class="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                                    ${{ number_format($item['total'], 2) }}
-                                    <p>
-                                        <span class="text-sm text-zinc-500 dark:text-zinc-400">
-                                            ${{ number_format($item['product']->price, 2) }} each
-                                        </span>
-                                    </p>
+                                    @if($item['showDiscount'])
+                                        <div class="flex flex-col">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <span class="line-through text-zinc-500 dark:text-zinc-400 text-sm font-normal">
+                                                    ${{ number_format($item['originalTotal'], 2) }}
+                                                </span>
+                                                <span class="text-emerald-600 dark:text-emerald-400">
+                                                    ${{ number_format($item['total'], 2) }}
+                                                </span>
+                                            </div>
+                                            <span class="text-xs text-emerald-600 dark:text-emerald-400 font-medium">
+                                                {{ number_format($item['discount'], 0) }}% off for {{ $item['quantity'] }}+ items
+                                            </span>
+                                        </div>
+                                    @else
+                                        <div class="text-right mb-1">${{ number_format($item['total'], 2) }}</div>
+                                    @endif
+                                    <div class="text-sm text-zinc-500 dark:text-zinc-400 mt-0.5 mb-2">
+                                        ${{ number_format($item['unitPrice'], 2) }} each
+                                    </div>
                                 </div>
-                                <button
-                                    wire:click="removeFromCart({{ $item['product']->id }})"
-                                    wire:confirm="Are you sure you want to remove this item?"
-                                    class="hidden sm:inline-flex cursor-pointer items-center gap-1.5 text-xs text-red-600 hover:text-red-500 font-medium mt-1">
-                                    <flux:icon name="trash" class="w-3.5 h-3.5"/>
-                                    Remove
-                                </button>
+                                <div class="mt-auto">
+                                    <button
+                                        wire:click="removeFromCart({{ $item['product']->id }})"
+                                        wire:confirm="Are you sure you want to remove this item?"
+                                        class="hidden sm:inline-flex cursor-pointer items-center justify-end w-full gap-1.5 text-xs text-red-600 hover:text-red-500 font-medium">
+                                        <flux:icon name="trash" class="w-3.5 h-3.5"/>
+                                        Remove
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -117,23 +150,60 @@
                         <div class="flex justify-between">
                             <span class="text-zinc-600 dark:text-zinc-400">Subtotal</span>
                             <span class="font-medium text-zinc-900 dark:text-zinc-100">
-                                ${{ number_format($total, 2) }}
+                                ${{ number_format($total + $totalDiscount, 2) }}
                             </span>
                         </div>
 
+                        @if($totalDiscount > 0)
                         <div class="flex justify-between">
-                            <span class="text-zinc-600 dark:text-zinc-400">Shipping</span>
-                            <span class="font-medium text-zinc-900 dark:text-zinc-100">
-                                ${{ number_format($shippingCost, 2) }}
+                            <span class="text-zinc-600 dark:text-zinc-400">Quantity Discounts</span>
+                            <span class="font-medium text-emerald-600 dark:text-emerald-400">
+                                -${{ number_format($totalDiscount, 2) }}
                             </span>
                         </div>
+                        @endif
 
-                        <div
-                            class="border-t border-zinc-200 dark:border-zinc-700 pt-4 flex justify-between items-center">
-                            <span class="font-semibold text-zinc-800 dark:text-zinc-200">Total Amount</span>
-                            <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
-                                ${{ number_format($totalWithShipping, 2) }}
-                            </span>
+                        <div class="flex flex-col gap-2">
+                            <div class="flex justify-between">
+                                <span class="text-zinc-600 dark:text-zinc-400">Shipping</span>
+                                @if($shippingCost == 0)
+                                    <span class="font-medium text-emerald-600 dark:text-emerald-400">
+                                        Free
+                                    </span>
+                                @else
+                                    <span class="font-medium text-zinc-900 dark:text-zinc-100">
+                                        ${{ number_format($shippingCost, 2) }}
+                                    </span>
+                                @endif
+                            </div>
+
+                            @if($shippingCost != 0)
+                                <div
+                                    class="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-900">
+                                    <div class="flex items-center text-sm text-emerald-600 dark:text-emerald-400">
+                                        <x-lucide-truck class="w-4 h-4 mr-2"/>
+                                        <span>
+                                            Add ${{ number_format($minThresholdSoShippingIsFree - $total, 2) }} more to your cart to get free shipping!
+                                        </span>
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+
+                        <div class="border-t border-zinc-200 dark:border-zinc-700 pt-4">
+                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                <span class="font-semibold text-zinc-800 dark:text-zinc-200 text-lg">Total Amount</span>
+                                <div class="flex flex-col items-end gap-1">
+                                    @if($shippingCost == 0)
+                                        <span class="text-sm text-emerald-600 dark:text-emerald-400 font-medium">
+                                            You are qualified for free shipping!
+                                        </span>
+                                    @endif
+                                    <span class="text-3xl font-bold tracking-tight text-indigo-600 dark:text-indigo-400">
+                                        ${{ number_format($totalWithShipping, 2) }}
+                                    </span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -147,7 +217,6 @@
                     </a>
                     <div class="flex gap-4">
                         <button wire:click="clearCart"
-                                wire:confirm="Are you sure you want to clear your cart?"
                                 class="cursor-pointer inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg
                                 transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                             Clear Cart
@@ -155,7 +224,7 @@
                         </button>
 
                         @if(!Auth::check())
-                            <a href="{{ route('login') }}" class="inline-flex items-center">
+                            <a href="{{ route('login', ['redirect_to' => 'checkout']) }}" class="inline-flex items-center">
                                 <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
         transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Proceed to Checkout
@@ -163,8 +232,7 @@
                                 </button>
                             </a>
                         @else
-                            {{--Would go to checkout here WORK IN PROGRESS--}}
-                            <a href="{{ route('login') }}" class="inline-flex items-center">
+                            <a href="{{ route('checkout') }}" class="inline-flex items-center">
                                 <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
                                     transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
                                     Proceed to Checkout

@@ -33,7 +33,7 @@ class LandingPageController extends Controller
         $featuredProducts = Cache::remember('landing_page_featured_products', 3600, function () {
             return Product::with('category')
                 ->where('stock', '>', 0)
-                ->latest()
+                ->inRandomOrder()
                 ->take(4)
                 ->get();
         });

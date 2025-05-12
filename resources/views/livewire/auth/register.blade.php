@@ -5,6 +5,7 @@ use App\Models\Card;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Validation\Rules;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -26,7 +27,17 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public bool $show_optional = false;
     public $photo = null;
     public array $basicData = [];
+    public $redirectTo = null;
+    public $redirectMessage = null;
 
+    public function mount()
+    {
+        $this->redirectTo = Request::query('redirect_to');
+        
+        if ($this->redirectTo === 'checkout') {
+            $this->redirectMessage = __('After creating your account, you will be redirected to checkout.');
+        }
+    }
 
     public function proceed(): void
     {
@@ -44,13 +55,36 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     public function register(): void
     {
-        $validated = $this->validate([
+        $validationRules = [
             'default_delivery_address' => ['nullable', 'string', 'max:255'],
             'nif' => ['nullable', 'string', 'max:9', 'min:9', 'regex:/^[0-9]{9}$/'],
             'default_payment_type' => ['nullable', 'string', 'max:255', 'in:Visa,PayPal,MB WAY'],
-            'default_payment_reference' => ['nullable', 'string', 'max:255'],
             'photo' => ['nullable', 'image', 'max:8096', 'mimes:jpg,jpeg,png'],
-        ]);
+        ];
+        
+        // Only validate payment reference if payment type is selected
+        if ($this->default_payment_type) {
+            $validationRules['default_payment_reference'] = [
+                'required', 'string', 'max:255',
+                function ($attr, $value, $fail) {
+                    if (!$value) return;
+                    
+                    match ($this->default_payment_type) {
+                        'Visa' => preg_match('/^[1-9][0-9]{15}$/', $value) && !str_ends_with($value, '2')
+                            ?: $fail('The Visa card must be 16 digits long, cannot start with 0, and cannot end with 2.'),
+                        'PayPal' => filter_var($value, FILTER_VALIDATE_EMAIL)
+                            ?: $fail('Please enter a valid PayPal email address.'),
+                        'MB WAY' => preg_match('/^9[1236][0-9]{7}$/', $value) && !str_ends_with($value, '2')
+                            ?: $fail('Please enter a valid Portuguese mobile number that doesn\'t end with 2.'),
+                        default => true
+                    };
+                }
+            ];
+        } else {
+            $validationRules['default_payment_reference'] = ['nullable', 'string', 'max:255'];
+        }
+
+        $validated = $this->validate($validationRules);
 
         $validated = array_merge($this->basicData, $validated);
         $validated['type'] = 'pending_member';
@@ -83,7 +117,21 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         Auth::login($user);
 
+        if ($this->redirectTo === 'checkout') {
+            $this->redirect(route('checkout'), navigate: true);
+        } else {
         $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+        }
+    }
+    
+    private function getPaymentReferencePlaceholder(): string
+    {
+        return match ($this->default_payment_type) {
+            'Visa' => 'Enter your 16 digit Visa card (cannot start with 0 or end with 2)',
+            'PayPal' => 'Enter your PayPal email address',
+            'MB WAY' => 'Enter your Portuguese mobile number (e.g., 9xx xxx xxx)',
+            default => 'e.g., Visa number, PayPal email, or MB WAY number'
+        };
     }
 };
 ?>
@@ -102,6 +150,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
     <!-- Session Status -->
     <x-auth-session-status class="text-center" :status="session('status')"/>
 
+    @if($redirectMessage)
+        <div class="bg-indigo-50 dark:bg-indigo-900/20 border border-indigo-200 dark:border-indigo-800 text-indigo-700 dark:text-indigo-300 px-4 py-3 rounded-lg relative" role="alert">
+            <div class="flex">
+                <flux:icon name="arrow-right-circle" class="w-5 h-5 text-indigo-500 dark:text-indigo-400 mr-3 flex-shrink-0" />
+                <div>{{ $redirectMessage }}</div>
+            </div>
+        </div>
+    @endif
 
     @if(!$this->show_optional)
 
@@ -182,8 +238,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
             />
 
             <!-- Preferred Payment Method -->
-            <flux:select wire:model="default_payment_type" :label="__('Preferred payment method')"
-                         placeholder="Choose...">
+            <flux:select 
+                wire:model.live="default_payment_type" 
+                :label="__('Preferred payment method')"
+                placeholder="Choose..."
+            >
                 <flux:select.option value="Visa">Visa</flux:select.option>
                 <flux:select.option value="PayPal">PayPal</flux:select.option>
                 <flux:select.option value="MB WAY">MB WAY</flux:select.option>
@@ -195,7 +254,7 @@ new #[Layout('components.layouts.auth')] class extends Component {
                 :label="__('Payment reference')"
                 type="text"
                 autocomplete="off"
-                :placeholder="__('e.g., Visa number, PayPal email, or MB WAY number')"
+                :placeholder="$this->getPaymentReferencePlaceholder()"
             />
 
             <!-- Profile Photo -->
@@ -214,6 +273,10 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
     <div class="space-x-1 rtl:space-x-reverse text-center text-sm text-zinc-600 dark:text-zinc-400">
         {{ __('Already have an account?') }}
+        @if($redirectTo)
+            <flux:link :href="route('login', ['redirect_to' => $redirectTo])" wire:navigate>{{ __('Log in') }}</flux:link>
+        @else
         <flux:link :href="route('login')" wire:navigate>{{ __('Log in') }}</flux:link>
+        @endif
     </div>
 </div>

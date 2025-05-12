@@ -15,11 +15,12 @@ class CatalogController extends Controller
         $search = $request->search;
         $categoryId = $request->category;
         $page = $request->get('page', 1);
+        $sort = $request->get('sort', 'name');
 
         // Gera uma chave de cache única para cada combinação de pesquisa, categoria e página
-        $cacheKey = "products_index:search={$search}:category={$categoryId}:page={$page}";
+        $cacheKey = "products_index:search={$search}:category={$categoryId}:page={$page}:sort={$sort}";
 
-        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search, $categoryId) {
+        $products = Cache::remember($cacheKey, now()->addMinutes(10), function () use ($search, $categoryId, $sort) {
             $query = Product::whereNull('deleted_at');
 
             if ($search) {
@@ -33,8 +34,20 @@ class CatalogController extends Controller
                 $query->where('category_id', $categoryId);
             }
 
-            return $query->orderBy('name')
-                ->paginate(12)
+            // Apply sorting based on the sort parameter
+            switch ($sort) {
+                case 'price_low':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'price_high':
+                    $query->orderBy('price', 'desc');
+                    break;
+                default:
+                    $query->orderBy('name');
+                    break;
+            }
+
+            return $query->paginate(12)
                 ->withQueryString();
         });
 
@@ -46,6 +59,7 @@ class CatalogController extends Controller
             'categories' => $categories,
             'search' => $search,
             'activeCategory' => $activeCategory,
+            'sort' => $sort,
         ]);
     }
 }

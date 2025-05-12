@@ -103,10 +103,9 @@ Password: 123
 
 ### 🛍️ Catálogo & Loja
 - [x] Listagem de produtos visível para todos (incluindo anónimos)
-- [ ] Produtos com nome, imagem, descrição, preço, desconto
+- [x] Produtos com nome, imagem, descrição, preço, desconto
 - [x] Produtos fora de stock visíveis com alerta
-- [ ] Filtros e ordenação por categoria, nome, preço
-
+- [x] Filtros e ordenação por categoria, nome, preço
 ---
 
 ### 🛒 Carrinho & Checkout

@@ -62,7 +62,26 @@ new class extends Component {
             'default_delivery_address' => ['nullable', 'string', 'max:255'],
             'nif' => ['nullable', 'string', 'regex:/^[0-9]{9}$/'], // 9 digit Portuguese NIF format
             'default_payment_type' => ['nullable', 'string', 'in:Visa,PayPal,MB WAY'],
-            'default_payment_reference' => ['nullable', 'string', 'max:255'],
+            'default_payment_reference' => [
+                'nullable', 
+                'string', 
+                'max:255',
+                function ($attr, $value, $fail) {
+                    if (!$this->default_payment_type || !$value) {
+                        return;
+                    }
+                    
+                    match ($this->default_payment_type) {
+                        'Visa' => preg_match('/^[1-9][0-9]{15}$/', $value) && !str_ends_with($value, '2')
+                            ?: $fail('The Visa card must be 16 digits long, cannot start with 0, and cannot end with 2.'),
+                        'PayPal' => filter_var($value, FILTER_VALIDATE_EMAIL)
+                            ?: $fail('Please enter a valid PayPal email address.'),
+                        'MB WAY' => preg_match('/^9[1236][0-9]{7}$/', $value) && !str_ends_with($value, '2')
+                            ?: $fail('Please enter a valid Portuguese mobile number that doesn\'t end with 2.'),
+                        default => true
+                    };
+                }
+            ],
             'newPhoto' => ['nullable', 'image', 'max:2048'] // 2MB max
         ]);
 
@@ -109,6 +128,19 @@ new class extends Component {
         $user->sendEmailVerificationNotification();
 
         Session::flash('status', 'verification-link-sent');
+    }
+
+    /**
+     * Get placeholder text for payment reference field based on selected payment type
+     */
+    public function getPaymentReferencePlaceholder(): string
+    {
+        return match ($this->default_payment_type) {
+            'Visa' => 'Enter your Visa card (16 digits, cannot start with 0 or end with 2)',
+            'PayPal' => 'Enter your PayPal email address',
+            'MB WAY' => 'Enter your Portuguese mobile number (cannot end with 2)',
+            default => 'Enter your payment reference'
+        };
     }
 }; ?>
 
@@ -215,7 +247,7 @@ new class extends Component {
             </flux:select>
 
             <flux:input wire:model="default_payment_reference" :label="__('Preferred Payment Reference (optional)')"
-                        type="text"/>
+                        type="text" placeholder="{{ $this->getPaymentReferencePlaceholder() }}"/>
 
             <div class="flex items-center gap-4">
                 <div class="flex items-center justify-end">

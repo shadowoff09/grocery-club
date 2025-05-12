@@ -22,9 +22,20 @@ class LogSuccessfulLogin
      */
     public function handle(SuccessfulLogin $event): void
     {
-        // Update the user's last login timestamp
+        // Get the current custom data or initialize an empty array
+        $custom = $event->user->custom ?? [];
+        
+        // If custom is a JSON string, decode it
+        if (is_string($custom)) {
+            $custom = json_decode($custom, true) ?? [];
+        }
+        
+        // Update the last_login timestamp in the custom data
+        $custom['last_login_at'] = now()->toDateTimeString();
+        
+        // Update the user's custom field with the new data
         $event->user->update([
-            'last_login_at' => now(),
+            'custom' => $custom,
         ]);
 
         // Log the successful login

@@ -72,30 +72,65 @@
                     </div>
                 </div>
 
-                <!-- Search Bar -->
-                <form method="GET" action="{{ url()->current() }}" class="relative mb-10">
-                    <div class="flex shadow-lg rounded-xl">
-                        <input
-                            type="text"
-                            name="search"
-                            placeholder="Search products..."
-                            value="{{ request('search') }}"
-                            class="w-full px-6 py-4 border border-r-0 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-zinc-800 dark:text-white dark:border-zinc-700 text-base"
-                        />
-                        @if(request('category'))
-                            <input type="hidden" name="category" value="{{ request('category') }}">
-                        @endif
-                        @if(request('search'))
-                            <a href="{{ route('catalog.index', request()->only('category')) }}"
-                               class="px-4 bg-white dark:bg-zinc-800 border border-l-0 flex items-center justify-center dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
-                                <x-lucide-x class="w-5 h-5 text-red-500"/>
-                            </a>
-                        @endif
-                        <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2 rounded-r-xl flex items-center transition-colors">
-                            <x-lucide-search class="w-5 h-5"/>
-                        </button>
+                <!-- Search and Sort Bar -->
+                <div class="mb-10 flex flex-col sm:flex-row gap-4">
+                    <!-- Search Bar -->
+                    <form method="GET" action="{{ url()->current() }}" class="relative flex-grow">
+                        <div class="flex shadow-lg rounded-xl">
+                            <input
+                                type="text"
+                                name="search"
+                                placeholder="Search products..."
+                                value="{{ request('search') }}"
+                                class="w-full px-6 py-4 border border-r-0 rounded-l-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 dark:bg-zinc-800 dark:text-white dark:border-zinc-700 text-base"
+                            />
+                            @if(request('category'))
+                                <input type="hidden" name="category" value="{{ request('category') }}">
+                            @endif
+                            @if(request('sort'))
+                                <input type="hidden" name="sort" value="{{ request('sort') }}">
+                            @endif
+                            @if(request('search'))
+                                <a href="{{ route('catalog.index', request()->except('search')) }}"
+                                   class="px-4 bg-white dark:bg-zinc-800 border border-l-0 flex items-center justify-center dark:border-zinc-700 hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors">
+                                    <x-lucide-x class="w-5 h-5 text-red-500"/>
+                                </a>
+                            @endif
+                            <button type="submit" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-2 rounded-r-xl flex items-center transition-colors">
+                                <x-lucide-search class="w-5 h-5"/>
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Sort Dropdown -->
+                    <div class="w-full sm:w-auto">
+                        <form method="GET" action="{{ url()->current() }}" class="flex items-center">
+                            @if(request('search'))
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                            @endif
+                            @if(request('category'))
+                                <input type="hidden" name="category" value="{{ request('category') }}">
+                            @endif
+                            <div class="relative shadow-lg rounded-xl overflow-hidden">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-500 dark:text-gray-400">
+                                    <x-lucide-filter class="w-5 h-5" />
+                                </div>
+                                <select 
+                                    name="sort" 
+                                    onchange="this.form.submit()" 
+                                    class="w-full h-full py-4 pl-12 pr-10 bg-transparent border border-gray-100 dark:border-zinc-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 text-gray-700 dark:text-white appearance-none cursor-pointer"
+                                >
+                                    <option value="name" {{ $sort == 'name' ? 'selected' : '' }}>{{ __('Name (A-Z)') }}</option>
+                                    <option value="price_low" {{ $sort == 'price_low' ? 'selected' : '' }}>{{ __('Price: Low to High') }}</option>
+                                    <option value="price_high" {{ $sort == 'price_high' ? 'selected' : '' }}>{{ __('Price: High to Low') }}</option>
+                                </select>
+                                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none text-emerald-600 dark:text-emerald-400">
+                                    <x-lucide-chevron-down class="w-5 h-5" />
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
 
                 <!-- Products Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -139,7 +174,16 @@
                                 <div class="mt-auto space-y-4">
                                     <div class="flex items-center justify-between">
                                         <span class="text-2xl font-bold text-gray-900 dark:text-white">${{ number_format($product->price, 2) }}</span>
+                                        
+                                        <!-- Discount Badge -->
+                                        @if($product->discount > 0 && $product->discount_min_qty > 0)
+                                            <span class="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-3 py-1.5 rounded-full shadow-sm font-medium flex items-center gap-1">
+                                                <x-lucide-tag class="w-3.5 h-3.5" />
+                                                {{ number_format($product->discount, 0) }}% off {{ $product->discount_min_qty }}+ items
+                                            </span>
+                                        @endif
                                     </div>
+
                                     <div class="flex flex-col space-y-3">
                                         <div class="flex justify-end items-center">
                                             <livewire:add-to-cart :product-id="$product->id"/>

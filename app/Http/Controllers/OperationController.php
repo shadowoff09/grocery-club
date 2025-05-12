@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-namespace App\Http\Controllers;
-
 use App\Models\Operation;
+use App\Traits\WithCardOperations;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,23 +12,22 @@ use Illuminate\Support\Facades\DB;
 
 class OperationController extends Controller
 {
+    use WithCardOperations;
+
     public function index()
     {
-        $user = Auth::user();
-
-        if (!$user->card) {
+        if (!$this->hasCard()) {
             abort(404, 'Card not found.');
         }
-
-        $operations = $user->card->operations()->orderByDesc('date')->paginate(10);
-
+        
+        $operations = $this->getCardOperations(10, null);
+        
         return view('operations.index', compact('operations'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'card_id' => 'required|integer|exists:cards,id',
             'type' => 'required|in:credit,debit',
             'value' => 'required|numeric|min:0.01',
             'debit_type' => 'nullable|string|in:membership_fee,order',
@@ -39,48 +37,34 @@ class OperationController extends Controller
             'order_id' => 'nullable|integer|exists:orders,id',
         ]);
 
-        $user = Auth::user();
-        $card = $user->card;
-
-        if (!$card) {
-            return redirect()->route('operations.index')
+        if (!$this->hasCard()) {
+            return to_route('operations.index')
                 ->with('error', 'You do not have a card.');
         }
 
-        DB::beginTransaction();
-        try {
-            // Check if we have enough balance for a purchase
-            if ($validated['type'] === 'purchase' && $card->balance < $validated['value']) {
-                throw new \RuntimeException('Insufficient balance for this purchase.');
-            }
+        // Create additional attributes array from validated data
+        $additionalAttributes = array_filter([
+            'debit_type' => $validated['debit_type'] ?? null,
+            'credit_type' => $validated['credit_type'] ?? null,
+            'payment_type' => $validated['payment_type'] ?? null,
+            'payment_reference' => $validated['payment_reference'] ?? null,
+            'order_id' => $validated['order_id'] ?? null,
+        ]);
 
-            // Create the operation
-            $operation = new Operation();
-            $operation->card_id = $card->id;
-            $operation->type = $validated['type'];
-            $operation->value = $validated['value'];
-            $operation->description = $validated['description'] ?? null;
-            $operation->date = now();
-            $operation->save();
+        // Use the trait method to perform the transaction
+        $success = $this->performCardTransaction(
+            $validated['value'],
+            $validated['type'],
+            $additionalAttributes
+        );
 
-            // Update card balance
-            if ($validated['type'] === 'purchase') {
-                $card->balance -= $validated['value'];
-            } else { // deposit
-                $card->balance += $validated['value'];
-            }
-            $card->save();
-
-            DB::commit();
-
-            return redirect()->route('operations.index')
-                ->with('success', ucfirst($validated['type']) . ' operation completed successfully.');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->route('operations.create')
-                ->with('error', $e->getMessage())
+        if (!$success) {
+            return to_route('operations.create')
+                ->with('error', 'Failed to process the operation. Please try again.')
                 ->withInput();
         }
-    }
 
+        return to_route('operations.index')
+            ->with('success', ucfirst($validated['type']) . ' operation completed successfully.');
+    }
 }

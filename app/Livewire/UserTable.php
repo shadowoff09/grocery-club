@@ -89,7 +89,7 @@ final class UserTable extends PowerGridComponent
     #[On('edit')]
     public function edit($rowId): void
     {
-        redirect()->route('board.users.show', $rowId);
+        to_route('board.users.show', $rowId);
     }
 
     public function actions(User $row): array
