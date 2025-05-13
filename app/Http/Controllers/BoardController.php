@@ -99,6 +99,7 @@ class BoardController extends Controller
 
     public function statistics()
     {
+        // 1. Orders by Status for Pie Chart
         $numberOrdersByType = Order::selectRaw('COUNT(*) as count, status')
             ->groupBy('status')
             ->get()
@@ -106,117 +107,55 @@ class BoardController extends Controller
                 return [$item->status => $item->count];
             });
 
-        $chart = new HighChart();
+        $pieChartData = [
+            'labels' => $numberOrdersByType->keys()->toArray(),
+            'values' => $numberOrdersByType->values()->toArray(),
+        ];
 
-        $chart->labels(['Completed', 'Pending', 'Cancelled']);
-        $chart->dataset('Orders', 'pie', [
-            $numberOrdersByType['completed'] ?? 0,
-            $numberOrdersByType['pending'] ?? 0,
-            $numberOrdersByType['cancelled'] ?? 0,
-        ])->color([
-            'rgb(70, 127, 208)',
-            'rgb(66, 186, 150)',
-            'rgb(96, 92, 168)',
-            'rgb(255, 193, 7)',
-        ]);
+        // 2. Monthly Orders for Bar Chart
+        $monthlyOrders = [];
+        $monthLabels = [];
+        
+        // Get orders for the last 12 months
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthName = $date->format('M');
+            $monthLabels[] = $monthName;
+            
+            $count = Order::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+                
+            $monthlyOrders[] = $count;
+        }
+        
+        $barChartData = [
+            'labels' => $monthLabels,
+            'values' => $monthlyOrders,
+        ];
 
-        $chart->displayAxes(false);
-        $chart->displayLegend(true);
+        // 3. User Growth for Line Chart
+        $userGrowth = [];
+        $monthsForUsers = [];
+        
+        // Get user registration counts for the last 6 months
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthsForUsers[] = $date->format('M');
+            
+            $count = User::whereYear('created_at', '<=', $date->year)
+                ->whereMonth('created_at', '<=', $date->month)
+                ->count();
+                
+            $userGrowth[] = $count;
+        }
+        
+        $lineChartData = [
+            'labels' => $monthsForUsers,
+            'values' => $userGrowth,
+        ];
 
-        $chart->options([
-            'chart' => [
-                'type' => 'pie',
-                'zooming' => [
-                    'type' => 'xy',
-                ],
-                'panning' => [
-                    'enabled' => true,
-                    'type' => 'xy',
-                ],
-                'panKey' => 'shift',
-                'backgroundColor' => 'transparent',
-            ],
-            'title' => [
-                'text' => 'Orders Statistics',
-                'style' => [
-                    'color' => '#fff',
-                    'fontSize' => '20px',
-                ],
-            ],
-            'plotOptions' => [
-                'pie' => [
-                    'allowPointSelect' => true,
-                    'cursor' => 'pointer',
-                    'dataLabels' => [
-                        [
-                            'enabled' => true,
-                            'distance' => 20,
-                        ],
-                        [
-                            'enabled' => true,
-                            'distance' => -40,
-                            'format' => '{point.percentage:.1f}%',
-                            'style' => [
-                                'fontSize' => '1.2em',
-                                'textOutline' => 'none',
-                                'opacity' => 0.7,
-                            ],
-                            'filter' => [
-                                'operator' => '>',
-                                'property' => 'percentage',
-                                'value' => 10,
-                            ],
-                        ],
-                    ],
-                    'showInLegend' => true,
-                ],
-                'series' => [
-                    'dataLabels' => [
-                        'enabled' => true,
-                        'color' => '#ffff',
-                    ],
-                ],
-            ],
-            'legend' => [
-                'align' => 'right',
-                'verticalAlign' => 'middle',
-                'layout' => 'vertical',
-                'itemStyle' => [
-                    'color' => '#fff',
-                    'fontSize' => '14px',
-                ],
-            ],
-            'colors' => [
-                'rgb(70, 127, 208)',
-                'rgb(66, 186, 150)',
-                'rgb(96, 92, 168)',
-                'rgb(255, 193, 7)',
-                'rgb(220, 53, 69)',
-            ],
-            'credits' => [
-                'enabled' => false,
-            ],
-            'responsive' => [
-                'rules' => [
-                    [
-                        'condition' => [
-                            'maxWidth' => 500,
-                        ],
-                        'chartOptions' => [
-                            'legend' => [
-                                'layout' => 'horizontal',
-                                'align' => 'center',
-                                'verticalAlign' => 'bottom',
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-        ]);
-
-        return view('statistics.index', [
-            'chart' => $chart,
-        ]);
+        return view('statistics.index', compact('pieChartData', 'barChartData', 'lineChartData'));
     }
 
 
