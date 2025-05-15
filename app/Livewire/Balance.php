@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Traits\WithCardOperations;
+use App\DTOs\PaymentDetails;
+use App\Services\BalanceService;
+use App\Traits\WithPaymentValidation;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -11,7 +13,7 @@ use Masmerise\Toaster\Toaster;
 class Balance extends Component
 {
     use WithPagination;
-    use WithCardOperations;
+    use WithPaymentValidation;
 
     public bool $showRechargeModal = false;
     public float $rechargeAmount = 50;
@@ -25,15 +27,21 @@ class Balance extends Component
     public bool $saveAsDefault = false;
     public bool $showSaveOption = true;
 
+    protected BalanceService $balanceService;
+
+    public function __construct()
+    {
+        $this->balanceService = app(BalanceService::class);
+    }
+
     public function mount(): void
     {
-        // Get default payment method from trait
-        $defaultPayment = $this->getDefaultPaymentMethod();
-        
-        if ($defaultPayment) {
+        // Check if user has defaults
+        $user = Auth::user();
+        if ($user && !empty($user->default_payment_type) && !empty($user->default_payment_reference)) {
             $this->hasDefaults = true;
-            $this->defaultPaymentMethod = $defaultPayment['method'];
-            $this->defaultPaymentReference = $defaultPayment['reference'];
+            $this->defaultPaymentMethod = $user->default_payment_type;
+            $this->defaultPaymentReference = $user->default_payment_reference;
         }
     }
 
@@ -62,50 +70,52 @@ class Balance extends Component
 
     public function rechargeCard(): void
     {
-        // Use trait's processCardTopUp method
-        $result = $this->processCardTopUp(
+        // Validate the input using the WithPaymentValidation trait
+        $this->validate($this->getPaymentValidationRules($this->paymentMethod));
+
+        // Create a PaymentDetails DTO using the trait helper method
+        $paymentDetails = $this->createPaymentDetails('paymentMethod', 'paymentReference', 'cvcCode');
+
+        // Process the recharge using the BalanceService
+        $result = $this->balanceService->rechargeCard(
+            Auth::user(),
             $this->rechargeAmount,
-            $this->paymentMethod,
-            $this->paymentReference,
-            $this->cvcCode
+            $paymentDetails,
+            $this->saveAsDefault
         );
         
-        if (!$result['success']) {
-            Toaster::error($result['message']);
+        if (!$result) {
+            Toaster::error('Payment failed. Please try again.');
             return;
-        }
-        
-        // Save as default if requested
-        if ($this->saveAsDefault) {
-            $saved = $this->saveDefaultPaymentMethod($this->paymentMethod, $this->paymentReference);
-            
-            if ($saved) {
-                // Update session values
-                $this->hasDefaults = true;
-                $this->defaultPaymentMethod = $this->paymentMethod;
-                $this->defaultPaymentReference = $this->paymentReference;
-                
-                Toaster::success('Payment preferences saved as default.');
-            }
         }
         
         // Close modal and reset form
         $this->showRechargeModal = false;
         $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault', 'showSaveOption');
         
-        Toaster::success($result['message']);
+        Toaster::success('Card recharged successfully!');
     }
 
     public function render()
     {
-        $cardBalance = $this->getCardBalance();
-        $cardNumber = $this->getCardNumber();
-        $operations = $this->getCardOperations(10);
-        $statistics = $this->getCardStatistics();
+        $user = Auth::user();
+        $card = $this->balanceService->getUserCard($user);
+        
+        if (!$card) {
+            return view('livewire.balance', [
+                'cardBalance' => 0,
+                'cardNumber' => null,
+                'operations' => null,
+                'statistics' => null
+            ]);
+        }
+        
+        $operations = $this->balanceService->getCardOperations($card);
+        $statistics = $this->balanceService->getCardStatistics($card);
 
         return view('livewire.balance', [
-            'cardBalance' => $cardBalance,
-            'cardNumber' => $cardNumber,
+            'cardBalance' => $card->balance,
+            'cardNumber' => $card->card_number,
             'operations' => $operations,
             'statistics' => $statistics
         ]);

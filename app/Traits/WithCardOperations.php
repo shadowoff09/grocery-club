@@ -142,6 +142,170 @@ trait WithCardOperations
     }
     
     /**
+     * Debit card for an order
+     * 
+     * @param float $amount Amount to debit
+     * @param int|null $orderId The order ID associated with this debit
+     * @param array $attributes Additional attributes for the operation
+     * @return bool Success state
+     */
+    public function debitCardForOrder($amount, $orderId = null, array $attributes = [])
+    {
+        if (!$this->hasCard() || !$this->hasSufficientBalance($amount)) {
+            return false;
+        }
+        
+        $card = auth()->user()->card;
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $orderId, $attributes) {
+                // Update card balance
+                $card->balance -= $amount;
+                $card->save();
+                
+                // Create operation record
+                $operationData = array_merge([
+                    'card_id' => $card->id,
+                    'type' => 'debit',
+                    'debit_type' => 'order',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                    'order_id' => $orderId
+                ], $attributes);
+                
+                Operation::create($operationData);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Debit card for membership fee
+     * 
+     * @param float $amount Membership fee amount
+     * @param array $attributes Additional attributes for the operation
+     * @return bool Success state
+     */
+    public function debitCardForMembershipFee($amount, array $attributes = [])
+    {
+        if (!$this->hasCard() || !$this->hasSufficientBalance($amount)) {
+            return false;
+        }
+        
+        $card = auth()->user()->card;
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $attributes) {
+                // Update card balance
+                $card->balance -= $amount;
+                $card->save();
+                
+                // Create operation record
+                $operationData = array_merge([
+                    'card_id' => $card->id,
+                    'type' => 'debit',
+                    'debit_type' => 'membership_fee',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                ], $attributes);
+                
+                Operation::create($operationData);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Credit card from payment
+     * 
+     * @param float $amount Amount to credit
+     * @param string $paymentType Payment type (Visa, PayPal, MB WAY)
+     * @param string $paymentReference Payment reference
+     * @param array $attributes Additional attributes for the operation
+     * @return bool Success state
+     */
+    public function creditCardFromPayment($amount, $paymentType, $paymentReference, array $attributes = [])
+    {
+        if (!$this->hasCard()) {
+            return false;
+        }
+        
+        $card = auth()->user()->card;
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $paymentType, $paymentReference, $attributes) {
+                // Update card balance
+                $card->balance += $amount;
+                $card->save();
+                
+                // Create operation record
+                $operationData = array_merge([
+                    'card_id' => $card->id,
+                    'type' => 'credit',
+                    'credit_type' => 'payment',
+                    'payment_type' => $paymentType,
+                    'payment_reference' => $paymentReference,
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                ], $attributes);
+                
+                Operation::create($operationData);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Credit card from order cancellation
+     * 
+     * @param float $amount Amount to credit
+     * @param int $orderId The order ID associated with this credit
+     * @param array $attributes Additional attributes for the operation
+     * @return bool Success state
+     */
+    public function creditCardFromOrderCancellation($amount, $orderId, array $attributes = [])
+    {
+        if (!$this->hasCard()) {
+            return false;
+        }
+        
+        $card = auth()->user()->card;
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $orderId, $attributes) {
+                // Update card balance
+                $card->balance += $amount;
+                $card->save();
+                
+                // Create operation record
+                $operationData = array_merge([
+                    'card_id' => $card->id,
+                    'type' => 'credit',
+                    'credit_type' => 'order_cancellation',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                    'order_id' => $orderId
+                ], $attributes);
+                
+                Operation::create($operationData);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
      * Process a card topup with specific payment method
      * 
      * @param float $amount Amount to add to the card
@@ -187,14 +351,10 @@ trait WithCardOperations
         }
         
         // If payment successful, credit the card
-        $transactionSuccess = $this->performCardTransaction(
+        $transactionSuccess = $this->creditCardFromPayment(
             $amount,
-            'credit',
-            [
-                'credit_type' => 'payment',
-                'payment_type' => $paymentMethod,
-                'payment_reference' => $paymentReference,
-            ]
+            $paymentMethod,
+            $paymentReference
         );
         
         if (!$transactionSuccess) {
@@ -270,12 +430,12 @@ trait WithCardOperations
         }
         
         $card = auth()->user()->card;
-        $operations = $card->operations();
+        $operations = $card->operations()->get();
         
         $totalCredits = $operations->where('type', 'credit')->sum('value');
         $totalDebits = $operations->where('type', 'debit')->sum('value');
         
-        $lastOperation = $operations->orderBy('created_at', 'desc')->first();
+        $lastOperation = $operations->sortByDesc('created_at')->first();
         
         return [
             'current_balance' => $card->balance,

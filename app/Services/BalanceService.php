@@ -6,6 +6,7 @@ use App\DTOs\PaymentDetails;
 use App\Models\Card;
 use App\Models\Operation;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -46,12 +47,14 @@ class BalanceService
             // Add credit operation
             Operation::create([
                 'card_id' => $userCard->id,
-                'date' => now(),
+                'date' => now()->toDateString(),
                 'type' => 'credit',
                 'credit_type' => 'payment',
                 'value' => $amount,
                 'payment_type' => $paymentDetails->method,
                 'payment_reference' => $paymentDetails->reference,
+                'created_at' => now(),
+                'updated_at' => now()
             ]);
 
             // Update card balance
@@ -77,7 +80,7 @@ class BalanceService
      */
     public function getUserCard(User $user): ?Card
     {
-        return Card::where('id', $user->id)->first();
+        return $user->card;
     }
 
     /**
@@ -85,12 +88,18 @@ class BalanceService
      *
      * @param Card $card
      * @param int $perPage
+     * @param string|null $type Filter by operation type ('credit' or 'debit')
      * @return LengthAwarePaginator
      */
-    public function getCardOperations(Card $card, int $perPage = 10): LengthAwarePaginator
+    public function getCardOperations(Card $card, int $perPage = 10, ?string $type = null): LengthAwarePaginator
     {
-        return Operation::where('card_id', $card->id)
-            ->orderBy('date', 'desc')
+        $query = Operation::where('card_id', $card->id);
+        
+        if ($type) {
+            $query->where('type', $type);
+        }
+        
+        return $query->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
     }
@@ -104,11 +113,153 @@ class BalanceService
     public function getCardStatistics(Card $card): array
     {
         $operations = Operation::where('card_id', $card->id)->get();
+        
+        $lastOperation = $operations->sortByDesc('created_at')->first();
 
         return [
+            'current_balance' => $card->balance,
             'total_credits' => $operations->where('type', 'credit')->sum('value'),
             'total_debits' => $operations->where('type', 'debit')->sum('value'),
-            'total_transactions' => $operations->count()
+            'total_transactions' => $operations->count(),
+            'last_operation' => $lastOperation ? [
+                'type' => $lastOperation->type,
+                'amount' => $lastOperation->value,
+                'date' => $lastOperation->date,
+            ] : null
         ];
     }
-}
+    
+    /**
+     * Debit card for an order
+     *
+     * @param User $user
+     * @param float $amount
+     * @param int|null $orderId
+     * @return bool
+     */
+    public function debitCardForOrder(User $user, float $amount, ?int $orderId = null): bool
+    {
+        $card = $user->card;
+        
+        if (!$card || $card->balance < $amount) {
+            return false;
+        }
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $orderId) {
+                // Update card balance
+                $card->balance -= $amount;
+                $card->save();
+                
+                // Create operation record
+                Operation::create([
+                    'card_id' => $card->id,
+                    'type' => 'debit',
+                    'debit_type' => 'order',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                    'order_id' => $orderId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Credit card from order cancellation
+     *
+     * @param User $user
+     * @param float $amount
+     * @param int $orderId
+     * @return bool
+     */
+    public function creditCardFromOrderCancellation(User $user, float $amount, int $orderId): bool
+    {
+        $card = $user->card;
+        
+        if (!$card) {
+            return false;
+        }
+        
+        try {
+            DB::transaction(function () use ($card, $amount, $orderId) {
+                // Update card balance
+                $card->balance += $amount;
+                $card->save();
+                
+                // Create operation record
+                Operation::create([
+                    'card_id' => $card->id,
+                    'type' => 'credit',
+                    'credit_type' => 'order_cancellation',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                    'order_id' => $orderId,
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+    
+    /**
+     * Debit card for membership fee
+     *
+     * @param User $user
+     * @param float $amount
+     * @return bool
+     */
+    public function debitCardForMembershipFee(User $user, float $amount): bool
+    {
+        $card = $user->card;
+        
+        if (!$card || $card->balance < $amount) {
+            return false;
+        }
+        
+        try {
+            DB::transaction(function () use ($card, $amount) {
+                // Update card balance
+                $card->balance -= $amount;
+                $card->save();
+                
+                // Create operation record
+                Operation::create([
+                    'card_id' => $card->id,
+                    'type' => 'debit',
+                    'debit_type' => 'membership_fee',
+                    'value' => $amount,
+                    'date' => Carbon::now()->toDateString(),
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            });
+            
+            return true;
+        } catch (\Exception $e) {
+            return false;
+        }
+    }
+
+    /**
+     * Get card-specific operations collection
+     * 
+     * @param Card $card
+     * @return Collection
+     */
+    public function getCardOperationsCollection(Card $card): Collection
+    {
+        return Operation::where('card_id', $card->id)
+            ->orderBy('date', 'desc')
+            ->get();
+    }
+} 

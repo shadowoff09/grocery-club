@@ -60,6 +60,10 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->g
     Route::get('/checkout/confirmation', function () {
         return view('checkout.confirmation');
     })->name('order.confirmation');
+    
+    Route::get('/orders', function () {
+        return view('orders.index');
+    })->name('orders.index');
 });
 
 // BOARD ADMIN ROUTES

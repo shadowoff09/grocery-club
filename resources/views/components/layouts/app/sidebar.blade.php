@@ -37,6 +37,9 @@
         <flux:navlist.group :heading="__('Platform')" class="grid">
             <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
             <flux:navlist.item icon="shopping-bag" :href="route('catalog.index')" :current="request()->routeIs('catalog.index')" wire:navigate>{{ __('Catalog') }}</flux:navlist.item>
+            @if(auth()->user()->type === 'member' || auth()->user()->type === 'board')
+                <flux:navlist.item icon="clipboard-document-list" :href="route('orders.index')" :current="request()->routeIs('orders.index')" wire:navigate>{{ __('My Orders') }}</flux:navlist.item>
+            @endif
         </flux:navlist.group>
         @if(auth()->user()->isBoardMember())
             <flux:navlist.group :heading="__('Board')" class="grid">
