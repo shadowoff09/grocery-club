@@ -12,8 +12,6 @@ use Masmerise\Toaster\Toaster;
 new #[Layout('components.layouts.app')] class extends Component {
     use WithPagination, WithPaymentValidation;
 
-    protected $paginationTheme = 'tailwind';
-
     public bool $showRechargeModal = false;
     public float $rechargeAmount = 50;
     public string $paymentMethod = 'Visa';
@@ -31,11 +29,6 @@ new #[Layout('components.layouts.app')] class extends Component {
     public function boot(BalanceService $balanceService): void
     {
         $this->balanceService = $balanceService;
-    }
-
-    public function mount(): void
-    {
-        // Initialize any needed properties
     }
 
     public function showRechargeForm(): void

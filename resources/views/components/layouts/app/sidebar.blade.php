@@ -130,6 +130,7 @@
 
                     <flux:menu.radio.group>
                         <flux:menu.item
+                            :href="route('balance.index')"
                             icon="banknotes"
                             class="flex items-center justify-start space-x-2"
                         >
