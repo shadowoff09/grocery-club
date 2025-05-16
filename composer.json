@@ -65,6 +65,9 @@
         "test": [
             "@php artisan config:clear --ansi",
             "@php artisan test"
+        ],
+        "db:check": [
+            "@php artisan db:check"
         ]
     },
     "extra": {
