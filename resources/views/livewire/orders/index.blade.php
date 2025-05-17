@@ -8,19 +8,19 @@
         <!-- Status Filter -->
         <div class="mb-6 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-4">
             <div class="flex flex-wrap gap-2">
-                <button wire:click="filterByStatus('all')" 
+                <button wire:click="filterByStatus('all')"
                    class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === null ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    All Orders
                 </button>
-                <button wire:click="filterByStatus('pending')" 
+                <button wire:click="filterByStatus('pending')"
                    class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'pending' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Pending
                 </button>
-                <button wire:click="filterByStatus('completed')" 
+                <button wire:click="filterByStatus('completed')"
                    class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Completed
                 </button>
-                <button wire:click="filterByStatus('canceled')" 
+                <button wire:click="filterByStatus('canceled')"
                    class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'canceled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Canceled
                 </button>
@@ -39,21 +39,27 @@
                                     Order #{{ $order->id }}
                                 </h2>
                                 <div class="flex items-center gap-3 mt-1 text-sm">
-                                    <span class="text-zinc-500 dark:text-zinc-400">{{ $order->created_at->format('M d, Y H:m:s') }}</span>
+                                    <span class="text-zinc-500 dark:text-zinc-400 font-medium">
+                                        <time datetime="{{ $order->created_at->toIso8601String() }}"
+                                              class="whitespace-nowrap">
+                                            {{ $order->created_at->format('d/m/Y') }}
+                                            <span class="text-zinc-400 dark:text-zinc-500 font-normal">({{ $order->created_at->diffForHumans() }})</span>
+                                        </time>
+                                    </span>
                                     <span class="text-zinc-300 dark:text-zinc-600">•</span>
                                     <span class="text-zinc-500 dark:text-zinc-400">{{ $order->items->count() }} {{ Str::plural('item', $order->items->count()) }}</span>
                                 </div>
                             </div>
-                            
+
                             <div class="flex items-center">
                                 <div class="mr-4 text-right">
                                     <div class="text-lg font-semibold text-zinc-900 dark:text-zinc-100">${{ number_format($order->total, 2) }}</div>
                                     <div class="text-xs text-zinc-500 dark:text-zinc-400">
-                                        Items: ${{ number_format($order->total_items, 2) }} + 
+                                        Items: ${{ number_format($order->total_items, 2) }} +
                                         Shipping: ${{ number_format($order->shipping_cost, 2) }}
                                     </div>
                                 </div>
-                                
+
                                 @if($order->status === 'pending')
                                     <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200">
                                         <svg class="mr-1.5 h-2 w-2 text-amber-400" fill="currentColor" viewBox="0 0 8 8">
@@ -78,7 +84,7 @@
                                 @endif
                             </div>
                         </div>
-                        
+
                         <!-- Order Items -->
                         <div class="divide-y divide-zinc-200 dark:divide-zinc-800">
                             @foreach($order->items as $item)
@@ -117,7 +123,7 @@
                                                 <span>${{ number_format($item->unit_price, 2) }} each</span>
                                             </div>
                                         </div>
-                                        
+
                                         @if($item->discount > 0)
                                             <div class="inline-flex items-center mt-1 text-xs px-2 py-0.5 bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 rounded-full">
                                                 <svg xmlns="http://www.w3.org/2000/svg" class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -135,7 +141,7 @@
                                 </div>
                             @endforeach
                         </div>
-                        
+
                         <!-- Order Footer -->
                         <div class="px-6 py-4 bg-zinc-50 dark:bg-zinc-800/50 border-t border-zinc-200 dark:border-zinc-800 flex flex-wrap justify-between">
                             <div>
@@ -148,10 +154,10 @@
                                     </div>
                                 @endif
                             </div>
-                            
+
                             <div class="mt-2 sm:mt-0">
                                 @if($order->status === 'pending')
-                                    <a href="{{ route('order.confirmation', ['order_id' => $order->id]) }}" 
+                                    <a href="{{ route('order.confirmation', ['order_id' => $order->id]) }}"
                                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -160,9 +166,9 @@
                                         View Details
                                     </a>
                                 @endif
-                                
+
                                 @if($order->pdf_receipt)
-                                    <a href="{{ asset('storage/receipts/' . $order->pdf_receipt) }}" target="_blank" 
+                                        <a href="{{ route('receipts.show', $order->id) }}"
                                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
@@ -174,7 +180,7 @@
                         </div>
                     </div>
                 @endforeach
-                
+
                 <!-- Pagination -->
                 <div class="mt-6">
                     {{ $orders->links() }}
@@ -197,4 +203,4 @@
             </div>
         @endif
     </div>
-</div> 
+</div>

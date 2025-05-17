@@ -61,7 +61,7 @@ class BalanceService
             $userCard->balance += $amount;
             $userCard->save();
 
-            // Save payment info as default if checkbox is checked
+            // Save payment info as default if the checkbox is checked
             if ($saveAsDefault) {
                 $user->default_payment_type = $paymentDetails->method;
                 $user->default_payment_reference = $paymentDetails->reference;
@@ -94,11 +94,11 @@ class BalanceService
     public function getCardOperations(Card $card, int $perPage = 10, ?string $type = null): LengthAwarePaginator
     {
         $query = Operation::where('card_id', $card->id);
-        
+
         if ($type) {
             $query->where('type', $type);
         }
-        
+
         return $query->orderBy('date', 'desc')
             ->orderBy('id', 'desc')
             ->paginate($perPage);
@@ -113,7 +113,7 @@ class BalanceService
     public function getCardStatistics(Card $card): array
     {
         $operations = Operation::where('card_id', $card->id)->get();
-        
+
         $lastOperation = $operations->sortByDesc('created_at')->first();
 
         return [
@@ -128,7 +128,7 @@ class BalanceService
             ] : null
         ];
     }
-    
+
     /**
      * Debit card for an order
      *
@@ -140,18 +140,18 @@ class BalanceService
     public function debitCardForOrder(User $user, float $amount, ?int $orderId = null): bool
     {
         $card = $user->card;
-        
+
         if (!$card || $card->balance < $amount) {
             return false;
         }
-        
+
         try {
             DB::transaction(function () use ($card, $amount, $orderId) {
                 // Update card balance
                 $card->balance -= $amount;
                 $card->save();
-                
-                // Create operation record
+
+                // Create an operation record
                 Operation::create([
                     'card_id' => $card->id,
                     'type' => 'debit',
@@ -163,13 +163,13 @@ class BalanceService
                     'updated_at' => now()
                 ]);
             });
-            
+
             return true;
         } catch (\Exception $e) {
             return false;
         }
     }
-    
+
     /**
      * Credit card from order cancellation
      *
@@ -181,18 +181,18 @@ class BalanceService
     public function creditCardFromOrderCancellation(User $user, float $amount, int $orderId): bool
     {
         $card = $user->card;
-        
+
         if (!$card) {
             return false;
         }
-        
+
         try {
             DB::transaction(function () use ($card, $amount, $orderId) {
                 // Update card balance
                 $card->balance += $amount;
                 $card->save();
-                
-                // Create operation record
+
+                // Create an operation record
                 Operation::create([
                     'card_id' => $card->id,
                     'type' => 'credit',
@@ -204,13 +204,13 @@ class BalanceService
                     'updated_at' => now()
                 ]);
             });
-            
+
             return true;
         } catch (\Exception $e) {
             return false;
         }
     }
-    
+
     /**
      * Debit card for membership fee
      *
@@ -221,18 +221,18 @@ class BalanceService
     public function debitCardForMembershipFee(User $user, float $amount): bool
     {
         $card = $user->card;
-        
+
         if (!$card || $card->balance < $amount) {
             return false;
         }
-        
+
         try {
             DB::transaction(function () use ($card, $amount) {
                 // Update card balance
                 $card->balance -= $amount;
                 $card->save();
-                
-                // Create operation record
+
+                // Create an operation record
                 Operation::create([
                     'card_id' => $card->id,
                     'type' => 'debit',
@@ -243,7 +243,7 @@ class BalanceService
                     'updated_at' => now()
                 ]);
             });
-            
+
             return true;
         } catch (\Exception $e) {
             return false;
@@ -251,8 +251,8 @@ class BalanceService
     }
 
     /**
-     * Get card-specific operations collection
-     * 
+     * Get a card-specific operations collection
+     *
      * @param Card $card
      * @return Collection
      */
@@ -262,4 +262,4 @@ class BalanceService
             ->orderBy('date', 'desc')
             ->get();
     }
-} 
+}

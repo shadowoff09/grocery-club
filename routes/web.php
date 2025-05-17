@@ -1,10 +1,11 @@
 <?php
 
 use App\Http\Controllers\BoardController;
-use App\Http\Controllers\UserActionsController;
 use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckUserType;
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -36,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/danger-zone', 'settings.danger-zone')
         ->middleware(CheckUserType::class.':board|member|pending_member')
         ->name('settings.danger-zone');
+
+    // Receipt routes
+    Route::get('/receipts/{orderId}', [App\Http\Controllers\ReceiptController::class, 'show'])
+        ->name('receipts.show');
 });
 
 // PENDING MEMBER ROUTES
@@ -49,18 +54,23 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
 // MEMBER & BOARD ROUTES
 // -----------------------------------------------------------------------------
 Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->group(function () {
-    Route::get('/balance', function () {
-        return view('balance.index');
-    })->name('balance.index');
+    Route::get('/balance', App\Livewire\Balance::class)->name('balance.index');
 
     Route::get('/checkout', function () {
         return view('checkout.index');
     })->name('checkout');
-    
-    Route::get('/checkout/confirmation', function () {
-        return view('checkout.confirmation');
+
+    Route::get('/checkout/confirmation/{order_id?}', function ($order_id = null) {
+        $order = null;
+        if ($order_id) {
+            $order = Order::where('id', $order_id)
+                ->where('member_id', auth()->id())
+                ->first();
+        }
+
+        return view('checkout.confirmation', ['order' => $order]);
     })->name('order.confirmation');
-    
+
     Route::get('/orders', function () {
         return view('orders.index');
     })->name('orders.index');

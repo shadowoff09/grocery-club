@@ -61,4 +61,20 @@ trait WithPaymentValidation
 
         return new PaymentDetails($method, $reference, $cvc);
     }
+
+    /**
+     * Get placeholder text for payment input based on payment type
+     *
+     * @param string $paymentMethod The payment method
+     * @return string
+     */
+    protected function getPlaceholderForPaymentType(string $paymentMethod): string
+    {
+        return match ($paymentMethod) {
+            'Visa' => 'Enter your Visa card (cannot start with 0 or end with 2)',
+            'PayPal' => 'Enter your PayPal email address (must end with .pt or .com)',
+            'MB WAY' => 'Enter your Portuguese mobile number (cannot end with 2)',
+            default => 'e.g., Visa number, PayPal email, or MB WAY number'
+        };
+    }
 }

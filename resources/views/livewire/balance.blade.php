@@ -1,132 +1,3 @@
-<?php
-
-use App\DTOs\PaymentDetails;
-use App\Services\BalanceService;
-use App\Traits\WithPaymentValidation;
-use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
-use Livewire\WithPagination;
-use Livewire\Volt\Component;
-use Masmerise\Toaster\Toaster;
-
-new #[Layout('components.layouts.app')] class extends Component {
-    use WithPagination, WithPaymentValidation;
-
-    public bool $showRechargeModal = false;
-    public float $rechargeAmount = 50;
-    public string $paymentMethod = 'Visa';
-    public ?string $paymentReference = '';
-    public ?string $cvcCode = '';
-    public bool $hasDefaults = false;
-    public bool $showDefaultsAlert = false;
-    public ?string $defaultPaymentMethod = null;
-    public ?string $defaultPaymentReference = null;
-    public bool $saveAsDefault = false;
-
-    // Services
-    protected BalanceService $balanceService;
-
-    public function boot(BalanceService $balanceService): void
-    {
-        $this->balanceService = $balanceService;
-    }
-
-    public function showRechargeForm(): void
-    {
-        $this->showRechargeModal = true;
-
-        // Check if user has defaults
-        $user = Auth::user();
-        if ($user && !empty($user->default_payment_type) && !empty($user->default_payment_reference)) {
-            $this->hasDefaults = true;
-            $this->showDefaultsAlert = true;
-            $this->defaultPaymentMethod = $user->default_payment_type;
-            $this->defaultPaymentReference = $user->default_payment_reference;
-        }
-    }
-
-    public function useDefaults(): void
-    {
-        if ($this->defaultPaymentMethod && $this->defaultPaymentReference) {
-            $this->paymentMethod = $this->defaultPaymentMethod;
-            $this->paymentReference = $this->defaultPaymentReference;
-            // Don't set hasDefaults to false, so we can detect changes later
-            $this->showDefaultsAlert = false; // Hide the alert after using defaults
-        }
-    }
-
-    public function cancelRecharge(): void
-    {
-        $this->showRechargeModal = false;
-        $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'hasDefaults', 'showDefaultsAlert', 'defaultPaymentMethod', 'defaultPaymentReference', 'saveAsDefault');
-    }
-
-    public function rechargeCard(): void
-    {
-        // Validate the input using the WithPaymentValidation trait
-        $this->validate($this->getPaymentValidationRules($this->paymentMethod));
-
-        // Create a PaymentDetails DTO using the trait helper method
-        $paymentDetails = $this->createPaymentDetails('paymentMethod', 'paymentReference', 'cvcCode');
-
-        // Process the recharge using the BalanceService
-        $result = $this->balanceService->rechargeCard(
-            Auth::user(),
-            $this->rechargeAmount,
-            $paymentDetails,
-            $this->saveAsDefault
-        );
-
-        if (!$result) {
-            Toaster::error('Payment failed. Please try again.');
-        } else {
-            $this->showRechargeModal = false;
-            $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault');
-            Toaster::success('Card recharged successfully!');
-        }
-    }
-
-    public function with(): array
-    {
-        $user = Auth::user();
-        $card = $this->balanceService->getUserCard($user);
-
-        // Get operations and statistics using the BalanceService
-        $operations = $this->balanceService->getCardOperations($card);
-        $statistics = $this->balanceService->getCardStatistics($card);
-
-        return [
-            'cardBalance' => $card->balance,
-            'cardNumber' => $card->id,
-            'operations' => $operations,
-            'statistics' => $statistics
-        ];
-    }
-
-    private function getPlaceholderForPaymentType(): string
-    {
-        return match ($this->paymentMethod) {
-            'Visa' => 'Enter your Visa card (cannot start with 0 or end with 2)',
-            'PayPal' => 'Enter your PayPal email address (must end with .pt or .com)',
-            'MB WAY' => 'Enter your Portuguese mobile number (cannot end with 2)',
-            default => 'e.g., Visa number, PayPal email, or MB WAY number'
-        };
-    }
-
-    public function updated($field): void
-    {
-        // Check if payment info is different from saved info
-        if (($field === 'paymentMethod' || $field === 'paymentReference') &&
-            $this->hasDefaults &&
-            ($this->paymentMethod !== $this->defaultPaymentMethod ||
-             $this->paymentReference !== $this->defaultPaymentReference)) {
-            // Different payment info provided, show the save option
-            $this->saveAsDefault = false;
-        }
-    }
-}
-?>
-
 <div class="flex flex-col gap-8 p-6 max-w-6xl mx-auto">
     <h1 class="text-3xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-3">
         <flux:icon name="banknotes" class="w-8 h-8 text-indigo-600 dark:text-indigo-400" />
@@ -148,7 +19,7 @@ new #[Layout('components.layouts.app')] class extends Component {
                 </div>
             </div>
             <div class="flex items-center gap-3 w-full md:w-auto justify-end">
-                <flux:button icon="plus-circle" variant="primary" wire:click="showRechargeForm">
+                <flux:button icon="plus-circle" variant="primary" wire:click="showRechargeForm" class="cursor-pointer">
                     {{ __('Recharge Card') }}
                 </flux:button>
             </div>
@@ -264,7 +135,7 @@ new #[Layout('components.layouts.app')] class extends Component {
                         :label="$paymentMethod === 'Visa' ? 'Card Number' :
                                ($paymentMethod === 'PayPal' ? 'Email' :
                                ($paymentMethod === 'MB WAY' ? 'Phone Number' : 'Reference'))"
-                        placeholder="{{ $this->getPlaceholderForPaymentType() }}"
+                        placeholder="{{ $this->getPlaceholderForPaymentType($paymentMethod) }}"
                     />
                 </div>
 
@@ -281,7 +152,7 @@ new #[Layout('components.layouts.app')] class extends Component {
                 </div>
                 @endif
 
-                @if($showSaveOption)
+                @if($hasDefaults && ($paymentMethod !== $defaultPaymentMethod || $paymentReference !== $defaultPaymentReference))
                 <div class="flex items-center gap-2 mt-2">
                     <flux:checkbox
                         id="saveAsDefault"

@@ -2,13 +2,13 @@
 
 namespace App\Livewire;
 
-use App\Traits\WithOrderCreation;
+use App\Traits\WithOrderOperations;
 use Livewire\Component;
 use Livewire\WithPagination;
 
 class Orders extends Component
 {
-    use WithOrderCreation;
+    use WithOrderOperations;
     use WithPagination;
 
     public $statusFilter = null;
@@ -17,7 +17,7 @@ class Orders extends Component
     public function render()
     {
         $orders = $this->getUserOrders($this->perPage, $this->statusFilter);
-        
+
         return view('livewire.orders.index', [
             'orders' => $orders,
         ]);
@@ -28,4 +28,4 @@ class Orders extends Component
         $this->statusFilter = $status === 'all' ? null : $status;
         $this->resetPage();
     }
-} 
+}
