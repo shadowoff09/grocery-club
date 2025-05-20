@@ -11,6 +11,7 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^12.0",
+        "laravel/horizon": "*",
         "laravel/telescope": "^5.7",
         "laravel/tinker": "^2.10.1",
         "livewire/flux": "^2.1.1",
@@ -83,6 +84,10 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "platform": {
+            "ext-pcntl": "8.3.3",
+            "ext-posix": "8.3.3"
         }
     },
     "minimum-stability": "stable",
