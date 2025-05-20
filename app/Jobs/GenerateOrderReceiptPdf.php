@@ -38,7 +38,7 @@ class GenerateOrderReceiptPdf implements ShouldQueue
     {
         $pdfPath = 'receipts/' . $this->pdfFileName;
 
-        $pdf = Pdf::view('pdf.receipt', [
+        Pdf::view('pdf.receipt', [
             'order' => $this->order,
             'user' => $this->user,
             'items' => $this->cartItems

@@ -3,15 +3,12 @@
 namespace App\Traits;
 
 use App\Jobs\GenerateOrderReceiptPdf;
-use App\Mail\OrderCompleted;
-use App\Mail\OrderConfirmed;
+use App\Jobs\SendEmailToUser;
 use App\Models\ItemOrder;
 use App\Models\Operation;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Spatie\LaravelPdf\Facades\Pdf;
 
 trait WithOrderOperations
 {
@@ -67,7 +64,12 @@ trait WithOrderOperations
                     }
                 }
 
-                Mail::to($user->email)->send(new OrderConfirmed($order));
+                SendEmailToUser::dispatch(
+                    $user,
+                    'Your Order #' . $order->id . ' Has Been Confirmed',
+                    'emails.order-confirmed',
+                    ['order' => $order]
+                );
 
                 return $order;
             });
@@ -125,7 +127,13 @@ trait WithOrderOperations
                     $order->save();
 
                     GenerateOrderReceiptPdf::dispatch($order, $order->member, $order->items, $pdfFileName)->chain([
-                        Mail::to($order->member->email)->queue(new OrderCompleted($order))
+                        new SendEmailToUser(
+                            $order->member,
+                            'Your Order #' . $order->id . ' Has Been Completed',
+                            'emails.order-completed',
+                            ['order' => $order],
+                            [storage_path('app/private/receipts/' . $pdfFileName)]
+                        )
                     ]);
                 }
 
