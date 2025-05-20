@@ -2,11 +2,13 @@
 
 namespace App\Traits;
 
+use App\Mail\OrderConfirmed;
 use App\Models\ItemOrder;
 use App\Models\Operation;
 use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 
 trait WithOrderOperations
 {
@@ -61,6 +63,8 @@ trait WithOrderOperations
                         $operation->save();
                     }
                 }
+
+                Mail::to($user->email)->send(new OrderConfirmed($order));
 
                 // TODO: ONLY GENERATE THE PDF IF THE ORDER IS COMPLETED
                 // // Queue PDF receipt generation
