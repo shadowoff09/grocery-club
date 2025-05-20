@@ -112,18 +112,18 @@ Password: 123
 - [x] Carrinho funcional para todos os utilizadores
 - [x] Atualização de quantidades, remoção de produtos
 - [x] Cálculo automático de subtotal, portes e total
-- [ ] Preenchimento automático de NIF e morada
-- [ ] Restrição: só membros podem comprar
-- [ ] Validação de saldo suficiente no cartão
-- [ ] Criação da encomenda com estado “preparing”
-- [ ] Notificação se houver produtos sem stock
-- [ ] Débito automático do valor total
+- [x] Preenchimento automático de NIF e morada
+- [x] Restrição: só membros podem comprar
+- [x] Validação de saldo suficiente no cartão
+- [x] Criação da encomenda com estado “preparing”
+- [x] Notificação se houver produtos sem stock
+- [x] Débito automático do valor total
 
 ---
 
 ### 📦 Encomendas & Inventário
-- [ ] Lista de encomendas pendentes (empregados)
-- [ ] Marcar como "completed" → gerar PDF + enviar email
+- [x] Lista de encomendas pendentes (empregados)
+- [x] Marcar como "completed" → gerar PDF + enviar email
 - [ ] Cancelamento de encomendas pelo board + reembolso
 - [ ] Visualização de stock (todos os produtos)
 - [ ] Criação de ordens de reposição (manual/automático)
@@ -133,10 +133,10 @@ Password: 123
 ---
 
 ### 💳 Pagamentos & Cartões
-- [ ] Simulação de pagamento com Visa, PayPal ou MB WAY
-- [ ] Validações conforme o tipo de pagamento
-- [ ] Atualização do saldo do cartão após pagamento bem-sucedido
-- [ ] Visualização dos dados do cartão
+- [x] Simulação de pagamento com Visa, PayPal ou MB WAY
+- [x] Validações conforme o tipo de pagamento
+- [x] Atualização do saldo do cartão após pagamento bem-sucedido
+- [x] Visualização dos dados do cartão
 - [ ] Histórico de operações com recibos PDF acessíveis
 
 ---

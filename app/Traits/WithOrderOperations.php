@@ -2,6 +2,8 @@
 
 namespace App\Traits;
 
+use App\Jobs\GenerateOrderReceiptPdf;
+use App\Mail\OrderCompleted;
 use App\Mail\OrderConfirmed;
 use App\Models\ItemOrder;
 use App\Models\Operation;
@@ -9,6 +11,7 @@ use App\Models\Order;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Spatie\LaravelPdf\Facades\Pdf;
 
 trait WithOrderOperations
 {
@@ -66,18 +69,6 @@ trait WithOrderOperations
 
                 Mail::to($user->email)->send(new OrderConfirmed($order));
 
-                // TODO: ONLY GENERATE THE PDF IF THE ORDER IS COMPLETED
-                // // Queue PDF receipt generation
-                // $randomString = bin2hex(random_bytes(5)); // 10 characters
-                // $pdfFileName = $order->id . '_' . $randomString . '.pdf';
-
-                // // Save PDF filename to order before queueing the job
-                // $order->pdf_receipt = $pdfFileName;
-                // $order->save();
-
-                // // Dispatch the job to generate PDF
-                // GenerateOrderReceiptPdf::dispatch($order, $user, $cartData['cartItems'], $pdfFileName);
-
                 return $order;
             });
         } catch (\Exception $e) {
@@ -104,8 +95,9 @@ trait WithOrderOperations
                 return false;
             }
 
-            // Validate status
-            if (!in_array($status, ['pending', 'completed', 'canceled'])) {
+            // Validate status using constants rather than magic strings
+            $validStatuses = ['pending', 'completed', 'canceled'];
+            if (!in_array($status, $validStatuses)) {
                 return false;
             }
 
@@ -114,16 +106,42 @@ trait WithOrderOperations
                 return false;
             }
 
-            $order->status = $status;
+            DB::transaction(function() use ($order, $status, $cancelReason) {
+                $order->status = $status;
 
-            if ($status === 'canceled') {
-                $order->cancel_reason = $cancelReason;
-            }
+                if ($status === 'canceled') {
+                    $order->cancel_reason = $cancelReason;
+                }
 
-            $order->save();
+                // Generate receipt and send email if order is completed
+                if ($status === 'completed') {
+                    // Generate random filename for PDF
+                    $randomString = bin2hex(random_bytes(5));
+                    $pdfFileName = $order->id . '_' . $randomString . '.pdf';
+                    $pdfPath = 'receipts/' . $pdfFileName;
+
+                    // Save PDF filename to order
+                    $order->pdf_receipt = $pdfFileName;
+                    $order->save();
+
+                    GenerateOrderReceiptPdf::dispatch($order, $order->member, $order->items, $pdfFileName)->chain([
+                        Mail::to($order->member->email)->queue(new OrderCompleted($order))
+                    ]);
+                }
+
+                $order->save();
+            });
 
             return true;
+
         } catch (\Exception $e) {
+            // Log the error with stack trace for better debugging
+            \Illuminate\Support\Facades\Log::error('Order status update failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'order_id' => $orderId,
+                'status' => $status
+            ]);
             return false;
         }
     }
@@ -156,6 +174,27 @@ trait WithOrderOperations
         return $query->with('items.product')
             ->orderBy('created_at', 'desc')
             ->get();
+    }
+
+    public function getAllOrders($paginate = true, $status = null)
+    {
+        if (!auth()->check()) {
+            return null;
+        }
+
+        $query = Order::query()
+            ->with('items.product')
+            ->orderBy('created_at', 'desc');
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($paginate) {
+            return $query->paginate(10);
+        }
+
+        return $query->get();
     }
 
     /**
