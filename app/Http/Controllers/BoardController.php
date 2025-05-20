@@ -2,22 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Charts\HighChart;
 use App\Models\Order;
 use App\Models\User;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 
 class BoardController extends Controller
 {
-
-    public function membershipFee()
-    {
-        // Ensure only board members can access this
-        abort_if(!auth()->user()->isBoardMember(), 403);
-
-        return view('components.board.business-settings');
-    }
 
     public function userManagement()
     {
@@ -115,20 +105,20 @@ class BoardController extends Controller
         // 2. Monthly Orders for Bar Chart
         $monthlyOrders = [];
         $monthLabels = [];
-        
+
         // Get orders for the last 12 months
         for ($i = 11; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $monthName = $date->format('M');
             $monthLabels[] = $monthName;
-            
+
             $count = Order::whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->count();
-                
+
             $monthlyOrders[] = $count;
         }
-        
+
         $barChartData = [
             'labels' => $monthLabels,
             'values' => $monthlyOrders,
@@ -137,19 +127,19 @@ class BoardController extends Controller
         // 3. User Growth for Line Chart
         $userGrowth = [];
         $monthsForUsers = [];
-        
+
         // Get user registration counts for the last 6 months
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $monthsForUsers[] = $date->format('M');
-            
+
             $count = User::whereYear('created_at', '<=', $date->year)
                 ->whereMonth('created_at', '<=', $date->month)
                 ->count();
-                
+
             $userGrowth[] = $count;
         }
-        
+
         $lineChartData = [
             'labels' => $monthsForUsers,
             'values' => $userGrowth,

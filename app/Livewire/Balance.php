@@ -87,7 +87,7 @@ class Balance extends Component
         $operations = $this->balanceService->getCardOperations($card);
         $statistics = $this->balanceService->getCardStatistics($card);
 
-        return view('livewire.balance', [
+        return view('livewire.balance.index', [
             'cardBalance' => $card->balance,
             'cardNumber' => $card->card_number,
             'operations' => $operations,

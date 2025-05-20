@@ -2,10 +2,10 @@
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\CatalogController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckUserType;
-use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -56,20 +56,8 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
 Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->group(function () {
     Route::get('/balance', App\Livewire\Balance::class)->name('balance.index');
 
-    Route::get('/checkout', function () {
-        return view('checkout.index');
-    })->name('checkout');
-
-    Route::get('/checkout/confirmation/{order_id?}', function ($order_id = null) {
-        $order = null;
-        if ($order_id) {
-            $order = Order::where('id', $order_id)
-                ->where('member_id', auth()->id())
-                ->first();
-        }
-
-        return view('checkout.confirmation', ['order' => $order]);
-    })->name('order.confirmation');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/checkout/confirmation/{order_id?}', [CheckoutController::class, 'confirmation'])->name('order.confirmation');
 
     Route::get('/orders', function () {
         return view('orders.index');
@@ -99,7 +87,6 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
         Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
         Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');
         Route::post('demote', [UserActionsController::class, 'demoteToMember'])->name('board.users.demote');
-        Route::post('message', [UserActionsController::class, 'sendMessage'])->name('board.users.message');
         Route::post('toggle-lock', [UserActionsController::class, 'toggleLock'])->name('board.users.toggle-lock');
         Route::post('toggle-membership', [UserActionsController::class, 'toggleMembership'])->name('board.users.toggle-membership');
     });
