@@ -34,16 +34,50 @@
     </a>
 
     <flux:navlist variant="outline">
-        <flux:navlist.group :heading="__('Platform')" class="grid">
-            <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>{{ __('Dashboard') }}</flux:navlist.item>
-            <flux:navlist.item icon="shopping-bag" :href="route('catalog.index')" :current="request()->routeIs('catalog.index')" wire:navigate>{{ __('Catalog') }}</flux:navlist.item>
+        {{-- USER AREA --}}
+        <flux:navlist.group :heading="__('User Area')" class="grid">
+            <flux:navlist.item 
+                icon="home" 
+                :href="route('dashboard')" 
+                :current="request()->routeIs('dashboard')" 
+                wire:navigate
+            >
+            {{ __('Dashboard') }}
+            </flux:navlist.item>
+
+            <flux:navlist.item 
+                icon="shopping-bag" 
+                :href="route('catalog.index')" 
+                :current="request()->routeIs('catalog.index')" 
+                wire:navigate
+            >
+            {{ __('Catalog') }}
+            </flux:navlist.item>
+
             @if(auth()->user()->type === 'member' || auth()->user()->type === 'board')
-                <flux:navlist.item icon="clipboard-document-list" :href="route('orders.index')" :current="request()->routeIs('orders.index')" wire:navigate>{{ __('My Orders') }}</flux:navlist.item>
+                <flux:navlist.item 
+                    icon="package" 
+                    :href="route('orders.index')" 
+                    :current="request()->routeIs('orders.index')" 
+                    wire:navigate
+                >
+                {{ __('My Orders') }}
+                </flux:navlist.item>
             @endif
         </flux:navlist.group>
+
+        {{-- BOARD AREA --}}
         @if(auth()->user()->isBoardMember())
-            <flux:navlist.group :heading="__('Board')" class="grid">
-                <flux:navlist.item icon="users" :href="route('board.users')" :current="request()->routeIs('board.users')" wire:navigate>{{ __('User Management') }}</flux:navlist.item>
+            <flux:navlist.group :heading="__('Board Area')" class="grid">
+                <flux:navlist.item 
+                    icon="users" 
+                    :href="route('board.users')" 
+                    :current="request()->routeIs('board.users')" 
+                    wire:navigate
+                >
+                {{ __('User Management') }}
+                </flux:navlist.item>
+
                 <flux:navlist.item
                     icon="cog-6-tooth"
                     :href="route('board.business.settings.membership-fee')"
@@ -52,6 +86,7 @@
                 >
                     {{ __('Business Settings') }}
                 </flux:navlist.item>
+                
                 <flux:navlist.item
                     icon="chart-pie"
                     :href="route('board.statistics')"
@@ -59,6 +94,28 @@
                     wire:navigate
                 >
                     {{ __('Statistics') }}
+                </flux:navlist.item>
+            </flux:navlist.group>
+        @endif
+
+        {{-- EMPLOYEE AREA --}}
+        @if(auth()->user()->isEmployee() || auth()->user()->isBoardMember())
+            <flux:navlist.group :heading="__('Employee Area')" class="grid">
+                <flux:navlist.item 
+                    icon="package" 
+                    :href="route('employee.orders.index')" 
+                    :current="request()->routeIs('employee.orders.index')" 
+                    wire:navigate
+                >
+                    {{ __('Order Management') }}
+                </flux:navlist.item>
+                <flux:navlist.item
+                    icon="warehouse"
+                    :href="route('employee.inventory.index')"
+                    :current="request()->routeIs('employee.inventory.index')"
+                    wire:navigate
+                >
+                    {{ __('Inventory Management') }}
                 </flux:navlist.item>
             </flux:navlist.group>
         @endif

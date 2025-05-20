@@ -135,7 +135,7 @@ trait WithOrderOperations
      * @param string|null $status Filter by status
      * @return \Illuminate\Pagination\LengthAwarePaginator|null
      */
-    public function getUserOrders($limit = 10, $status = null)
+    public function getUserOrders($limit = 10, $status = null, $paginate = true)
     {
         if (!auth()->check()) {
             return null;
@@ -147,9 +147,15 @@ trait WithOrderOperations
             $query->where('status', $status);
         }
 
+        if ($paginate) {
+            return $query->with('items.product')
+                ->orderBy('created_at', 'desc')
+                ->paginate($limit);
+        }
+
         return $query->with('items.product')
             ->orderBy('created_at', 'desc')
-            ->paginate($limit);
+            ->get();
     }
 
     /**

@@ -21,7 +21,7 @@ Route::get('/cart', function() {
 // -----------------------------------------------------------------------------
 Route::middleware(['auth'])->group(function () {
     // Dashboard
-    Route::view('dashboard', 'dashboard')
+    Route::get('dashboard', App\Livewire\Dashboard::class)
         ->middleware(['verified'])
         ->name('dashboard');
 
@@ -74,6 +74,18 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->g
     Route::get('/orders', function () {
         return view('orders.index');
     })->name('orders.index');
+});
+
+// EMPLOYEE & BOARD ROUTES
+// -----------------------------------------------------------------------------
+Route::middleware(['auth', 'verified', CheckUserType::class.':employee|board'])->group(function () {
+    Route::get('/employee/orders', function () {
+        return view('employee.orders.index');
+    })->name('employee.orders.index');
+
+    Route::get('/employee/inventory', function () {
+        return view('employee.inventory.index');
+    })->name('employee.inventory.index');
 });
 
 // BOARD ADMIN ROUTES
