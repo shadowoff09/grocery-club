@@ -93,29 +93,30 @@ trait WithCardOperations
     }
 
     /**
-     * Perform a transaction on the user's card
-     *
+     * Perform a general card operation with specific type details
+     * 
+     * @param string $operationType Main operation type ('debit' or 'credit')
+     * @param string $specificType Specific operation type (e.g., 'order', 'membership_fee', 'payment', 'order_cancellation')
      * @param float $amount Amount to debit or credit
-     * @param string $type Transaction type ('debit' or 'credit')
-     * @param array $attributes Additional attributes for the operation
+     * @param array $attributes Additional attributes for the operation (order_id, payment_type, payment_reference, etc.)
      * @return bool Success state
      */
-    public function performCardTransaction($amount, $type, array $attributes = [])
+    public function performCardOperation($operationType, $specificType, $amount, array $attributes = [])
     {
         if (!$this->hasCard()) {
             return false;
         }
-
-        if ($type === 'debit' && !$this->hasSufficientBalance($amount)) {
+        
+        if ($operationType === 'debit' && !$this->hasSufficientBalance($amount)) {
             return false;
         }
 
         $card = auth()->user()->card;
 
         try {
-            DB::transaction(function () use ($card, $amount, $type, $attributes) {
+            DB::transaction(function () use ($card, $operationType, $specificType, $amount, $attributes) {
                 // Update card balance
-                if ($type === 'debit') {
+                if ($operationType === 'debit') {
                     $card->balance -= $amount;
                 } else {
                     $card->balance += $amount;
@@ -126,11 +127,18 @@ trait WithCardOperations
                 // Create operation record
                 $operationData = array_merge([
                     'card_id' => $card->id,
-                    'type' => $type,
+                    'type' => $operationType,
                     'value' => $amount,
                     'date' => Carbon::now()->toDateString(),
                 ], $attributes);
-
+                
+                // Add specific type if provided
+                if ($operationType === 'debit' && $specificType) {
+                    $operationData['debit_type'] = $specificType;
+                } elseif ($operationType === 'credit' && $specificType) {
+                    $operationData['credit_type'] = $specificType;
+                }
+                
                 Operation::create($operationData);
             });
 
@@ -150,35 +158,11 @@ trait WithCardOperations
      */
     public function debitCardForOrder($amount, $orderId = null, array $attributes = [])
     {
-        if (!$this->hasCard() || !$this->hasSufficientBalance($amount)) {
-            return false;
-        }
-
-        $card = auth()->user()->card;
-
-        try {
-            DB::transaction(function () use ($card, $amount, $orderId, $attributes) {
-                // Update card balance
-                $card->balance -= $amount;
-                $card->save();
-
-                // Create operation record
-                $operationData = array_merge([
-                    'card_id' => $card->id,
-                    'type' => 'debit',
-                    'debit_type' => 'order',
-                    'value' => $amount,
-                    'date' => Carbon::now()->toDateString(),
-                    'order_id' => $orderId
-                ], $attributes);
-
-                Operation::create($operationData);
-            });
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        $operationAttributes = array_merge([
+            'order_id' => $orderId
+        ], $attributes);
+        
+        return $this->performCardOperation('debit', 'order', $amount, $operationAttributes);
     }
 
     /**
@@ -190,34 +174,7 @@ trait WithCardOperations
      */
     public function debitCardForMembershipFee($amount, array $attributes = [])
     {
-        if (!$this->hasCard() || !$this->hasSufficientBalance($amount)) {
-            return false;
-        }
-
-        $card = auth()->user()->card;
-
-        try {
-            DB::transaction(function () use ($card, $amount, $attributes) {
-                // Update card balance
-                $card->balance -= $amount;
-                $card->save();
-
-                // Create operation record
-                $operationData = array_merge([
-                    'card_id' => $card->id,
-                    'type' => 'debit',
-                    'debit_type' => 'membership_fee',
-                    'value' => $amount,
-                    'date' => Carbon::now()->toDateString(),
-                ], $attributes);
-
-                Operation::create($operationData);
-            });
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        return $this->performCardOperation('debit', 'membership_fee', $amount, $attributes);
     }
 
     /**
@@ -231,36 +188,12 @@ trait WithCardOperations
      */
     public function creditCardFromPayment($amount, $paymentType, $paymentReference, array $attributes = [])
     {
-        if (!$this->hasCard()) {
-            return false;
-        }
-
-        $card = auth()->user()->card;
-
-        try {
-            DB::transaction(function () use ($card, $amount, $paymentType, $paymentReference, $attributes) {
-                // Update card balance
-                $card->balance += $amount;
-                $card->save();
-
-                // Create operation record
-                $operationData = array_merge([
-                    'card_id' => $card->id,
-                    'type' => 'credit',
-                    'credit_type' => 'payment',
-                    'payment_type' => $paymentType,
-                    'payment_reference' => $paymentReference,
-                    'value' => $amount,
-                    'date' => Carbon::now()->toDateString(),
-                ], $attributes);
-
-                Operation::create($operationData);
-            });
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        $operationAttributes = array_merge([
+            'payment_type' => $paymentType,
+            'payment_reference' => $paymentReference
+        ], $attributes);
+        
+        return $this->performCardOperation('credit', 'payment', $amount, $operationAttributes);
     }
 
     /**
@@ -273,35 +206,11 @@ trait WithCardOperations
      */
     public function creditCardFromOrderCancellation($amount, $orderId, array $attributes = [])
     {
-        if (!$this->hasCard()) {
-            return false;
-        }
-
-        $card = auth()->user()->card;
-
-        try {
-            DB::transaction(function () use ($card, $amount, $orderId, $attributes) {
-                // Update card balance
-                $card->balance += $amount;
-                $card->save();
-
-                // Create operation record
-                $operationData = array_merge([
-                    'card_id' => $card->id,
-                    'type' => 'credit',
-                    'credit_type' => 'order_cancellation',
-                    'value' => $amount,
-                    'date' => Carbon::now()->toDateString(),
-                    'order_id' => $orderId
-                ], $attributes);
-
-                Operation::create($operationData);
-            });
-
-            return true;
-        } catch (\Exception $e) {
-            return false;
-        }
+        $operationAttributes = array_merge([
+            'order_id' => $orderId
+        ], $attributes);
+        
+        return $this->performCardOperation('credit', 'order_cancellation', $amount, $operationAttributes);
     }
 
     /**
@@ -350,12 +259,13 @@ trait WithCardOperations
         }
 
         // If payment successful, credit the card
-        $transactionSuccess = $this->creditCardFromPayment(
-            $amount,
-            $paymentMethod,
-            $paymentReference
-        );
-
+        $operationAttributes = [
+            'payment_type' => $paymentMethod,
+            'payment_reference' => $paymentReference
+        ];
+        
+        $transactionSuccess = $this->performCardOperation('credit', 'payment', $amount, $operationAttributes);
+        
         if (!$transactionSuccess) {
             return [
                 'success' => false,
