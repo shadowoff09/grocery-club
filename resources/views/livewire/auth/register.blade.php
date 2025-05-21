@@ -33,9 +33,9 @@ new #[Layout('components.layouts.auth')] class extends Component {
     public function mount()
     {
         $this->redirectTo = Request::query('redirect_to');
-        
+
         if ($this->redirectTo === 'checkout') {
-            $this->redirectMessage = __('After creating your account, you will be redirected to checkout.');
+            $this->redirectMessage = __('After creating your account, you will be redirected to pay your membership fee and then redirected to the checkout page.');
         }
     }
 
@@ -61,14 +61,14 @@ new #[Layout('components.layouts.auth')] class extends Component {
             'default_payment_type' => ['nullable', 'string', 'max:255', 'in:Visa,PayPal,MB WAY'],
             'photo' => ['nullable', 'image', 'max:8096', 'mimes:jpg,jpeg,png'],
         ];
-        
+
         // Only validate payment reference if payment type is selected
         if ($this->default_payment_type) {
             $validationRules['default_payment_reference'] = [
                 'required', 'string', 'max:255',
                 function ($attr, $value, $fail) {
                     if (!$value) return;
-                    
+
                     match ($this->default_payment_type) {
                         'Visa' => preg_match('/^[1-9][0-9]{15}$/', $value) && !str_ends_with($value, '2')
                             ?: $fail('The Visa card must be 16 digits long, cannot start with 0, and cannot end with 2.'),
@@ -118,12 +118,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
         Auth::login($user);
 
         if ($this->redirectTo === 'checkout') {
-            $this->redirect(route('checkout'), navigate: true);
+            $this->redirect(route('membership.pending'), navigate: true);
         } else {
-        $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
+            $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
         }
     }
-    
+
     private function getPaymentReferencePlaceholder(): string
     {
         return match ($this->default_payment_type) {
@@ -238,8 +238,8 @@ new #[Layout('components.layouts.auth')] class extends Component {
             />
 
             <!-- Preferred Payment Method -->
-            <flux:select 
-                wire:model.live="default_payment_type" 
+            <flux:select
+                wire:model.live="default_payment_type"
                 :label="__('Preferred payment method')"
                 placeholder="Choose..."
             >

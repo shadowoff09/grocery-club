@@ -19,11 +19,20 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     #[Validate('required|string|max:255|in:Visa,PayPal,MB WAY')]
     public string $default_payment_type = '';
 
+    #[Validate('required|string|max:255|in:Visa,PayPal,MB WAY')]
+    public string $paymentMethod = '';
+
     #[Validate('required|string|max:255')]
     public string $default_payment_reference = '';
 
+    #[Validate('required|string|max:255')]
+    public string $paymentReference = '';
+
     #[Validate('required_if:default_payment_type,Visa|nullable|string|max:4')]
     public ?string $cvc_code = '';
+
+    #[Validate('required|numeric|min:5|max:1000')]
+    public float $rechargeAmount = 0;
 
     public float $membershipFee = 0;
     public $redirectTo = null;
@@ -37,7 +46,12 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     {
         // Get the membership fee from the settings table
         $this->membershipFee = Setting::getMembershipFee();
+        $this->rechargeAmount = $this->membershipFee;
         $this->redirectTo = Request::query('redirect_to');
+
+        if ($this->redirectTo === 'checkout') {
+            $this->redirectMessage = __('After paying your membership fee, you will be redirected to the checkout page.');
+        }
 
         // Get default payment method via trait
         $defaultPayment = $this->getDefaultPaymentMethod();
@@ -53,7 +67,9 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     {
         if ($this->savedPaymentType && $this->savedPaymentReference) {
             $this->default_payment_type = $this->savedPaymentType;
+            $this->paymentMethod = $this->savedPaymentType;
             $this->default_payment_reference = $this->savedPaymentReference;
+            $this->paymentReference = $this->savedPaymentReference;
             $this->showDefaultsAlert = false; // Hide the alert after using defaults
         }
     }
@@ -61,11 +77,15 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
     public function payFee(): void
     {
         try {
+            // Sync the properties for validation
+            $this->paymentMethod = $this->default_payment_type;
+            $this->paymentReference = $this->default_payment_reference;
+            
             // Validate the input using the WithPaymentValidation trait
-            $this->validate($this->getPaymentValidationRules($this->default_payment_type));
+            $this->validate($this->getPaymentValidationRules($this->paymentMethod));
 
             // Create a PaymentDetails DTO using the trait helper method
-            $paymentDetails = $this->createPaymentDetails('default_payment_type', 'default_payment_reference', 'cvc_code');
+            $paymentDetails = $this->createPaymentDetails('paymentMethod', 'paymentReference', 'cvc_code');
 
             // Validate the payment details
             if (!$this->validatePayment($paymentDetails)) {
@@ -83,24 +103,18 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
             // Use DB transaction to ensure all operations are atomic
             DB::transaction(function () use ($user) {
                 // Add membership fee to card balance
-                $this->performCardTransaction(
+                $this->creditCardFromPayment(
                     $this->membershipFee,
-                    'credit',
-                    [
-                        'credit_type' => 'payment',
-                        'payment_type' => $this->default_payment_type,
-                        'payment_reference' => $this->default_payment_reference,
-                    ]
+                    $this->paymentMethod,
+                    $this->paymentReference
                 );
 
                 // Create a debit operation for the membership fee
-                $this->performCardTransaction(
+                $this->debitCardForMembershipFee(
                     $this->membershipFee,
-                    'debit',
                     [
-                        'debit_type' => 'membership_fee',
-                        'payment_type' => $this->default_payment_type,
-                        'payment_reference' => $this->default_payment_reference,
+                        'payment_type' => $this->paymentMethod,
+                        'payment_reference' => $this->paymentReference,
                     ]
                 );
 
@@ -110,8 +124,8 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                 // Save payment info as default if checkbox is checked
                 if ($this->saveAsDefault) {
                     $this->saveDefaultPaymentMethod(
-                        $this->default_payment_type,
-                        $this->default_payment_reference
+                        $this->paymentMethod,
+                        $this->paymentReference
                     );
                 }
 
@@ -145,6 +159,17 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
 
     public function updated($field): void
     {
+        // Keep payment properties synchronized
+        if ($field === 'default_payment_type') {
+            $this->paymentMethod = $this->default_payment_type;
+        } else if ($field === 'paymentMethod') {
+            $this->default_payment_type = $this->paymentMethod;
+        } else if ($field === 'default_payment_reference') {
+            $this->paymentReference = $this->default_payment_reference;
+        } else if ($field === 'paymentReference') {
+            $this->default_payment_reference = $this->paymentReference;
+        }
+        
         // Check if payment info is different from saved info
         if (($field === 'default_payment_type' || $field === 'default_payment_reference') &&
             $this->hasDefaults &&
@@ -203,6 +228,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
 
         <flux:select
             wire:model.live="default_payment_type"
+            x-on:change="$wire.paymentMethod = $event.target.value"
             :label="__('Payment Method')"
             placeholder="Choose payment method..."
             required
@@ -214,6 +240,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
 
         <flux:input
             wire:model.live="default_payment_reference"
+            x-on:input="$wire.paymentReference = $event.target.value"
             :label="__('Payment reference')"
             type="text"
             required

@@ -153,7 +153,7 @@
 
                             <div class="mt-2 sm:mt-0">
                                 @if($order->status === 'pending')
-                                    <flux:button icon="check-circle" wire:click="markAsCompleted({{ $order->id }})" class="cursor-pointer">
+                                    <flux:button icon="check-circle" wire:click="markAsCompleted({{ $order->id }})" class="cursor-pointer bg-emerald-100! text-emerald-600! dark:bg-emerald-900/50 dark:text-emerald-300 hover:bg-emerald-200! hover:text-emerald-700! dark:hover:bg-emerald-800/50 dark:hover:text-emerald-200 transition-all duration-200 ease-in-out">
                                         Mark as completed
                                     </flux:button>
                                 @endif
@@ -178,17 +178,27 @@
         @else
             <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-8 text-center">
                 <div class="mx-auto flex items-center justify-center h-24 w-24 rounded-full bg-indigo-100 dark:bg-indigo-900">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-                    </svg>
+                    @if($statusFilter === 'pending')
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    @elseif($statusFilter === 'completed')
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    @else
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                        </svg>
+                    @endif
                 </div>
-                <h3 class="mt-6 text-xl font-medium text-zinc-900 dark:text-zinc-100">No orders found</h3>
-                <p class="mt-2 text-zinc-600 dark:text-zinc-400">You haven't placed any orders yet.</p>
-                <div class="mt-6">
-                    <a href="{{ route('catalog.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                        Browse catalog
-                    </a>
-                </div>
+
+                <h3 class="mt-6 text-xl font-medium text-zinc-900 dark:text-zinc-100">
+                    No {{ $statusFilter ? $statusFilter . ' ' : '' }}orders found
+                </h3>
+                <p class="mt-2 text-zinc-600 dark:text-zinc-400">
+                    There are no {{ $statusFilter ? $statusFilter . ' ' : '' }} orders found.
+                </p>
             </div>
         @endif
     </div>

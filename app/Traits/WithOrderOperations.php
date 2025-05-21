@@ -64,6 +64,7 @@ trait WithOrderOperations
                     }
                 }
 
+                // Send email to user after order creation
                 SendEmailToUser::dispatch(
                     $user,
                     'Your Order #' . $order->id . ' Has Been Confirmed',
@@ -126,6 +127,7 @@ trait WithOrderOperations
                     $order->pdf_receipt = $pdfFileName;
                     $order->save();
 
+                    // Generate the receipt and send email with receipt attached
                     GenerateOrderReceiptPdf::dispatch($order, $order->member, $order->items, $pdfFileName)->chain([
                         new SendEmailToUser(
                             $order->member,

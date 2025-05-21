@@ -88,7 +88,7 @@
                                 ({{ $defaultPaymentReference }})
                             @endif
                         </p>
-                        <flux:button variant="outline" wire:click="useDefaults">
+                        <flux:button variant="outline" wire:click="useDefaults" class="cursor-pointer">
                             Use saved payment method
                         </flux:button>
                     </div>
@@ -152,7 +152,7 @@
                 </div>
                 @endif
 
-                @if($hasDefaults && ($paymentMethod !== $defaultPaymentMethod || $paymentReference !== $defaultPaymentReference))
+                @if($paymentMethod !== $defaultPaymentMethod || $paymentReference !== $defaultPaymentReference)
                 <div class="flex items-center gap-2 mt-2">
                     <flux:checkbox
                         id="saveAsDefault"
@@ -163,8 +163,8 @@
                 @endif
 
                 <div class="flex justify-end gap-3 mt-2">
-                    <flux:button variant="outline" wire:click="cancelRecharge" type="button">Cancel</flux:button>
-                    <flux:button variant="primary" type="submit" wire:loading.attr="disabled">
+                    <flux:button variant="outline" wire:click="cancelRecharge" type="button" class="cursor-pointer">Cancel</flux:button>
+                    <flux:button variant="primary" type="submit" wire:loading.attr="disabled" class="cursor-pointer">
                         <span wire:loading.remove>Recharge Card</span>
                         <span wire:loading>Processing...</span>
                     </flux:button>
