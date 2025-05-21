@@ -145,7 +145,28 @@ class BoardController extends Controller
             'values' => $userGrowth,
         ];
 
-        return view('statistics.index', compact('pieChartData', 'barChartData', 'lineChartData'));
+        // 4. User Type Distribution for Radar Chart
+        $userTypes = User::selectRaw('COUNT(*) as count, type')
+            ->groupBy('type')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->type => $item->count];
+            });
+
+        $radarChartData = [
+            'indicators' => array_map(function($type) {
+                return ['name' => ucfirst($type), 'max' => User::count()];
+            }, array_keys($userTypes->toArray())),
+            'values' => $userTypes->values()->toArray(),
+            'names' => $userTypes->keys()->toArray(),
+        ];
+
+        return view('statistics.index', compact(
+            'pieChartData', 
+            'barChartData', 
+            'lineChartData', 
+            'radarChartData'
+        ));
     }
 
 

@@ -113,8 +113,43 @@ class BalanceService
     public function getCardStatistics(Card $card): array
     {
         $operations = Operation::where('card_id', $card->id)->get();
-
         $lastOperation = $operations->sortByDesc('created_at')->first();
+        
+        // Get largest transactions
+        $largestCredit = $operations->where('type', 'credit')->sortByDesc('value')->first();
+        $largestDebit = $operations->where('type', 'debit')->sortByDesc('value')->first();
+        
+        // Calculate average transaction amounts
+        $avgCredit = $operations->where('type', 'credit')->avg('value') ?? 0;
+        $avgDebit = $operations->where('type', 'debit')->avg('value') ?? 0;
+        
+        // Get transaction counts by type
+        $creditCount = $operations->where('type', 'credit')->count();
+        $debitCount = $operations->where('type', 'debit')->count();
+        
+        // Get monthly activity (last 3 months)
+        $lastThreeMonths = collect();
+        for ($i = 0; $i < 3; $i++) {
+            $month = Carbon::now()->subMonths($i);
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+            
+            $monthlyCredits = $operations
+                ->where('type', 'credit')
+                ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->sum('value');
+                
+            $monthlyDebits = $operations
+                ->where('type', 'debit')
+                ->whereBetween('date', [$monthStart->toDateString(), $monthEnd->toDateString()])
+                ->sum('value');
+                
+            $lastThreeMonths->push([
+                'month' => $month->format('M Y'),
+                'credits' => $monthlyCredits,
+                'debits' => $monthlyDebits,
+            ]);
+        }
 
         return [
             'current_balance' => $card->balance,
@@ -125,7 +160,20 @@ class BalanceService
                 'type' => $lastOperation->type,
                 'amount' => $lastOperation->value,
                 'date' => $lastOperation->date,
-            ] : null
+            ] : null,
+            'largest_credit' => $largestCredit ? [
+                'amount' => $largestCredit->value,
+                'date' => $largestCredit->date,
+            ] : null,
+            'largest_debit' => $largestDebit ? [
+                'amount' => $largestDebit->value,
+                'date' => $largestDebit->date,
+            ] : null,
+            'avg_credit' => round($avgCredit, 2),
+            'avg_debit' => round($avgDebit, 2),
+            'credit_count' => $creditCount,
+            'debit_count' => $debitCount,
+            'monthly_activity' => $lastThreeMonths
         ];
     }
 
