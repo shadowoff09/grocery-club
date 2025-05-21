@@ -7,11 +7,10 @@
             <h2 class="text-3xl font-bold text-zinc-800 dark:text-zinc-200 mb-4">Your cart is empty</h2>
             <p class="text-zinc-600 dark:text-zinc-400 mb-8 max-w-md mx-auto">Looks like you haven't added any items to
                 your cart yet. Start shopping to fill it up!</p>
-            <a href="/catalog"
-               class="inline-flex items-center px-6 py-3 text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg font-medium transition-colors duration-200">
-                <flux:icon name="arrow-left" class="w-5 h-5 mr-2"/>
+
+            <flux:button href="{{ route('catalog.index') }}" class="cursor-pointer bg-emerald-600! hover:bg-emerald-700! text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 border-none">
                 Start Shopping
-            </a>
+            </flux:button>
         </div>
     @else
         <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm overflow-hidden">
@@ -209,36 +208,23 @@
                 </div>
 
                 <div class="flex justify-between mt-6">
-                    <a href="{{ route('catalog.index') }}"
-                       class="inline-flex items-center px-6 py-3 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium
-                       transition-colors rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
-                        <x-lucide-arrow-left class="w-4 h-4 mr-2"/>
+                    <flux:button wire:click="clearCart" href="{{ route('catalog.index') }}" icon="arrow-left" class="cursor-pointer">
                         Continue Shopping
-                    </a>
+                    </flux:button>
+
                     <div class="flex gap-4">
-                        <button wire:click="clearCart"
-                                class="cursor-pointer inline-flex items-center px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg
-                                transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        <flux:button wire:click="clearCart" icon="trash" variant="danger" class="cursor-pointer">
                             Clear Cart
-                            <x-lucide-trash-2 class="w-4 h-4 ml-2"/>
-                        </button>
+                        </flux:button>
 
                         @if(!Auth::check())
-                            <a href="{{ route('login', ['redirect_to' => 'checkout']) }}" class="inline-flex items-center">
-                                <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
-        transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    Proceed to Checkout
-                                    <x-lucide-arrow-right class="w-4 h-4 ml-2"/>
-                                </button>
-                            </a>
+                            <flux:button href="{{ route('login', ['redirect_to' => 'checkout']) }}" icon:trailing="arrow-right" class="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 border-none">
+                                Proceed to Checkout
+                            </flux:button>
                         @else
-                            <a href="{{ route('checkout') }}" class="inline-flex items-center">
-                                <button class="cursor-pointer inline-flex items-center px-8 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg
-                                    transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                                    Proceed to Checkout
-                                    <x-lucide-arrow-right class="w-4 h-4 ml-2"/>
-                                </button>
-                            </a>
+                            <flux:button href="{{ route('checkout') }}" icon:trailing="arrow-right" class="cursor-pointer bg-indigo-600! hover:bg-indigo-700! text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 border-none">
+                                Proceed to Checkout
+                            </flux:button>
                         @endif
                     </div>
                 </div>

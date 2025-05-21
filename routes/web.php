@@ -1,10 +1,10 @@
 <?php
 
 use App\Http\Controllers\BoardController;
-use App\Http\Controllers\UserActionsController;
 use App\Http\Controllers\CatalogController;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckUserType;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -13,16 +13,18 @@ use Livewire\Volt\Volt;
 // -----------------------------------------------------------------------------
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
 Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog.index');
-Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::get('/cart', function() {
+    return view('cart.index');
+})->name('cart.index');
 
 // AUTHENTICATED ROUTES
 // -----------------------------------------------------------------------------
 Route::middleware(['auth'])->group(function () {
     // Dashboard
-    Route::view('dashboard', 'dashboard')
+    Route::get('dashboard', App\Livewire\Dashboard::class)
         ->middleware(['verified'])
         ->name('dashboard');
-    
+
     // Settings
     Route::redirect('settings', 'settings/profile');
     Volt::route('settings/profile', 'settings.profile')
@@ -35,6 +37,10 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('settings/danger-zone', 'settings.danger-zone')
         ->middleware(CheckUserType::class.':board|member|pending_member')
         ->name('settings.danger-zone');
+
+    // Receipt routes
+    Route::get('/receipts/{orderId}', [App\Http\Controllers\ReceiptController::class, 'show'])
+        ->name('receipts.show');
 });
 
 // PENDING MEMBER ROUTES
@@ -48,11 +54,26 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':pending_member'])-
 // MEMBER & BOARD ROUTES
 // -----------------------------------------------------------------------------
 Route::middleware(['auth', 'verified', CheckUserType::class.':board|member'])->group(function () {
-    Route::get('/balance', function () {
-        return view('balance.index');
-    })->name('balance.index');
+    Route::get('/balance', App\Livewire\Balance::class)->name('balance.index');
 
-    Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout');
+    Route::get('/checkout/confirmation/{order_id?}', [CheckoutController::class, 'confirmation'])->name('order.confirmation');
+
+    Route::get('/orders', function () {
+        return view('orders.index');
+    })->name('orders.index');
+});
+
+// EMPLOYEE & BOARD ROUTES
+// -----------------------------------------------------------------------------
+Route::middleware(['auth', 'verified', CheckUserType::class.':employee|board'])->group(function () {
+    Route::get('/employee/orders', function () {
+        return view('employee.orders.index');
+    })->name('employee.orders.index');
+
+    Route::get('/employee/inventory', function () {
+        return view('employee.inventory.index');
+    })->name('employee.inventory.index');
 });
 
 // BOARD ADMIN ROUTES
@@ -61,19 +82,18 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     // User Management
     Route::get('/board/users', [BoardController::class, 'userManagement'])->name('board.users');
     Route::get('/board/users/{user}', [BoardController::class, 'userDetail'])->name('board.users.show');
-    
+
     Route::prefix('board/users/{user}')->group(function () {
         Route::post('approve', [UserActionsController::class, 'approveMembership'])->name('board.users.approve');
         Route::post('promote', [UserActionsController::class, 'promoteToBoard'])->name('board.users.promote');
         Route::post('demote', [UserActionsController::class, 'demoteToMember'])->name('board.users.demote');
-        Route::post('message', [UserActionsController::class, 'sendMessage'])->name('board.users.message');
         Route::post('toggle-lock', [UserActionsController::class, 'toggleLock'])->name('board.users.toggle-lock');
         Route::post('toggle-membership', [UserActionsController::class, 'toggleMembership'])->name('board.users.toggle-membership');
     });
-    
+
     // Statistics
     Route::get('/board/statistics', [BoardController::class, 'statistics'])->name('board.statistics');
-    
+
     // Business Settings
     Volt::route('board/business/settings/membership-fee', 'business-settings.membership-fee')
         ->name('board.business.settings.membership-fee');

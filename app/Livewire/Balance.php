@@ -2,7 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Traits\WithCardOperations;
+use App\Services\BalanceService;
+use App\Traits\WithDefaultPaymentHandling;
+use App\Traits\WithPaymentValidation;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -10,131 +12,86 @@ use Masmerise\Toaster\Toaster;
 
 class Balance extends Component
 {
-    use WithPagination;
-    use WithCardOperations;
+    use WithPagination, WithPaymentValidation, WithDefaultPaymentHandling;
 
     public bool $showRechargeModal = false;
     public float $rechargeAmount = 50;
     public string $paymentMethod = 'Visa';
     public ?string $paymentReference = '';
     public ?string $cvcCode = '';
-    public bool $hasDefaults = false;
-    public bool $showDefaultsAlert = false;
-    public ?string $defaultPaymentMethod = null;
-    public ?string $defaultPaymentReference = null;
-    public bool $saveAsDefault = false;
-    public bool $showSaveOption = true;
+
+    // Services
+    protected BalanceService $balanceService;
+
+    public function boot(BalanceService $balanceService): void
+    {
+        $this->balanceService = $balanceService;
+    }
 
     public function mount(): void
     {
-        // Get default payment method from trait
-        $defaultPayment = $this->getDefaultPaymentMethod();
-        
-        if ($defaultPayment) {
-            $this->hasDefaults = true;
-            $this->defaultPaymentMethod = $defaultPayment['method'];
-            $this->defaultPaymentReference = $defaultPayment['reference'];
-        }
+        // Initialization logic if needed
     }
 
     public function showRechargeForm(): void
     {
         $this->showRechargeModal = true;
-        $this->showDefaultsAlert = $this->hasDefaults;
-        $this->showSaveOption = true;
-    }
 
-    public function useDefaults(): void
-    {
-        if ($this->defaultPaymentMethod && $this->defaultPaymentReference) {
-            $this->paymentMethod = $this->defaultPaymentMethod;
-            $this->paymentReference = $this->defaultPaymentReference;
-            $this->showDefaultsAlert = false; // Hide the alert after using defaults
-            $this->showSaveOption = false; // Hide save option when using defaults
-        }
+        // Check if user has defaults using the trait
+        $this->checkForDefaultPaymentMethod();
     }
 
     public function cancelRecharge(): void
     {
         $this->showRechargeModal = false;
-        $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'showDefaultsAlert', 'saveAsDefault', 'showSaveOption');
+        $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'hasDefaults', 'showDefaultsAlert', 'defaultPaymentMethod', 'defaultPaymentReference', 'saveAsDefault');
     }
 
     public function rechargeCard(): void
     {
-        // Use trait's processCardTopUp method
-        $result = $this->processCardTopUp(
+        // Validate the input using the WithPaymentValidation trait
+        $this->validate($this->getPaymentValidationRules($this->paymentMethod));
+
+        // Create a PaymentDetails DTO using the trait helper method
+        $paymentDetails = $this->createPaymentDetails('paymentMethod', 'paymentReference', 'cvcCode');
+
+        // Process the recharge using the BalanceService
+        $result = $this->balanceService->rechargeCard(
+            Auth::user(),
             $this->rechargeAmount,
-            $this->paymentMethod,
-            $this->paymentReference,
-            $this->cvcCode
+            $paymentDetails,
+            $this->saveAsDefault
         );
-        
-        if (!$result['success']) {
-            Toaster::error($result['message']);
-            return;
+
+        if (!$result) {
+            Toaster::error('Payment failed. Please try again.');
+        } else {
+            $this->showRechargeModal = false;
+            $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault');
+            Toaster::success('Card recharged successfully!');
         }
-        
-        // Save as default if requested
-        if ($this->saveAsDefault) {
-            $saved = $this->saveDefaultPaymentMethod($this->paymentMethod, $this->paymentReference);
-            
-            if ($saved) {
-                // Update session values
-                $this->hasDefaults = true;
-                $this->defaultPaymentMethod = $this->paymentMethod;
-                $this->defaultPaymentReference = $this->paymentReference;
-                
-                Toaster::success('Payment preferences saved as default.');
-            }
-        }
-        
-        // Close modal and reset form
-        $this->showRechargeModal = false;
-        $this->reset('rechargeAmount', 'paymentMethod', 'paymentReference', 'cvcCode', 'saveAsDefault', 'showSaveOption');
-        
-        Toaster::success($result['message']);
-    }
-
-    public function render()
-    {
-        $cardBalance = $this->getCardBalance();
-        $cardNumber = $this->getCardNumber();
-        $operations = $this->getCardOperations(10);
-        $statistics = $this->getCardStatistics();
-
-        return view('livewire.balance', [
-            'cardBalance' => $cardBalance,
-            'cardNumber' => $cardNumber,
-            'operations' => $operations,
-            'statistics' => $statistics
-        ]);
-    }
-
-    private function getPlaceholderForPaymentType(): string
-    {
-        return match ($this->paymentMethod) {
-            'Visa' => 'Enter your Visa card (cannot start with 0 or end with 2)',
-            'PayPal' => 'Enter your PayPal email address (must end with .pt or .com)',
-            'MB WAY' => 'Enter your Portuguese mobile number (cannot end with 2)',
-            default => 'e.g., Visa number, PayPal email, or MB WAY number'
-        };
     }
 
     public function updated($field): void
     {
-        // Check if payment info is different from saved defaults
-        if (($field === 'paymentMethod' || $field === 'paymentReference') &&
-            $this->hasDefaults) {
-            
-            // If payment method changed or reference changed, show save option
-            if ($this->paymentMethod !== $this->defaultPaymentMethod || 
-                $this->paymentReference !== $this->defaultPaymentReference) {
-                $this->showSaveOption = true;
-            } else {
-                // Using same payment as defaults, no need to show save option
-                $this->showSaveOption = false;
-            }
-        }
+        // Use the trait to check if payment info changed
+        $this->checkPaymentInfoChanged($field);
     }
-} 
+
+    public function render()
+    {
+        $user = Auth::user();
+        $card = $this->balanceService->getUserCard($user);
+
+        // Get operations and statistics using the BalanceService
+        $operations = $this->balanceService->getCardOperations($card);
+        $statistics = $this->balanceService->getCardStatistics($card);
+
+        return view('livewire.balance.index', [
+            'cardBalance' => $card->balance,
+            'cardNumber' => $card->card_number,
+            'operations' => $operations,
+            'statistics' => $statistics
+        ]);
+    }
+}
