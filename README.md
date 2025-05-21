@@ -147,6 +147,8 @@ Password: 123
 - [ ] Tabelas e gráficos com totais, médias, etc.
 - [ ] Exportação para CSV ou Excel
 
+---
+
 ### 🔄 Funcionalidades Extra
 - [x] Uso de Queues para envio de emails e geração de recibos.
 - [x] Uso de Cache no catálogo (ex: produtos, categorias ou filtros) para melhorar desempenho e reduzir queries.
