@@ -85,11 +85,9 @@
                 </p>
 
                 <div class="flex justify-center">
-                    <a href="{{ route('orders.index') }}"
-                       class="inline-flex items-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium
-                       transition-colors rounded-lg">
+                    <flux:button href="{{ route('orders.index') }}" variant="primary" icon="package" class="ml-4 w-full">
                         {{ __('Return to Orders') }}
-                    </a>
+                    </flux:button>
                 </div>
             </div>
         </div>

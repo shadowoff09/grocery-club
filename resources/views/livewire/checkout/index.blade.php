@@ -163,12 +163,9 @@
                 </div>
 
                 <div class="flex mt-6">
-                    <a href="{{ route('cart.index') }}"
-                       class="inline-flex items-center px-6 py-3 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium
-                       transition-colors rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
-                        <x-lucide-arrow-left class="w-4 h-4 mr-2"/>
+                    <flux:button icon="arrow-left" href="{{ route('cart.index') }}" class="cursor-pointer">
                         {{ __('Back to Cart') }}
-                    </a>
+                    </flux:button>
                 </div>
             </div>
 
@@ -204,20 +201,15 @@
                             </a>
                         </div>
                     @else
-                        <button wire:click="processPayment" wire:loading.attr="disabled"
-                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                            <flux:icon wire:loading.remove name="credit-card" class="w-5 h-5"/>
-                            <svg wire:loading class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            <span wire:loading.remove>Complete Purchase</span>
-                            <span wire:loading>Processing...</span>
-                        </button>
+                        <flux:button 
+                            wire:click="processPayment"
+                            wire:loading.attr="disabled"
+                            icon="credit-card"
+                            class="w-full cursor-pointer !bg-indigo-600 hover:!bg-indigo-700 text-white font-medium py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            loading-text="Processing..."
+                        >
+                            Complete Purchase
+                        </flux:button>
                     @endif
                 </div>
             </div>

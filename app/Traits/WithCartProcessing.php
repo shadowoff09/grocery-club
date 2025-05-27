@@ -109,4 +109,9 @@ trait WithCartProcessing
         session()->put('cart', $cart);
         $this->dispatch('cartUpdated');
     }
+
+    public function cartIsEmpty()
+    {
+        return count(session()->get('cart', [])) === 0;
+    }
 }
