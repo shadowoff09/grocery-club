@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 trait WithOrderOperations
 {
-
+    use WithCardOperations;
     /**
      * Create a new order and its associated items
      *
@@ -114,6 +114,12 @@ trait WithOrderOperations
 
                 if ($status === 'canceled') {
                     $order->cancel_reason = $cancelReason;
+                    SendEmailToUser::dispatch(
+                        $order->member,
+                        'Your Order #' . $order->id . ' Has Been Cancelled',
+                        'emails.order-cancelled',
+                        ['order' => $order]
+                    );
                 }
 
                 // Generate receipt and send email if order is completed
@@ -128,7 +134,8 @@ trait WithOrderOperations
                     $order->save();
 
                     // Generate the receipt and send email with receipt attached
-                    GenerateOrderReceiptPdf::dispatch($order, $order->member, $order->items, $pdfFileName)->chain([
+                    GenerateOrderReceiptPdf::dispatch($order, $order->member, $order->items, $pdfFileName)
+                    ->chain([
                         new SendEmailToUser(
                             $order->member,
                             'Your Order #' . $order->id . ' Has Been Completed',
@@ -225,5 +232,15 @@ trait WithOrderOperations
             ->first();
 
         return $order;
+    }
+
+    public function refundOrder($orderId)
+    {
+        $order = Order::find($orderId);
+        $orderTotal = $order->total;
+
+        $this->performCardOperation('credit', 'order_cancellation', $orderTotal);
+        
+        return true;
     }
 }
