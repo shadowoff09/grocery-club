@@ -124,7 +124,7 @@ Password: 123
 ### 📦 Encomendas & Inventário
 - [x] Lista de encomendas pendentes (empregados)
 - [x] Marcar como "completed" → gerar PDF + enviar email
-- [ ] Cancelamento de encomendas pelo board + reembolso
+- [x] Cancelamento de encomendas pelo board + reembolso
 - [ ] Visualização de stock (todos os produtos)
 - [ ] Criação de ordens de reposição (manual/automático)
 - [ ] Completar ordens de reposição atualiza stock
