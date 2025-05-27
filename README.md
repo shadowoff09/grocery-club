@@ -137,7 +137,7 @@ Password: 123
 - [x] Validações conforme o tipo de pagamento
 - [x] Atualização do saldo do cartão após pagamento bem-sucedido
 - [x] Visualização dos dados do cartão
-- [ ] Histórico de operações com recibos PDF acessíveis
+- [x] Histórico de operações com recibos PDF acessíveis
 
 ---
 
