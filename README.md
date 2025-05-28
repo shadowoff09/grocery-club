@@ -94,8 +94,8 @@ Password: 123
 ---
 
 ### ⚙️ Configurações do Negócio
-- [ ] CRUD de categorias (com imagem, soft delete se necessário)
-- [ ] CRUD de produtos (preço, stock, descontos, imagem)
+- [x] CRUD de categorias (com imagem, soft delete se necessário)
+- [x] CRUD de produtos (preço, stock, descontos, imagem)
 - [x] Definição da taxa de adesão
 - [x] Definição de portes com intervalos de valor
 
@@ -151,5 +151,5 @@ Password: 123
 
 ### 🔄 Funcionalidades Extra
 - [x] Uso de Queues para envio de emails e geração de recibos.
-- [x] Uso de Cache no catálogo (ex: produtos, categorias ou filtros) para melhorar desempenho e reduzir queries.
+- [x] Uso de Cache no catálogo (produtos, categorias e filtros) para melhorar desempenho e reduzir queries.
 ---

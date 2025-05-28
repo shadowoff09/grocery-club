@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Models\Category;
+use App\Models\Product;
 use App\Models\User;
 use Carbon\Carbon;
 
@@ -168,6 +170,24 @@ class BoardController extends Controller
             'radarChartData'
         ));
     }
+
+    public function products()
+    {
+        return view('components.board.catalog.products.index');
+    }
+
+    public function productDetail($id)
+    {
+        return view('livewire.board.catalog.products.product-detail', [
+            'product_id' => $id
+        ]);
+    }
+
+    public function categories()
+    {
+        return view('components.board.catalog.categories.index');
+    }
+    
 
 
 }

@@ -292,10 +292,10 @@
                     />
 
                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 20)">20€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 50)">50€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 100)">100€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 200)">200€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 20)">20€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 50)">50€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 100)">100€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 200)">200€</flux:button>
                     </div>
                 </div>
 

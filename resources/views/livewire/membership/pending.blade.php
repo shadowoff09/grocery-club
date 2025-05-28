@@ -219,7 +219,7 @@ new #[Layout('components.layouts.app.sidebar')] class extends Component {
                         ({{ $savedPaymentReference }})
                     @endif
                 </p>
-                <flux:button wire:click="useDefaults" class="text-xs w-full">
+                <flux:button wire:click="useDefaults" class="text-xs w-full cursor-pointer">
                     Use saved payment details
                 </flux:button>
             </div>

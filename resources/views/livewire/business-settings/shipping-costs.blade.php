@@ -156,7 +156,7 @@ new class extends Component {
                                  icon="check"
                                  class="px-4 py-2 cursor-pointer"
                                  variant="primary"
-                    >
+                                 wire:loading.attr="disabled">
                         {{ $editId ? __('Update') : __('Add') }} Shipping Cost
                     </flux:button>
                     @if($editId)

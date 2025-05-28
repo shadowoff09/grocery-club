@@ -85,7 +85,7 @@
                 </p>
 
                 <div class="flex justify-center">
-                    <flux:button href="{{ route('orders.index') }}" variant="primary" icon="package" class="ml-4 w-full">
+                    <flux:button href="{{ route('orders.index') }}" variant="primary" icon="package" class="ml-4 w-full cursor-pointer">
                         {{ __('Return to Orders') }}
                     </flux:button>
                 </div>

@@ -6,6 +6,10 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\UserActionsController;
 use App\Http\Middleware\CheckUserType;
+use App\Livewire\Board\Catalog\Categories\CategoryDetail;
+use App\Livewire\Board\Catalog\Categories\CreateCategory;
+use App\Livewire\Board\Catalog\Products\CreateProduct;
+use App\Livewire\Board\Catalog\Products\ProductDetail;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -91,6 +95,13 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
         Route::post('toggle-membership', [UserActionsController::class, 'toggleMembership'])->name('board.users.toggle-membership');
     });
 
+    // Catalog Management
+    Route::get('/board/catalog/products', [BoardController::class, 'products'])->name('board.catalog.products');
+    Route::get('/board/catalog/categories', [BoardController::class, 'categories'])->name('board.catalog.categories');
+    Route::get('/board/catalog/products/create', CreateProduct::class)->name('board.catalog.products.create');
+    Route::get('/board/catalog/categories/create', CreateCategory::class)->name('board.catalog.categories.create');
+    Route::get('/board/catalog/products/{product_id}', ProductDetail::class)->name('board.catalog.products.show');
+    Route::get('/board/catalog/categories/{category_id}', CategoryDetail::class)->name('board.catalog.categories.show');
     // Statistics
     Route::get('/board/statistics', [BoardController::class, 'statistics'])->name('board.statistics');
 
