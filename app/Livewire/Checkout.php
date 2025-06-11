@@ -19,9 +19,11 @@ class Checkout extends Component
     {
         $cartData = $this->getCartData(true);
         $cardBalance = $this->getCardBalance();
+        $deliveryAddress = auth()->user()->default_delivery_address;
 
         return view('livewire.checkout.index', array_merge($cartData, [
             'cardBalance' => $cardBalance,
+            'deliveryAddress' => $deliveryAddress,
         ]));
     }
 

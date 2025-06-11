@@ -184,6 +184,22 @@
                         </div>
                     </div>
 
+                    <!-- Delivery Address -->
+                    <div class="p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-lg border border-gray-200 dark:border-zinc-700">
+                        <div class="flex items-center mb-2">
+                            <flux:icon name="map-pin" class="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2"/>
+                            <span class="font-medium text-zinc-900 dark:text-zinc-100">Delivery Address</span>
+                        </div>
+                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                            {{ $deliveryAddress ?? 'No address provided' }}
+                        </p>
+                        <span class="text-sm text-zinc-600 dark:text-zinc-400">
+                            <a href="{{ route('settings.profile') }}" class="text-blue-500 dark:text-blue-400 hover:underline">
+                                Change Address
+                            </a>
+                        </span>
+                    </div>
+
                     @if ($totalWithShipping > $cardBalance)
                         <div
                             class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
