@@ -50,7 +50,7 @@
             @forelse($categories as $category)
                 <div class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px]">
                     <!-- Image -->
-                    <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-zinc-800">
+                    <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 rounded-t-xl">
                         @if($category->image)
                             <img src="{{ asset('storage/categories/' . $category->image) }}"
                                  alt="{{ $category->name }}"

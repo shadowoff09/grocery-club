@@ -17,9 +17,8 @@ class ReceiptController extends Controller
         $order = Order::findOrFail($orderId);
 
         if ($order->pdf_receipt === null) {
-            Toaster::error('Recibo não encontrado');
-            $previousUrl = url()->previous();
-            return redirect()->to($previousUrl);
+            Toaster::error('Receipt not found');
+            return redirect()->back();
         }
 
         $this->authorize('view', $order);
@@ -27,7 +26,7 @@ class ReceiptController extends Controller
         $relativePath = 'receipts/' . $order->pdf_receipt;
 
         if (!Storage::disk('local')->exists($relativePath)) {
-            abort(404, "Recibo não encontrado em storage/app/private/{$relativePath}");
+            abort(404, "Receipt not found in storage/app/private/{$relativePath}");
         }
 
         return Storage::disk('local')->response(
@@ -40,3 +39,4 @@ class ReceiptController extends Controller
         );
     }
 }
+

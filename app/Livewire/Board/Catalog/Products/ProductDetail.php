@@ -157,6 +157,8 @@ class ProductDetail extends Component
         return !$this->product->category;
     }
 
+
+
     public function render()
     {
         return view('livewire.board.catalog.products.product-detail', [

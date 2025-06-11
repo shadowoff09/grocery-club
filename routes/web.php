@@ -10,6 +10,7 @@ use App\Livewire\Board\Catalog\Categories\CategoryDetail;
 use App\Livewire\Board\Catalog\Categories\CreateCategory;
 use App\Livewire\Board\Catalog\Products\CreateProduct;
 use App\Livewire\Board\Catalog\Products\ProductDetail;
+use App\Livewire\Board\Catalog\Products\ProductOrders;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -101,6 +102,7 @@ Route::middleware(['auth', CheckUserType::class.':board'])->group(function () {
     Route::get('/board/catalog/products/create', CreateProduct::class)->name('board.catalog.products.create');
     Route::get('/board/catalog/categories/create', CreateCategory::class)->name('board.catalog.categories.create');
     Route::get('/board/catalog/products/{product_id}', ProductDetail::class)->name('board.catalog.products.show');
+    Route::get('/board/catalog/products/{product_id}/orders', ProductOrders::class)->name('board.catalog.products.orders');
     Route::get('/board/catalog/categories/{category_id}', CategoryDetail::class)->name('board.catalog.categories.show');
     // Statistics
     Route::get('/board/statistics', [BoardController::class, 'statistics'])->name('board.statistics');

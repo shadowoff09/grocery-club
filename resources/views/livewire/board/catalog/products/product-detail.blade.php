@@ -96,6 +96,20 @@
 
                 <!-- Right Column - Product Details -->
                 <div class="lg:col-span-2 space-y-6">
+                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Orders History</h2>
+                                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">View all orders containing this product</p>
+                                </div>
+                                <a href="{{ route('board.catalog.products.orders', $product->id) }}" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                                    <x-lucide-eye class="w-4 h-4 mr-2" />
+                                    View Orders
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Basic Information -->
                     <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
                         <div class="p-6">
@@ -213,6 +227,9 @@
                             </flux:button>
                         </div>
                     @endunless
+
+                    <!-- Orders Quick Link -->
+                    
                 </div>
             </div>
         </form>
