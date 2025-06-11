@@ -273,8 +273,8 @@
                         </flux:button>
 
                         @if ($order->pdf_receipt)
-                            <flux:button href="{{ asset('storage/receipts/' . $order->pdf_receipt) }}"
-                                target="_blank" variant="outline" class="w-full cursor-pointer">
+                            <flux:button href="{{ route('receipts.show', $order) }}" target="_blank"
+                                variant="outline" class="w-full cursor-pointer">
                                 <flux:icon name="download" class="w-4 h-4 mr-2" />
                                 {{ __('Download Receipt') }}
                             </flux:button>
@@ -305,7 +305,8 @@
                     </p>
 
                     <div class="mt-6 space-y-3">
-                        <flux:button href="{{ route('orders.index') }}" variant="primary" class="w-full cursor-pointer">
+                        <flux:button href="{{ route('orders.index') }}" variant="primary"
+                            class="w-full cursor-pointer">
                             <flux:icon name="package" class="w-4 h-4 mr-2" />
                             {{ __('View Your Orders') }}
                         </flux:button>
