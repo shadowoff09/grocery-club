@@ -93,7 +93,7 @@ class ProductDetail extends Component
                 'discount_min_qty' => $this->discount_min_qty,
             ]);
 
-            Cache::flush();
+            Cache::tags(['products'])->flush();
             $this->newPhoto = null;
             Toaster::success('Product updated successfully.');
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ class ProductDetail extends Component
     {
         try {
             $this->product->delete();
-            Cache::flush();
+            Cache::tags(['products'])->flush();
             Toaster::success('Product deleted successfully.');
             return redirect()->route('board.catalog.products');
         } catch (\Exception $e) {
@@ -117,7 +117,7 @@ class ProductDetail extends Component
     {
         try {
             $this->product->restore();
-            Cache::flush();
+            Cache::tags(['products'])->flush();
             Toaster::success('Product restored successfully.');
 			$this->modal('restore-product')->close();
         } catch (\Exception $e) {
@@ -140,7 +140,7 @@ class ProductDetail extends Component
                 $this->photo = null;
             }
 
-            Cache::forget('products');
+            Cache::tags(['products'])->flush();
             Toaster::success('Product photo deleted successfully.');
         } catch (\Exception $e) {
             Toaster::error('Failed to delete photo. ' . $e->getMessage());

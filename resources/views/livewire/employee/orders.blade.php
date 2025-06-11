@@ -166,7 +166,7 @@
                                     </flux:modal.trigger>
 
                                     <flux:modal name="confirm-cancel-order-{{ $order->id }}" :show="$errors->isNotEmpty()" focusable class="max-w-lg">
-                                        <form wire:submit.prevent="cancelOrder({{ $order->id }}, '{{ $cancel_reason }}')" class="space-y-6">
+                                        <form wire:submit.prevent="cancelOrder({{ $order->id }})" class="space-y-6">
                                             <!-- Modal Header -->
                                             <div class="border-b border-zinc-200 dark:border-zinc-700 pb-4">
                                                 <flux:heading size="lg" class="text-red-600 dark:text-red-500">

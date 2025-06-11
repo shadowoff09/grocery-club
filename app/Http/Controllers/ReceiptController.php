@@ -16,12 +16,12 @@ class ReceiptController extends Controller
     {
         $order = Order::findOrFail($orderId);
 
+        $this->authorize('view', $order);
+
         if ($order->pdf_receipt === null) {
-            Toaster::error('Receipt not found');
+            Toaster::error('Recibo não encontrado');
             return redirect()->back();
         }
-
-        $this->authorize('view', $order);
 
         $relativePath = 'receipts/' . $order->pdf_receipt;
 
