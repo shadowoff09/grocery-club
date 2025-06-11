@@ -44,5 +44,17 @@ class Product extends Model
                     ->distinct()
                     ->orderBy('orders.created_at', 'desc');
     }
+
+    // Product has many SupplyOrders
+    public function supplyOrders()
+    {
+        return $this->hasMany(SupplyOrder::class);
+    }
+
+    // Get active supply orders
+    public function activeSupplyOrders()
+    {
+        return $this->hasMany(SupplyOrder::class)->where('status', 'requested');
+    }
 }
 

@@ -96,7 +96,71 @@
 
                 <!-- Right Column - Product Details -->
                 <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                    <!-- Active Supply Orders -->
+                    @if(count($activeSupplyOrders) > 0)
+                        <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
+                            <div class="p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div>
+                                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+                                            <flux:icon name="clock" class="w-5 h-5 text-blue-500" />
+                                            Active Supply Orders
+                                        </h2>
+                                        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Pending restock requests for this product</p>
+                                    </div>
+                                    <span class="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 px-2.5 py-0.5 rounded-full text-xs font-medium">
+                                        {{ count($activeSupplyOrders) }} pending
+                                    </span>
+                                </div>
+                                
+                                <div class="space-y-3">
+                                    @foreach($activeSupplyOrders as $order)
+                                        <div class="flex items-center justify-between p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <div class="flex-1">
+                                                <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                                                    <flux:icon name="user" class="w-4 h-4" />
+                                                    <span>Requested by {{ $order->registeredBy->name }}</span>
+                                                    <span>•</span>
+                                                    <flux:icon name="calendar" class="w-4 h-4" />
+                                                    <span>{{ $order->created_at->format('M d, Y') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-right">
+                                                <span class="text-lg font-semibold text-blue-600 dark:text-blue-400">
+                                                    {{ $order->quantity }}
+                                                </span>
+                                                <p class="text-xs text-gray-500 dark:text-gray-400">units</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                                
+                                <div class="mt-4 pt-4 border-t border-gray-200 dark:border-zinc-700">
+                                    <div class="flex items-center justify-between text-sm">
+                                        <span class="text-gray-600 dark:text-gray-400">Total pending units:</span>
+                                        <span class="font-semibold text-blue-600 dark:text-blue-400">
+                                            {{ $activeSupplyOrders->sum('quantity') }} units
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm mt-1">
+                                        <span class="text-gray-600 dark:text-gray-400">Current stock:</span>
+                                        <span class="font-semibold text-gray-900 dark:text-white">
+                                            {{ $product->stock }} units
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center justify-between text-sm mt-1">
+                                        <span class="text-gray-600 dark:text-gray-400">Stock after completion:</span>
+                                        <span class="font-semibold text-green-600 dark:text-green-400">
+                                            {{ $product->stock + $activeSupplyOrders->sum('quantity') }} units
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+
+                    <!-- Orders History -->
+                    <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-800 overflow-hidden">
                         <div class="p-6">
                             <div class="flex items-center justify-between">
                                 <div>

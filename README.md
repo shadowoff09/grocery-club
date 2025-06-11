@@ -125,10 +125,10 @@ Password: 123
 - [x] Lista de encomendas pendentes (empregados)
 - [x] Marcar como "completed" → gerar PDF + enviar email
 - [x] Cancelamento de encomendas pelo board + reembolso
-- [ ] Visualização de stock (todos os produtos)
-- [ ] Criação de ordens de reposição (manual/automático)
-- [ ] Completar ordens de reposição atualiza stock
-- [ ] Ajustes manuais de stock com registo
+- [x] Visualização de stock (todos os produtos)
+- [x] Criação de ordens de reposição
+- [x] Completar ordens de reposição atualiza stock
+- [x] Ajustes manuais de stock com registo
 
 ---
 

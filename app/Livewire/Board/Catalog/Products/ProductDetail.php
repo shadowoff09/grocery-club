@@ -4,8 +4,10 @@ namespace App\Livewire\Board\Catalog\Products;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\StockAdjustment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Livewire\Attributes\Rule;
@@ -16,6 +18,8 @@ class ProductDetail extends Component
     use WithFileUploads;
 
     public Product $product;
+    public $activeSupplyOrders;
+    public $originalStock = 0; // Track original stock for adjustment calculation
     
     #[Rule('required|string|max:255')]
     public $name = '';
@@ -43,7 +47,12 @@ class ProductDetail extends Component
 
     public function mount($product_id)
     {
-        $this->product = Product::withTrashed()->findOrFail($product_id);
+        $this->product = Product::withTrashed()
+            ->with(['activeSupplyOrders.registeredBy'])
+            ->findOrFail($product_id);
+        
+        $this->activeSupplyOrders = $this->product->activeSupplyOrders;
+        
         $this->fill([
             'name' => $this->product->name,
             'price' => $this->product->price,
@@ -54,6 +63,7 @@ class ProductDetail extends Component
             'discount_min_qty' => $this->product->discount_min_qty,
         ]);
         $this->photo = $this->product->photo;
+        $this->originalStock = $this->product->stock; // Store original stock for comparison
     }
 
     public function updateProduct()
@@ -70,6 +80,10 @@ class ProductDetail extends Component
         ]);
 
         try {
+            // Check if stock has changed manually
+            $stockChanged = $this->stock != $this->originalStock;
+            $quantityChanged = $this->stock - $this->originalStock;
+
             if ($this->newPhoto) {
                 if ($this->product->photo) {
                     // Delete old photo
@@ -93,9 +107,21 @@ class ProductDetail extends Component
                 'discount_min_qty' => $this->discount_min_qty,
             ]);
 
-            Cache::tags(['products'])->flush();
+            // Create stock adjustment if stock was manually changed
+            if ($stockChanged && $quantityChanged != 0) {
+                StockAdjustment::create([
+                    'product_id' => $this->product->id,
+                    'registered_by_user_id' => Auth::id(),
+                    'quantity_changed' => $quantityChanged,
+                ]);
+                
+                // Update the original stock to the new value
+                $this->originalStock = $this->stock;
+            }
+
+            Cache::flush();
             $this->newPhoto = null;
-            Toaster::success('Product updated successfully.');
+            Toaster::success('Product updated successfully.' . ($stockChanged ? ' Stock adjustment logged.' : ''));
         } catch (\Exception $e) {
             Toaster::error('Failed to update product. ' . $e->getMessage());
         }
@@ -105,7 +131,7 @@ class ProductDetail extends Component
     {
         try {
             $this->product->delete();
-            Cache::tags(['products'])->flush();
+            Cache::flush();
             Toaster::success('Product deleted successfully.');
             return redirect()->route('board.catalog.products');
         } catch (\Exception $e) {
@@ -117,7 +143,7 @@ class ProductDetail extends Component
     {
         try {
             $this->product->restore();
-            Cache::tags(['products'])->flush();
+            Cache::flush();
             Toaster::success('Product restored successfully.');
 			$this->modal('restore-product')->close();
         } catch (\Exception $e) {
@@ -140,7 +166,7 @@ class ProductDetail extends Component
                 $this->photo = null;
             }
 
-            Cache::tags(['products'])->flush();
+            Cache::flush();
             Toaster::success('Product photo deleted successfully.');
         } catch (\Exception $e) {
             Toaster::error('Failed to delete photo. ' . $e->getMessage());
@@ -156,8 +182,6 @@ class ProductDetail extends Component
     {
         return !$this->product->category;
     }
-
-
 
     public function render()
     {

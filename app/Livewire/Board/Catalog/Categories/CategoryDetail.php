@@ -103,7 +103,7 @@ class CategoryDetail extends Component
                 $this->photo = null;
             }
 
-            Cache::forget('categories');
+            Cache::flush();
             Toaster::success('Category image deleted successfully.');
         } catch (\Exception $e) {
             Toaster::error('Failed to delete image. ' . $e->getMessage());

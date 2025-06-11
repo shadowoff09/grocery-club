@@ -79,6 +79,14 @@ Route::middleware(['auth', 'verified', CheckUserType::class.':employee|board'])-
     Route::get('/employee/inventory', function () {
         return view('employee.inventory.index');
     })->name('employee.inventory.index');
+    
+    Route::get('/employee/inventory/restock', function () {
+        return view('employee.inventory.restock');
+    })->name('employee.inventory.restock');
+    
+    Route::get('/employee/inventory/supply-orders', function () {
+        return view('employee.inventory.supply-orders');
+    })->name('employee.inventory.supply-orders');
 });
 
 // BOARD ADMIN ROUTES
