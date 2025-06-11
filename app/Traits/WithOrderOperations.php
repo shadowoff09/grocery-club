@@ -7,8 +7,10 @@ use App\Jobs\SendEmailToUser;
 use App\Models\ItemOrder;
 use App\Models\Operation;
 use App\Models\Order;
+use App\Models\Product;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+
 
 trait WithOrderOperations
 {
@@ -242,5 +244,25 @@ trait WithOrderOperations
         $this->performCardOperation('credit', 'order_cancellation', $orderTotal);
         
         return true;
+    }
+
+    public function decrementProductStock($orderId)
+    {
+        $order = Order::find($orderId);
+        foreach ($order->items as $item) {
+            $product = Product::find($item->product_id);
+            $product->stock -= $item->quantity;
+            $product->save();
+        }
+    }
+
+    public function incrementProductStock($orderId)
+    {
+        $order = Order::find($orderId);
+        foreach ($order->items as $item) {
+            $product = Product::find($item->product_id);
+            $product->stock += $item->quantity;
+            $product->save();
+        }
     }
 }

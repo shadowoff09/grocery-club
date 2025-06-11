@@ -101,6 +101,14 @@ new class extends Component {
         // Remove newPhoto from validated data to avoid error when filling
         unset($validated['newPhoto']);
 
+        // Convert empty strings to null for enum fields that require it
+        if (empty($validated['default_payment_type'])) {
+            $validated['default_payment_type'] = null;
+        }
+        if (empty($validated['default_payment_reference'])) {
+            $validated['default_payment_reference'] = null;
+        }
+
         $user->fill($validated);
 
         if ($user->isDirty('email')) {

@@ -46,13 +46,14 @@ class Orders extends Component
         
         if ($this->updateOrderStatus($orderId, 'canceled', $reason)) {
             if ($this->refundOrder($orderId)) {
+                $this->incrementProductStock($orderId);
                 Toaster::success('Order cancelled and refunded');
             } else {
                 Toaster::error('Failed to cancel order and refund');
             }
         } else {
             Toaster::error('Failed to cancel order');
-        }
+        }       
     }
 
 }
