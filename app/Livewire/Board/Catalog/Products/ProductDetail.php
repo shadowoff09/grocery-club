@@ -109,11 +109,11 @@ class ProductDetail extends Component
 
             // Create stock adjustment if stock was manually changed
             if ($stockChanged && $quantityChanged != 0) {
-                StockAdjustment::create([
-                    'product_id' => $this->product->id,
-                    'registered_by_user_id' => Auth::id(),
-                    'quantity_changed' => $quantityChanged,
-                ]);
+                StockAdjustment::createAdjustment(
+                    $this->product->id,
+                    $quantityChanged,
+                    Auth::id()
+                );
                 
                 // Update the original stock to the new value
                 $this->originalStock = $this->stock;

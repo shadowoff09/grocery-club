@@ -38,8 +38,7 @@ class StockAdjustment extends Model
             'quantity_changed' => $quantityChanged,
         ]);
 
-        // Apply the adjustment to the product stock
-        Product::find($productId)->increment('stock', $quantityChanged);
+        // Stock is already updated in the calling method, no need to increment here
 
         return $adjustment;
     }
