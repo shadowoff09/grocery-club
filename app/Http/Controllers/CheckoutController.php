@@ -30,6 +30,7 @@ class CheckoutController extends Controller
         if ($order_id) {
             $order = Order::where('id', $order_id)
                 ->where('member_id', auth()->id())
+                ->with(['items.product.category'])
                 ->first();
         }
 
