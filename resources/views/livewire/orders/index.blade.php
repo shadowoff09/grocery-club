@@ -9,19 +9,19 @@
         <div class="mb-6 bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-4">
             <div class="flex flex-wrap gap-2">
                 <button wire:click="filterByStatus('all')"
-                   class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === null ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                   class="cursor-pointer px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === null ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    All Orders
                 </button>
                 <button wire:click="filterByStatus('pending')"
-                   class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'pending' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                   class="cursor-pointer px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'pending' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Pending
                 </button>
                 <button wire:click="filterByStatus('completed')"
-                   class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                   class="cursor-pointer px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Completed
                 </button>
                 <button wire:click="filterByStatus('canceled')"
-                   class="px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'canceled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
+                   class="cursor-pointer px-4 py-2 text-sm rounded-lg transition-colors {{ $statusFilter === 'canceled' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 font-medium' : 'text-zinc-600 dark:text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-800' }}">
                    Canceled
                 </button>
             </div>

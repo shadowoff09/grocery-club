@@ -94,8 +94,8 @@ Password: 123
 ---
 
 ### ⚙️ Configurações do Negócio
-- [ ] CRUD de categorias (com imagem, soft delete se necessário)
-- [ ] CRUD de produtos (preço, stock, descontos, imagem)
+- [x] CRUD de categorias (com imagem, soft delete se necessário)
+- [x] CRUD de produtos (preço, stock, descontos, imagem)
 - [x] Definição da taxa de adesão
 - [x] Definição de portes com intervalos de valor
 
@@ -124,11 +124,11 @@ Password: 123
 ### 📦 Encomendas & Inventário
 - [x] Lista de encomendas pendentes (empregados)
 - [x] Marcar como "completed" → gerar PDF + enviar email
-- [ ] Cancelamento de encomendas pelo board + reembolso
-- [ ] Visualização de stock (todos os produtos)
-- [ ] Criação de ordens de reposição (manual/automático)
-- [ ] Completar ordens de reposição atualiza stock
-- [ ] Ajustes manuais de stock com registo
+- [x] Cancelamento de encomendas pelo board + reembolso
+- [x] Visualização de stock (todos os produtos)
+- [x] Criação de ordens de reposição
+- [x] Completar ordens de reposição atualiza stock
+- [x] Ajustes manuais de stock com registo
 
 ---
 
@@ -137,7 +137,7 @@ Password: 123
 - [x] Validações conforme o tipo de pagamento
 - [x] Atualização do saldo do cartão após pagamento bem-sucedido
 - [x] Visualização dos dados do cartão
-- [ ] Histórico de operações com recibos PDF acessíveis
+- [x] Histórico de operações com recibos PDF acessíveis
 
 ---
 
@@ -151,5 +151,5 @@ Password: 123
 
 ### 🔄 Funcionalidades Extra
 - [x] Uso de Queues para envio de emails e geração de recibos.
-- [x] Uso de Cache no catálogo (ex: produtos, categorias ou filtros) para melhorar desempenho e reduzir queries.
+- [x] Uso de Cache no catálogo (produtos, categorias e filtros) para melhorar desempenho e reduzir queries.
 ---

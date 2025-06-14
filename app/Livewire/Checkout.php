@@ -7,6 +7,7 @@ use App\Traits\WithCartProcessing;
 use App\Traits\WithOrderOperations;
 use App\Traits\WithPaymentValidation;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
 
 class Checkout extends Component
 {
@@ -19,9 +20,13 @@ class Checkout extends Component
     {
         $cartData = $this->getCartData(true);
         $cardBalance = $this->getCardBalance();
+        $deliveryAddress = auth()->user()->default_delivery_address;
+        $nif = auth()->user()->nif;
 
         return view('livewire.checkout.index', array_merge($cartData, [
             'cardBalance' => $cardBalance,
+            'deliveryAddress' => $deliveryAddress,
+            'nif' => $nif,
         ]));
     }
 
@@ -43,7 +48,6 @@ class Checkout extends Component
             null // Order ID will be set after order creation
         );
 
-
         if (!$transactionSuccess) {
             $this->dispatch('checkout-error', 'Transaction failed. Please try again or contact support.');
             return;
@@ -54,22 +58,29 @@ class Checkout extends Component
             ->orderBy('created_at', 'desc')
             ->first();
 
+        try {
+            DB::transaction(function () use ($cartData, $latestOperation) {
+                // Create the order and its items
+                $order = $this->createOrder($cartData, $latestOperation->id ?? null);
 
-        // Create the order and its items
-        $order = $this->createOrder($cartData, $latestOperation->id ?? null);
+                if (!$order) {
+                    throw new \Exception('Order creation failed');
+                }
 
-        if (!$order) {
+                $this->decrementProductStock($order->id);
+
+                // Clear the cart
+                $this->clearCart();
+
+                $this->dispatch('checkout-success', 'Payment processed successfully!');
+
+                // Redirect to order confirmation
+                return redirect()->route('order.confirmation', ['order_id' => $order->id]);
+            });
+        } catch (\Exception $e) {
             $this->dispatch('checkout-error', 'Order creation failed. Your card has been debited, please contact support.');
             return;
         }
-
-        // Clear the cart
-        $this->clearCart();
-
-        $this->dispatch('checkout-success', 'Payment processed successfully!');
-
-        // Redirect to order confirmation
-        return redirect()->route('order.confirmation', ['order_id' => $order->id]);
     }
 
     private function validatePayment()

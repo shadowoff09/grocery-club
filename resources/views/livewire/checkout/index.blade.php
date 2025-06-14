@@ -163,13 +163,78 @@
                 </div>
 
                 <div class="flex mt-6">
-                    <a href="{{ route('cart.index') }}"
-                       class="inline-flex items-center px-6 py-3 text-zinc-700 dark:text-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 font-medium
-                       transition-colors rounded-lg border border-zinc-200 dark:border-zinc-700 hover:border-zinc-300 dark:hover:border-zinc-600">
-                        <x-lucide-arrow-left class="w-4 h-4 mr-2"/>
+                    <flux:button icon="arrow-left" href="{{ route('cart.index') }}" class="cursor-pointer">
                         {{ __('Back to Cart') }}
-                    </a>
+                    </flux:button>
                 </div>
+            </div>
+
+            <!-- Delivery Details -->
+            <div class="bg-white dark:bg-zinc-900 rounded-xl shadow-sm p-6 @if(!$deliveryAddress) border-2 border-red-200 dark:border-red-800 @endif">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-semibold text-zinc-900 dark:text-zinc-100">{{ __('Delivery Details') }}</h2>
+                    @if($deliveryAddress)
+                        <div class="flex items-center text-emerald-600 dark:text-emerald-400">
+                            <flux:icon name="check-circle" class="w-5 h-5 mr-1"/>
+                            <span class="text-sm font-medium">Complete</span>
+                        </div>
+                    @else
+                        <div class="flex items-center text-red-600 dark:text-red-400">
+                            <flux:icon name="exclamation-triangle" class="w-5 h-5 mr-1"/>
+                            <span class="text-sm font-medium">Required</span>
+                        </div>
+                    @endif
+                </div>
+                
+                @if(!$deliveryAddress)
+                    <div class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800 mb-4">
+                        <div class="flex items-center mb-2">
+                            <flux:icon name="exclamation-triangle" class="w-5 h-5 text-red-500 mr-2"/>
+                            <span class="text-red-700 dark:text-red-300 font-medium">Address Required</span>
+                        </div>
+                        <p class="text-red-600 dark:text-red-400 text-sm mb-3">
+                            Please add a delivery address to complete your purchase. Your order cannot be processed without a valid shipping address.
+                        </p>
+                        <a href="{{ route('settings.profile') }}"
+                           class="inline-flex items-center px-4 py-2 bg-red-100 dark:bg-red-800 text-red-700 dark:text-red-300 rounded-lg hover:bg-red-200 dark:hover:bg-red-700 transition-colors cursor-pointer">
+                            <flux:icon name="plus" class="w-4 h-4 mr-2"/>
+                            Add Delivery Address
+                        </a>
+                    </div>
+                @else
+                    <div class="space-y-4">
+                        <div class="flex items-center mb-3">
+                            <flux:icon name="map-pin" class="w-5 h-5 text-emerald-500 mr-2"/>
+                            <span class="font-medium text-zinc-900 dark:text-zinc-100">Shipping Information</span>
+                        </div>
+                        
+                        <div class="p-4 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-100 dark:border-emerald-800">
+                            <div class="space-y-3">
+                                <div>
+                                    <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                        <span class="font-medium">Address:</span> 
+                                        <span class="text-zinc-900 dark:text-zinc-100">{{ $deliveryAddress }}</span>
+                                    </p>
+                                </div>
+                                @if($nif)
+                                    <div>
+                                        <p class="text-sm text-zinc-600 dark:text-zinc-400">
+                                            <span class="font-medium">NIF:</span> 
+                                            <span class="text-zinc-900 dark:text-zinc-100">{{ $nif }}</span>
+                                        </p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-end">
+                            <a href="{{ route('settings.profile') }}" class="text-blue-500 dark:text-blue-400 hover:underline text-sm flex items-center">
+                                <flux:icon name="pencil" class="w-4 h-4 mr-1"/>
+                                Edit Details
+                            </a>
+                        </div>
+                    </div>
+                @endif
             </div>
 
             <!-- Payment Section -->
@@ -187,7 +252,25 @@
                         </div>
                     </div>
 
-                    @if ($totalWithShipping > $cardBalance)
+                    @if (!$deliveryAddress)
+                        <div
+                            class="p-4 bg-amber-50 dark:bg-amber-900/20 rounded-lg border border-amber-100 dark:border-amber-800">
+                            <div class="flex items-center mb-2">
+                                <flux:icon name="exclamation-triangle" class="w-5 h-5 text-amber-500 mr-2"/>
+                                <span class="text-amber-700 dark:text-amber-300 font-medium">Address Required</span>
+                            </div>
+                            <p class="text-amber-600 dark:text-amber-400 text-sm">
+                                Please add a delivery address before completing your purchase.
+                            </p>
+                        </div>
+                        <flux:button 
+                            disabled
+                            icon="map-pin"
+                            class="w-full !bg-gray-300 dark:!bg-gray-700 !text-gray-500 dark:!text-gray-400 font-medium py-4 px-6 rounded-lg cursor-not-allowed opacity-50"
+                        >
+                            Add Address to Continue
+                        </flux:button>
+                    @elseif ($totalWithShipping > $cardBalance)
                         <div
                             class="p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-100 dark:border-red-800">
                             <div class="flex items-center mb-2">
@@ -204,20 +287,15 @@
                             </a>
                         </div>
                     @else
-                        <button wire:click="processPayment" wire:loading.attr="disabled"
-                                class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
-                            <flux:icon wire:loading.remove name="credit-card" class="w-5 h-5"/>
-                            <svg wire:loading class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                            <span wire:loading.remove>Complete Purchase</span>
-                            <span wire:loading>Processing...</span>
-                        </button>
+                        <flux:button 
+                            wire:click="processPayment"
+                            wire:loading.attr="disabled"
+                            icon="credit-card"
+                            class="w-full cursor-pointer !bg-indigo-600 hover:!bg-indigo-700 text-white font-medium py-4 px-6 rounded-lg transition-colors flex items-center justify-center space-x-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                            loading-text="Processing..."
+                        >
+                            Complete Purchase
+                        </flux:button>
                     @endif
                 </div>
             </div>

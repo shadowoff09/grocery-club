@@ -109,9 +109,11 @@ new #[Layout('components.layouts.auth')] class extends Component {
 
         event(new Registered($user));
 
+        $cardNumber = $this->generateUniqueCardNumber();
+
         Card::create([
             'id' => $user->id,
-            'card_number' => random_int(100000, 999999),
+            'card_number' => $cardNumber,
             'balance' => 0.00
         ]);
 
@@ -122,6 +124,12 @@ new #[Layout('components.layouts.auth')] class extends Component {
         } else {
             $this->redirectIntended(route('dashboard', absolute: false), navigate: true);
         }
+    }
+
+    private function generateUniqueCardNumber(): int
+    {
+        $lastCardNumber = Card::max('card_number');
+        return $lastCardNumber + 1;
     }
 
     private function getPaymentReferencePlaceholder(): string

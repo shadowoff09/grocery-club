@@ -14,6 +14,7 @@ class Orders extends Component
 
     public $statusFilter = 'pending';
     public $perPage = 10;
+    public $cancel_reason;
 
     public function render()
     {
@@ -39,4 +40,20 @@ class Orders extends Component
         }
     }
 
-	}
+    public function cancelOrder($orderId, $cancel_reason = null)
+    {
+        $reason = $cancel_reason ?: 'Order cancelled by a board member';
+        
+        if ($this->updateOrderStatus($orderId, 'canceled', $reason)) {
+            if ($this->refundOrder($orderId)) {
+                $this->incrementProductStock($orderId);
+                Toaster::success('Order cancelled and refunded');
+            } else {
+                Toaster::error('Failed to cancel order and refund');
+            }
+        } else {
+            Toaster::error('Failed to cancel order');
+        }       
+    }
+
+}

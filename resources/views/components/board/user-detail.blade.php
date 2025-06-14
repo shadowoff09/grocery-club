@@ -3,7 +3,7 @@
         <div class="flex items-center justify-between">
             <h1 class="text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100">User Details</h1>
             <a href="{{ route('board.users') }}">
-                <flux:button variant="outline" icon="arrow-left" class="shadow-sm hover:shadow-md transition-all duration-200">
+                <flux:button variant="outline" icon="arrow-left" class="cursor-pointer shadow-sm hover:shadow-md transition-all duration-200">
                     Back to Users
                 </flux:button>
             </a>
@@ -227,7 +227,7 @@
                                 <form action="{{ route('board.users.approve', $user) }}" method="POST">
                                     @csrf
                                     <flux:button type="submit" icon="check" variant="primary"
-                                                 class="shadow-sm hover:shadow-md transition-all duration-200">
+                                                 class="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                                         Approve Membership
                                     </flux:button>
                                 </form>
@@ -237,7 +237,7 @@
                                 <form action="{{ route('board.users.promote', $user) }}" method="POST">
                                     @csrf
                                     <flux:button type="submit" icon="user-plus"
-                                                 class="shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                                                 class="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer" variant="outline">
                                         Promote to Board
                                     </flux:button>
                                 </form>
@@ -247,7 +247,7 @@
                                 <form action="{{ route('board.users.demote', $user) }}" method="POST">
                                     @csrf
                                     <flux:button type="submit" icon="user-minus"
-                                                 class="shadow-sm hover:shadow-md transition-all duration-200" variant="outline">
+                                                 class="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer" variant="outline">
                                         Demote to Member
                                     </flux:button>
                                 </form>
@@ -257,7 +257,7 @@
                                 <form action="{{ route('board.users.toggle-lock', $user) }}" method="POST">
                                     @csrf
                                     <flux:button type="submit" icon="lock-closed"
-                                                 class="shadow-sm hover:shadow-md transition-all duration-200"
+                                                 class="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
                                                  variant="{{ $user->blocked ? 'outline' : 'danger' }}">
                                         {{ $user->blocked ? 'Unlock Account' : 'Lock Account' }}
                                     </flux:button>
@@ -270,7 +270,7 @@
                                     <flux:button type="submit"
                                                  icon="{{ $user->deleted_at ? 'lock-open' : 'lock-closed' }}"
                                                  variant="{{ $user->deleted_at ? 'outline' : 'danger' }}"
-                                                 class="shadow-sm hover:shadow-md transition-all duration-200">
+                                                 class="shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer">
                                         {{ $user->deleted_at ? 'Reactivate Membership' : 'Cancel Membership' }}
                                     </flux:button>
                                 </form>

@@ -292,10 +292,10 @@
                     />
 
                     <div class="grid grid-cols-3 sm:grid-cols-4 gap-2 mt-2">
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 20)">20€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 50)">50€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 100)">100€</flux:button>
-                        <flux:button type="button" size="xs" variant="outline" class="w-full" wire:click="$set('rechargeAmount', 200)">200€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 20)">20€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 50)">50€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 100)">100€</flux:button>
+                        <flux:button type="button" size="xs" variant="outline" class="w-full cursor-pointer" wire:click="$set('rechargeAmount', 200)">200€</flux:button>
                     </div>
                 </div>
 
@@ -396,14 +396,24 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-700 dark:text-zinc-300">
-                            @if($operation->debit_type === 'membership_fee')
-                                Membership Fee
-                            @elseif($operation->debit_type === 'order')
-                                Order #{{ $operation->order_id }}
-                            @elseif($operation->credit_type === 'payment')
-                                Payment ({{ $operation->payment_type }})
-                            @elseif($operation->credit_type === 'order_cancellation')
-                                Order Cancellation
+                            @if($operation->type === 'debit')
+                                @if($operation->debit_type === 'membership_fee')
+                                    Membership Fee
+                                @elseif($operation->debit_type === 'order')
+                                    <div class="flex items-center gap-2">
+                                        <flux:icon name="package" class="w-4 h-4 text-zinc-500 dark:text-zinc-400" />
+                                        Order 
+                                        <a href="{{ route('receipts.show', $operation->order_id) }}" target="_blank" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 underline">   
+                                            #{{ $operation->order_id }}
+                                        </a>
+                                    </div>
+                                @endif
+                            @elseif($operation->type === 'credit')
+                                @if($operation->credit_type === 'payment')
+                                    Payment ({{ $operation->payment_type }})
+                                @elseif($operation->credit_type === 'order_cancellation')
+                                    Order Cancellation
+                                @endif
                             @else
                                 -
                             @endif

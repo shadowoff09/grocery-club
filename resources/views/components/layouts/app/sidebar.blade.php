@@ -69,6 +69,27 @@
         {{-- BOARD AREA --}}
         @if(auth()->user()->isBoardMember())
             <flux:navlist.group :heading="__('Board Area')" class="grid">
+
+                <flux:navlist.group expandable heading="Catalog Management" class="grid">
+                    <flux:navlist.item 
+                        icon="package" 
+                        :href="route('board.catalog.products')" 
+                        :current="request()->routeIs('board.catalog.products') || request()->routeIs('board.catalog.products.show') || request()->routeIs('board.catalog.products.create')" 
+                        wire:navigate
+                    >
+                    {{ __('Products') }}
+                    </flux:navlist.item>
+                    <flux:navlist.item 
+                        icon="adjustments-vertical" 
+                        :href="route('board.catalog.categories')" 
+                        :current="request()->routeIs('board.catalog.categories') || request()->routeIs('board.catalog.categories.show') || request()->routeIs('board.catalog.categories.create')" 
+                        wire:navigate
+                    >
+                    {{ __('Categories') }}
+                    </flux:navlist.item>
+                </flux:navlist.group>
+
+
                 <flux:navlist.item 
                     icon="users" 
                     :href="route('board.users')" 
@@ -77,6 +98,8 @@
                 >
                 {{ __('User Management') }}
                 </flux:navlist.item>
+
+                
 
                 <flux:navlist.item
                     icon="cog-6-tooth"

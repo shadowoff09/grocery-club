@@ -135,49 +135,62 @@
                 <!-- Products Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                     @forelse ($products as $product)
-                        <div wire:loading.remove class="bg-white dark:bg-black rounded-xl overflow-hidden flex flex-col border border-gray-100 dark:border-zinc-800 hover:shadow-xl transition-all duration-300 hover:translate-y-[-4px] group">
-                            <div class="relative">
-                                @if ($product->photo)
-                                    <img src="{{ asset('storage/products/' . $product->photo) }}"
-                                         alt="{{ $product->name }}"
-                                         class="w-full h-60 object-cover group-hover:scale-105 transition-transform duration-300">
-                                @else
-                                    <div class="w-full h-60 bg-gray-100 dark:bg-zinc-800 flex items-center justify-center">
-                                        <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                                        </svg>
+                        @if($product->category)
+                            <div wire:loading.remove class="bg-white dark:bg-zinc-900 rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden group hover:shadow-lg transition-all duration-300 hover:translate-y-[-2px]">
+                                <!-- Image -->
+                                <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 dark:bg-zinc-800">
+                                    @if($product->photo)
+                                        <img src="{{ asset('storage/products/' . $product->photo) }}"
+                                             alt="{{ $product->name }}"
+                                             class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                    @else
+                                        <div class="absolute inset-0 flex flex-col items-center justify-center text-gray-400 dark:text-gray-600">
+                                            <x-lucide-package class="w-12 h-12 mb-2" />
+                                            <span class="text-sm">No image</span>
+                                        </div>
+                                    @endif
+
+                                    <!-- Status Badges -->
+                                    <div class="absolute top-4 right-4 flex flex-col gap-2">
+                                        @if($product->stock <= 5 && $product->stock > 0)
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400">
+                                                <x-lucide-alert-triangle class="w-3.5 h-3.5" />
+                                                Only {{ $product->stock }} left
+                                            </span>
+                                        @elseif($product->stock === 0)
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/50 dark:text-red-400">
+                                                <x-lucide-x-circle class="w-3.5 h-3.5" />
+                                                Out of stock
+                                            </span>
+                                        @endif
                                     </div>
-                                @endif
 
-                                <!-- Stock Badge Overlay -->
-                                @if($product->stock <= 5 && $product->stock > 0)
-                                    <span class="absolute top-4 right-4 text-xs bg-yellow-100 text-yellow-800 px-3 py-1.5 rounded-full shadow-lg font-medium">
-                                        Only {{ $product->stock }} left
-                                    </span>
-                                @elseif($product->stock === 0)
-                                    <span class="absolute top-4 right-4 text-xs bg-red-100 text-red-800 px-3 py-1.5 rounded-full shadow-lg font-medium">
-                                        Out of stock
-                                    </span>
-                                @endif
+                                    <!-- Category Badge -->
+                                    <div class="absolute top-4 left-4">
+                                        <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white/90 dark:bg-zinc-800/90 text-gray-800 dark:text-white backdrop-blur-sm">
+                                            <x-lucide-tag class="w-3.5 h-3.5" />
+                                            {{ $product->category->name }}
+                                        </span>
+                                    </div>
+                                </div>
 
-                                <!-- Category Badge -->
-                                <span class="absolute top-4 left-4 text-xs bg-white/90 dark:bg-zinc-800/90 text-gray-800 dark:text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-sm">
-                                    {{ $product->category->name }}
-                                </span>
-                            </div>
+                                <!-- Content -->
+                                <div class="p-5">
+                                    <div class="mb-4">
+                                        <h2 class="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                            {{ $product->name }}
+                                        </h2>
+                                        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 line-clamp-2">
+                                            {{ $product->description }}
+                                        </p>
+                                    </div>
 
-                            <div class="p-6 flex flex-col flex-grow">
-                                <h3 class="text-xl font-semibold mb-3 text-gray-900 dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">{{ $product->name }}</h3>
-                                <p class="text-gray-600 dark:text-zinc-400 text-sm mb-6 flex-grow leading-relaxed">{{ Str::limit($product->description, 150) }}</p>
-
-                                <div class="mt-auto space-y-4">
-                                    <div class="flex items-center justify-between">
-                                        <span class="text-2xl font-bold text-gray-900 dark:text-white">${{ number_format($product->price, 2) }}</span>
-                                        
-                                        <!-- Discount Badge -->
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-2xl font-bold text-gray-900 dark:text-white">
+                                            ${{ number_format($product->price, 2) }}
+                                        </span>
                                         @if($product->discount > 0 && $product->discount_min_qty > 0)
-                                            <span class="text-xs bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 px-3 py-1.5 rounded-full shadow-sm font-medium flex items-center gap-1">
+                                            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-400">
                                                 <x-lucide-tag class="w-3.5 h-3.5" />
                                                 {{ number_format($product->discount, 0) }}% off {{ $product->discount_min_qty }}+ items
                                             </span>
@@ -194,7 +207,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        @endif
                     @empty
                         <div wire:loading.remove class="col-span-3 bg-white dark:bg-zinc-900 rounded-xl p-12 text-center">
                             <svg class="w-24 h-24 text-gray-200 dark:text-gray-700 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

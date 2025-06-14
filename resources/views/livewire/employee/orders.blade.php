@@ -158,6 +158,89 @@
                                     </flux:button>
                                 @endif
 
+                                @if(auth()->user()->type === 'board' && $order->status === 'pending')
+                                    <flux:modal.trigger name="confirm-cancel-order-{{ $order->id }}">
+                                        <flux:button icon="x-circle" class="cursor-pointer bg-red-100! text-red-600! dark:bg-red-900/50 dark:text-red-300 hover:bg-red-200! hover:text-red-700! dark:hover:bg-red-800/50 dark:hover:text-red-200 transition-all duration-200 ease-in-out">
+                                            Cancel Order and Refund
+                                        </flux:button>
+                                    </flux:modal.trigger>
+
+                                    <flux:modal name="confirm-cancel-order-{{ $order->id }}" :show="$errors->isNotEmpty()" focusable class="max-w-lg">
+                                        <form wire:submit.prevent="cancelOrder({{ $order->id }})" class="space-y-6">
+                                            <!-- Modal Header -->
+                                            <div class="border-b border-zinc-200 dark:border-zinc-700 pb-4">
+                                                <flux:heading size="lg" class="text-red-600 dark:text-red-500">
+                                                    {{ __('Cancel Order #:id', ['id' => $order->id]) }}
+                                                </flux:heading>
+                                                <flux:subheading class="mt-2 text-zinc-600 dark:text-zinc-400">
+                                                    {{ __('Please confirm that you want to cancel this order. This action will:') }}
+                                                </flux:subheading>
+                                                <ul class="mt-4 space-y-2 text-sm text-zinc-600 dark:text-zinc-400">
+                                                    <li class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                                        </svg>
+                                                        {{ __('Cancel the order and mark it as canceled') }}
+                                                    </li>
+                                                    <li class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-2 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                                        </svg>
+                                                        {{ __('Process a full refund to the customer') }}
+                                                    </li>
+                                                    <li class="flex items-center">
+                                                        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                        </svg>
+                                                        {{ __('Send a notification email to the customer') }}
+                                                    </li>
+                                                </ul>
+                                            </div>
+
+                                            <!-- Cancellation Reason -->
+                                            <div class="space-y-4">
+                                                <div>
+                                                    <label for="cancel_reason" class="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                                                        {{ __('Cancellation Reason') }}
+                                                        <span class="text-zinc-400 dark:text-zinc-500 text-xs font-normal">({{ __('optional') }})</span>
+                                                    </label>
+                                                    <flux:input 
+                                                        type="text" 
+                                                        id="cancel_reason"
+                                                        wire:model.live="cancel_reason" 
+                                                        placeholder="{{ __('Enter a custom reason for cancellation (optional)') }}"
+                                                        class="w-full"
+                                                    />
+                                                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                                        {{ __('If no reason is provided, it will default to "Order cancelled by a board member".') }}
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <!-- Action Buttons -->
+                                            <div class="flex justify-end space-x-3 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+                                                <flux:modal.close>
+                                                    <flux:button 
+                                                        variant="outline" 
+                                                        class="cursor-pointer"
+                                                    >
+                                                        {{ __('Keep Order') }}
+                                                    </flux:button>
+                                                </flux:modal.close>
+
+                                                <flux:button 
+                                                    variant="danger" 
+                                                    type="submit" 
+                                                    class="cursor-pointer"
+                                                    icon="x-circle"
+                                                >
+                                                    {{ __('Confirm Cancellation') }}
+                                                </flux:button>
+                                            </div>
+                                        </form>
+                                    </flux:modal>
+                                @endif
+
                                 @if($order->pdf_receipt && $order->status === 'completed')
                                         <a href="{{ route('receipts.show', $order->id) }}"
                                        class="inline-flex items-center px-4 py-2 text-sm font-medium rounded-lg border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 shadow-sm transition-colors">
