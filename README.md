@@ -1,8 +1,9 @@
 # 🛒 Grocery Club - E-commerce Management System
+<div align="center">
+<img src="grocery-club.png" alt="Grocery Club Banner" width="1280"/>
 
-**University Project - Web Application Development**
-
-A comprehensive grocery store management system built with Laravel, featuring modern web technologies and real-time functionality. This project was developed as part of a university course to demonstrate full-stack web development skills and modern software engineering practices.
+A comprehensive grocery store management system built with Laravel.
+</div>
 
 ## 📋 Project Overview
 
@@ -197,18 +198,6 @@ database/
 └── seeders/            # Database seeders
 ```
 
-## 🎓 Academic Context
-
-This project was developed as part of a university course in Web Application Development. It demonstrates:
-
-- **Full-stack Development**: Complete application from database to user interface
-- **Software Engineering**: Clean architecture and design patterns
-- **Database Design**: Normalized schema with efficient relationships
-- **Security Implementation**: Authentication, authorization, and data validation
-- **Performance Optimization**: Caching strategies and queue processing
-- **Modern Web Standards**: Responsive design and progressive enhancement
-- **Project Management**: Version control and structured development process
-
 ## 🤝 Contributing
 
 This is an academic project. For educational purposes, feel free to:
@@ -216,3 +205,7 @@ This is an academic project. For educational purposes, feel free to:
 - Study the design patterns used
 - Examine the database relationships
 - Test the functionality with the provided demo accounts
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
